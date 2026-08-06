@@ -9,44 +9,50 @@ Deploy simples via Vercel (import do repo, sem build step / sem configuração).
 
 ## Estrutura
 
-- `index.html` — dashboard (stat tiles + 2 gráficos de série temporal: pedidos e faturamento)
-- `data.json` — dados agregados por dia/plataforma, gerados a partir do BigQuery
-- `query.sql` — query usada para gerar `data.json`
+- `index.html` — dashboard com 2 abas: "Visão geral" (stat tiles + 2 gráficos
+  de série temporal, 90 dias) e "Intraday" (hoje x ontem x mesmo dia da
+  semana passada, acumulado por hora)
+- `data.json` — dados agregados por dia/plataforma, últimos 90 dias
+- `intraday.json` — dados por hora de hoje/ontem/semana passada (acumulado)
+- `query.sql` — query de referência usada para gerar a série diária
+- `refresh_data.py` — gera `data.json` e `intraday.json` a partir do BigQuery
 
-## Como atualizar `data.json`
+## Como atualizar `data.json` e `intraday.json`
 
 O projeto GCP `grupo123-metrics` é separado do hub principal. A chave de
 serviço usada está em `sa_123.json` (não versionada aqui por segurança — pegue
 com o time de dados/infra).
 
-1. Autentique com a service account do projeto `grupo123-metrics`:
+```bash
+python3 refresh_data.py --sa-key /caminho/sa_123.json
+git add data.json intraday.json
+git commit -m "Atualiza dados"
+git push origin main   # deploy automático na Vercel
+```
 
-   ```bash
-   gcloud auth activate-service-account --key-file=/caminho/sa_123.json \
-     --account=mymetric@grupo123-metrics.iam.gserviceaccount.com
-   TOKEN=$(gcloud auth print-access-token --account=mymetric@grupo123-metrics.iam.gserviceaccount.com)
-   ```
+Sem `--sa-key`, o script tenta `$SA_123_KEY` ou `../sa_123.json`.
 
-   Nota: o `bq` CLI padrão pode ignorar `GOOGLE_APPLICATION_CREDENTIALS` em
-   ambientes com `CLOUDSDK_CORE_ACCOUNT` fixo para outra conta. Se isso
-   acontecer, use a API REST do BigQuery diretamente (como abaixo).
+**`intraday.json` é um snapshot, não live** — só atualiza quando o script
+roda de novo. Não há cron configurado ainda; se quiser a aba Intraday sempre
+fresca ao longo do dia, precisa agendar esse script (ex. GitHub Actions a
+cada N minutos) — melhoria futura em aberto, junto com a mesma automação
+pendente pra `data.json` (ver histórico abaixo).
 
-2. Rode a query (`query.sql`) via API REST:
+**Definição de "dia":** ambos os arquivos usam o campo `order_date` da
+tabela (não `DATE(created_at, "America/Sao_Paulo")` puro) — os dois
+divergem perto da virada UTC porque `order_date` parece ser atribuído em
+UTC. Manter os dois arquivos na mesma definição evita números que não batem
+entre as duas abas.
 
-   ```bash
-   curl -s -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-     https://bigquery.googleapis.com/bigquery/v2/projects/grupo123-metrics/queries \
-     -d "$(python3 -c "import json; print(json.dumps({'query': open('query.sql').read(), 'useLegacySql': False, 'maxResults': 1000}))")" \
-     > result.json
-   ```
+**Atenção a atraso de ingestão:** o dado mais recente da fonte
+(`MAX(created_at)`) pode ficar horas atrás do relógio atual (já visto ~12h de
+atraso) — o `refresh_data.py` capa a série de "hoje" na hora do dado mais
+recente de fato (não no horário de agora), e o rodapé da aba Intraday mostra
+esse timestamp. Se aparecer muito atrasado, o pipeline de ingestão upstream
+pode estar com problema — vale checar antes de assumir queda real de vendas.
 
-3. Transforme o resultado no formato de `data.json` (data, plataforma,
-   pedidos, faturamento → série diária + resumo do período). Não há script de
-   transformação automatizado ainda — isso é uma melhoria futura em aberto
-   (pipeline agendado, ex. GitHub Actions rodando diariamente).
-
-4. Commit + push do novo `data.json` na `main`. Push na main já dispara deploy
-   automático na Vercel (depois que o repo for importado lá).
+Query de referência pra série diária (equivalente ao que `refresh_data.py`
+roda): ver `query.sql`.
 
 ## Definição de "app" x "web"
 
