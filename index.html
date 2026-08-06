@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>123 Milhas — Vendas App x Web</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page-plane:     #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --series-app:      #2a78d6; /* blue */
+    --series-web:      #eb6834; /* orange */
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page-plane);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 32px 20px 64px;
+  }
+  header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  header p {
+    margin: 0 0 28px;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .stat-tile {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .stat-tile .label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  .stat-tile .value {
+    font-size: 26px;
+    font-weight: 600;
+    font-variant-numeric: proportional-nums;
+  }
+  .stat-tile .sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .dot.app { background: var(--series-app); }
+  .dot.web { background: var(--series-web); }
+  .panel {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 20px 8px;
+    margin-bottom: 24px;
+  }
+  .panel h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 2px;
+  }
+  .panel .panel-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0 0 12px;
+  }
+  .legend {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  canvas {
+    max-height: 320px;
+  }
+  footer {
+    color: var(--text-muted);
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  @media (max-width: 720px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>123 Milhas — Vendas App x Web</h1>
+    <p id="period-sub">Pedidos e faturamento por plataforma — fonte: grupo123-metrics.df_granular.orders</p>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="panel">
+    <h2>Pedidos por dia</h2>
+    <p class="panel-sub">App = iOS + Android · Web = Mobile + DeskTop</p>
+    <div class="legend">
+      <span><span class="dot app"></span>App</span>
+      <span><span class="dot web"></span>Web</span>
+    </div>
+    <canvas id="ordersChart"></canvas>
+  </div>
+
+  <div class="panel">
+    <h2>Faturamento por dia (grand_total)</h2>
+    <p class="panel-sub">Valores em R$</p>
+    <div class="legend">
+      <span><span class="dot app"></span>App</span>
+      <span><span class="dot web"></span>Web</span>
+    </div>
+    <canvas id="revenueChart"></canvas>
+  </div>
+
+  <footer>Gerado a partir de dados reais do BigQuery. Veja o README para instruções de atualização do data.json.</footer>
+</div>
+
+<script>
+const fmtCompact = (n) => new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 }).format(n);
+const fmtInt = (n) => new Intl.NumberFormat('pt-BR').format(n);
+const fmtBRL = (n) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(n);
+const fmtBRLCompact = (n) => 'R$ ' + fmtCompact(n);
+
+fetch('data.json')
+  .then(r => r.json())
+  .then(render)
+  .catch(err => {
+    document.getElementById('stats').innerHTML = '<p style="color:#e34948">Falha ao carregar data.json: ' + err + '</p>';
+  });
+
+function render(data) {
+  const { period, summary, series } = data;
+
+  document.getElementById('period-sub').textContent =
+    `Pedidos e faturamento por plataforma — ${period.days} dias (${period.start} a ${period.end}) — fonte: ${data.source}`;
+
+  const statsEl = document.getElementById('stats');
+  statsEl.innerHTML = `
+    <div class="stat-tile">
+      <div class="label">Pedidos totais no período</div>
+      <div class="value">${fmtInt(summary.total_orders)}</div>
+      <div class="sub"><span class="dot app"></span>App ${summary.app_orders_pct}% · <span class="dot web"></span>Web ${summary.web_orders_pct}%</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Faturamento total no período</div>
+      <div class="value">${fmtBRLCompact(summary.total_revenue)}</div>
+      <div class="sub"><span class="dot app"></span>App ${summary.app_revenue_pct}% · <span class="dot web"></span>Web ${summary.web_revenue_pct}%</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Pedidos via App</div>
+      <div class="value">${fmtInt(summary.app_orders)}</div>
+      <div class="sub">${fmtBRLCompact(summary.app_revenue)} em faturamento</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Pedidos via Web</div>
+      <div class="value">${fmtInt(summary.web_orders)}</div>
+      <div class="sub">${fmtBRLCompact(summary.web_revenue)} em faturamento</div>
+    </div>
+  `;
+
+  const labels = series.map(d => d.date.slice(5)); // MM-DD
+  const seriesApp = (key) => series.map(d => d[key]);
+
+  const baseOptions = (yFmt) => ({
+    responsive: true,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0b0b0b',
+        titleColor: '#fff',
+        bodyColor: '#fff',
+        padding: 10,
+        callbacks: {
+          label: (ctx) => `${ctx.dataset.label}: ${yFmt(ctx.parsed.y)}`
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: '#898781', maxTicksLimit: 12 }
+      },
+      y: {
+        grid: { color: '#e1e0d9' },
+        ticks: { color: '#898781', callback: (v) => yFmt(v) },
+        beginAtZero: true
+      }
+    }
+  });
+
+  new Chart(document.getElementById('ordersChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'App',
+          data: seriesApp('app_orders'),
+          borderColor: '#2a78d6',
+          backgroundColor: 'rgba(42,120,214,0.10)',
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: true,
+          tension: 0.25
+        },
+        {
+          label: 'Web',
+          data: seriesApp('web_orders'),
+          borderColor: '#eb6834',
+          backgroundColor: 'rgba(235,104,52,0.10)',
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: true,
+          tension: 0.25
+        }
+      ]
+    },
+    options: baseOptions(fmtInt)
+  });
+
+  new Chart(document.getElementById('revenueChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'App',
+          data: seriesApp('app_revenue'),
+          borderColor: '#2a78d6',
+          backgroundColor: 'rgba(42,120,214,0.10)',
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: true,
+          tension: 0.25
+        },
+        {
+          label: 'Web',
+          data: seriesApp('web_revenue'),
+          borderColor: '#eb6834',
+          backgroundColor: 'rgba(235,104,52,0.10)',
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: true,
+          tension: 0.25
+        }
+      ]
+    },
+    options: baseOptions(fmtBRLCompact)
+  });
+}
+</script>
+</body>
+</html>
