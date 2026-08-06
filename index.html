@@ -42,41 +42,84 @@
     font-size: 14px;
   }
   .date-filter {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    position: relative;
+    display: inline-block;
     margin-bottom: 28px;
     font-size: 13px;
     color: var(--text-secondary);
   }
-  .date-filter label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .date-filter input[type="date"] {
-    font: inherit;
-    color: var(--text-primary);
-    background: var(--surface-1);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 5px 8px;
-  }
-  .date-filter button {
+  .date-filter-toggle {
     font: inherit;
     font-weight: 600;
     color: var(--text-primary);
     background: var(--surface-1);
     border: 1px solid var(--border);
     border-radius: 6px;
+    padding: 7px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .date-filter-toggle:hover {
+    background: var(--gridline);
+  }
+  .date-filter-toggle .caret {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+  .date-filter-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 10;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    box-shadow: 0 8px 24px rgba(11,11,11,0.12);
+    min-width: 240px;
+  }
+  .date-filter-panel.open {
+    display: flex;
+  }
+  .date-filter-panel label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .date-filter-panel input[type="date"] {
+    font: inherit;
+    color: var(--text-primary);
+    background: var(--page-plane);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 8px;
+  }
+  .date-filter-panel .actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2px;
+  }
+  .date-filter-panel button {
+    font: inherit;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--gridline);
+    border: 1px solid var(--border);
+    border-radius: 6px;
     padding: 6px 12px;
     cursor: pointer;
   }
-  .date-filter button:hover {
-    background: var(--gridline);
+  .date-filter-panel button:hover {
+    background: var(--baseline);
   }
-  .date-filter .reset {
+  .date-filter-panel .reset {
     font-weight: 400;
     color: var(--text-muted);
     background: none;
@@ -166,10 +209,17 @@
   </header>
 
   <div class="date-filter">
-    <label>Data início <input type="date" id="dateFrom"></label>
-    <label>Data fim <input type="date" id="dateTo"></label>
-    <button id="applyFilter">Aplicar</button>
-    <button class="reset" id="resetFilter">Limpar filtro</button>
+    <button class="date-filter-toggle" id="dateFilterToggle" type="button">
+      <span id="dateFilterLabel">Período</span><span class="caret">▾</span>
+    </button>
+    <div class="date-filter-panel" id="dateFilterPanel">
+      <label>Data início <input type="date" id="dateFrom"></label>
+      <label>Data fim <input type="date" id="dateTo"></label>
+      <div class="actions">
+        <button class="reset" id="resetFilter" type="button">Limpar</button>
+        <button id="applyFilter" type="button">Aplicar</button>
+      </div>
+    </div>
   </div>
 
   <div class="stats" id="stats"></div>
@@ -207,6 +257,22 @@ let fullData = null;
 let ordersChart = null;
 let revenueChart = null;
 
+const toggleBtn = document.getElementById('dateFilterToggle');
+const panel = document.getElementById('dateFilterPanel');
+const filterLabel = document.getElementById('dateFilterLabel');
+
+toggleBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  panel.classList.toggle('open');
+});
+document.addEventListener('click', (e) => {
+  if (!panel.contains(e.target) && e.target !== toggleBtn) panel.classList.remove('open');
+});
+
+function updateFilterLabel(from, to) {
+  filterLabel.textContent = `${from} a ${to}`;
+}
+
 fetch('data.json')
   .then(r => r.json())
   .then(data => {
@@ -217,6 +283,7 @@ fetch('data.json')
     document.getElementById('dateTo').max = data.period.end;
     document.getElementById('dateFrom').value = data.period.start;
     document.getElementById('dateTo').value = data.period.end;
+    updateFilterLabel(data.period.start, data.period.end);
     render(data);
   })
   .catch(err => {
@@ -227,6 +294,8 @@ document.getElementById('applyFilter').addEventListener('click', () => {
   if (!fullData) return;
   const from = document.getElementById('dateFrom').value;
   const to = document.getElementById('dateTo').value;
+  updateFilterLabel(from, to);
+  panel.classList.remove('open');
   render(filterData(fullData, from, to));
 });
 
@@ -234,6 +303,8 @@ document.getElementById('resetFilter').addEventListener('click', () => {
   if (!fullData) return;
   document.getElementById('dateFrom').value = fullData.period.start;
   document.getElementById('dateTo').value = fullData.period.end;
+  updateFilterLabel(fullData.period.start, fullData.period.end);
+  panel.classList.remove('open');
   render(fullData);
 });
 
