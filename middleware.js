@@ -21,11 +21,11 @@ function loginPage(showError) {
     background: #0f172a; }
   .card { background:#fff; border-radius:12px; padding:32px; width:100%; max-width:340px;
     box-shadow: 0 10px 40px rgba(0,0,0,.3); }
-  .brand-bar { display:flex; align-items:center; gap:8px; margin-bottom:18px; }
-  .brand-bar img.mm-logo { height:14px; width:auto; display:block; }
-  .brand-bar .brand-sep { color:#94a3b8; font-size:12px; }
-  .brand-bar img.client-logo { height:20px; width:20px; border-radius:5px; display:block; }
-  .brand-bar .client-name { font-size:12px; font-weight:600; color:#475569; }
+  .brand-bar { display:flex; align-items:center; gap:10px; margin-bottom:24px; }
+  .brand-bar img.mm-logo { height:20px; width:auto; display:block; }
+  .brand-bar .brand-sep { color:#94a3b8; font-size:14px; }
+  .brand-bar img.client-logo { height:26px; width:26px; border-radius:6px; display:block; }
+  .brand-bar .client-name { font-size:14px; font-weight:600; color:#475569; }
   h1 { font-size:18px; margin:0 0 20px; color:#0f172a; }
   label { display:block; font-size:13px; color:#475569; margin-bottom:4px; }
   input { width:100%; padding:10px 12px; margin-bottom:14px; border:1px solid #cbd5e1;
