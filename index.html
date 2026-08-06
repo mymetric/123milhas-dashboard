@@ -37,9 +37,52 @@
     margin: 0 0 4px;
   }
   header p {
-    margin: 0 0 28px;
+    margin: 0 0 20px;
     color: var(--text-secondary);
     font-size: 14px;
+  }
+  .date-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .date-filter label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .date-filter input[type="date"] {
+    font: inherit;
+    color: var(--text-primary);
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 8px;
+  }
+  .date-filter button {
+    font: inherit;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .date-filter button:hover {
+    background: var(--gridline);
+  }
+  .date-filter .reset {
+    font-weight: 400;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    text-decoration: underline;
+    padding: 6px 2px;
   }
   .stats {
     display: grid;
@@ -122,6 +165,13 @@
     <p id="period-sub">Pedidos e faturamento por plataforma — fonte: grupo123-metrics.df_granular.orders</p>
   </header>
 
+  <div class="date-filter">
+    <label>De <input type="date" id="dateFrom"></label>
+    <label>Até <input type="date" id="dateTo"></label>
+    <button id="applyFilter">Aplicar</button>
+    <button class="reset" id="resetFilter">Limpar filtro</button>
+  </div>
+
   <div class="stats" id="stats"></div>
 
   <div class="panel">
@@ -153,12 +203,62 @@ const fmtInt = (n) => new Intl.NumberFormat('pt-BR').format(n);
 const fmtBRL = (n) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(n);
 const fmtBRLCompact = (n) => 'R$ ' + fmtCompact(n);
 
+let fullData = null;
+let ordersChart = null;
+let revenueChart = null;
+
 fetch('data.json')
   .then(r => r.json())
-  .then(render)
+  .then(data => {
+    fullData = data;
+    document.getElementById('dateFrom').min = data.period.start;
+    document.getElementById('dateFrom').max = data.period.end;
+    document.getElementById('dateTo').min = data.period.start;
+    document.getElementById('dateTo').max = data.period.end;
+    document.getElementById('dateFrom').value = data.period.start;
+    document.getElementById('dateTo').value = data.period.end;
+    render(data);
+  })
   .catch(err => {
     document.getElementById('stats').innerHTML = '<p style="color:#e34948">Falha ao carregar data.json: ' + err + '</p>';
   });
+
+document.getElementById('applyFilter').addEventListener('click', () => {
+  if (!fullData) return;
+  const from = document.getElementById('dateFrom').value;
+  const to = document.getElementById('dateTo').value;
+  render(filterData(fullData, from, to));
+});
+
+document.getElementById('resetFilter').addEventListener('click', () => {
+  if (!fullData) return;
+  document.getElementById('dateFrom').value = fullData.period.start;
+  document.getElementById('dateTo').value = fullData.period.end;
+  render(fullData);
+});
+
+function filterData(data, from, to) {
+  const series = data.series.filter(d => (!from || d.date >= from) && (!to || d.date <= to));
+  const summary = series.reduce((acc, d) => {
+    acc.app_orders += d.app_orders;
+    acc.web_orders += d.web_orders;
+    acc.app_revenue += d.app_revenue;
+    acc.web_revenue += d.web_revenue;
+    return acc;
+  }, { app_orders: 0, web_orders: 0, app_revenue: 0, web_revenue: 0 });
+  summary.total_orders = summary.app_orders + summary.web_orders;
+  summary.total_revenue = summary.app_revenue + summary.web_revenue;
+  summary.app_orders_pct = summary.total_orders ? +(summary.app_orders / summary.total_orders * 100).toFixed(2) : 0;
+  summary.web_orders_pct = summary.total_orders ? +(100 - summary.app_orders_pct).toFixed(2) : 0;
+  summary.app_revenue_pct = summary.total_revenue ? +(summary.app_revenue / summary.total_revenue * 100).toFixed(2) : 0;
+  summary.web_revenue_pct = summary.total_revenue ? +(100 - summary.app_revenue_pct).toFixed(2) : 0;
+
+  const start = series.length ? series[0].date : from;
+  const end = series.length ? series[series.length - 1].date : to;
+  const days = series.length;
+
+  return { ...data, period: { start, end, days }, summary, series };
+}
 
 function render(data) {
   const { period, summary, series } = data;
@@ -221,7 +321,10 @@ function render(data) {
     }
   });
 
-  new Chart(document.getElementById('ordersChart'), {
+  if (ordersChart) ordersChart.destroy();
+  if (revenueChart) revenueChart.destroy();
+
+  ordersChart = new Chart(document.getElementById('ordersChart'), {
     type: 'line',
     data: {
       labels,
@@ -251,7 +354,7 @@ function render(data) {
     options: baseOptions(fmtInt)
   });
 
-  new Chart(document.getElementById('revenueChart'), {
+  revenueChart = new Chart(document.getElementById('revenueChart'), {
     type: 'line',
     data: {
       labels,
