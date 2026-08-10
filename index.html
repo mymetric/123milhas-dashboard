@@ -25,6 +25,18 @@
     --up:               #1a9c6b;
     --down:              #e0483f;
     --brand-ink:        #050810; /* mymetric.com.br bg, usado só na barra de marca */
+    /* canais de origem — ordem fixa, nunca reciclada. Validada pro fundo #fcfcfb:
+       faixa de luminosidade, piso de croma, separação p/ daltonismo e contraste.
+       O par verde/laranja fica na faixa de piso do teste de daltonismo, então
+       todo canal aparece sempre com rótulo escrito junto, nunca só pela cor. */
+    --canal-metasearch: #2a78d6;
+    --canal-paga:       #eb6834;
+    --canal-organico:   #1a9c6b;
+    --canal-direto:     #8b5cf6;
+    --canal-push:       #b8860b;
+    --canal-crm:        #d1478f;
+    --canal-outros:     #898781;
+    --canal-sem:        #c3c2b7;
   }
   * { box-sizing: border-box; }
   body {
@@ -293,10 +305,92 @@
     color: var(--text-muted);
     margin: -12px 0 24px;
   }
+  /* ---- bloco de origem ---- */
+  .seg {
+    display: inline-flex;
+    gap: 2px;
+    background: var(--page-plane);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px;
+    margin-bottom: 14px;
+  }
+  .seg button {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+  }
+  .seg button.active {
+    color: var(--text-primary);
+    background: var(--surface-1);
+    box-shadow: 0 1px 2px rgba(11,11,11,0.08);
+  }
+  .rank { margin: 0 0 4px; }
+  .rank-row {
+    display: grid;
+    grid-template-columns: 150px 1fr 132px;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 0;
+  }
+  .rank-name {
+    font-size: 13px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+  }
+  .rank-name span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .rank-track {
+    background: var(--page-plane);
+    border-radius: 4px;
+    height: 14px;
+    overflow: hidden;
+  }
+  .rank-bar {
+    height: 100%;
+    border-radius: 0 4px 4px 0; /* ponta arredondada só na ponta do dado */
+    min-width: 2px;
+  }
+  .rank-val {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .rank-val b {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+  .origin-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 12px 0 4px;
+  }
+  .swatch {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    flex: none;
+  }
+  .erp-tile { border-style: dashed; }
   @media (max-width: 720px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
     .intraday-stats { grid-template-columns: repeat(1, 1fr); }
     .site-header .site-header-inner { flex-wrap: wrap; }
+    .rank-row { grid-template-columns: 110px 1fr 96px; gap: 8px; }
   }
 </style>
 </head>
@@ -360,6 +454,25 @@
     </div>
     <canvas id="revenueChart"></canvas>
   </div>
+
+  <div class="panel" id="originPanel">
+    <h2>Origem das vendas</h2>
+    <p class="panel-sub" id="originSub">De onde vem a sessão que terminou em pedido</p>
+    <div class="seg" id="originSeg">
+      <button type="button" data-plat="total" class="active">Total</button>
+      <button type="button" data-plat="app">App</button>
+      <button type="button" data-plat="web">Web</button>
+    </div>
+    <div class="rank" id="originRank"></div>
+    <p class="origin-note" id="originNote"></p>
+  </div>
+
+  <div class="panel" id="originDailyPanel">
+    <h2>Origem por dia</h2>
+    <p class="panel-sub">Pedidos por canal, empilhado</p>
+    <div class="legend" id="originLegend"></div>
+    <canvas id="originChart"></canvas>
+  </div>
   </div>
 
   <div class="view" id="viewIntraday">
@@ -385,6 +498,13 @@
         <span><span class="dot lastweek"></span>Semana passada</span>
       </div>
       <canvas id="intradayRevenueChart"></canvas>
+    </div>
+
+    <div class="panel">
+      <h2>Origem das vendas de hoje</h2>
+      <p class="panel-sub" id="intradayOriginSub">Parcial do dia, reconstruída em tempo real</p>
+      <div class="rank" id="intradayOriginRank"></div>
+      <p class="origin-note" id="intradayOriginNote"></p>
     </div>
 
     <p class="intraday-note" id="intradayGenerated"></p>
@@ -484,7 +604,11 @@ function filterData(data, from, to) {
   const end = series.length ? series[series.length - 1].date : to;
   const days = series.length;
 
-  return { ...data, period: { start, end, days }, summary, series };
+  const origin = data.origin
+    ? { ...data.origin, rows: data.origin.rows.filter(r => (!from || r.date >= from) && (!to || r.date <= to)) }
+    : null;
+
+  return { ...data, period: { start, end, days }, summary, series, origin };
 }
 
 function render(data) {
@@ -610,6 +734,143 @@ function render(data) {
     },
     options: baseOptions(fmtBRLCompact)
   });
+
+  renderOrigin(data);
+}
+
+// ---------------- Origem ----------------
+// Ordem fixa: um canal tem sempre a mesma cor, mesmo que suma do recorte.
+// Tudo que não está nesta lista cai em "Outros"; "Sem origem" é o pedido que o
+// GA4 não viu (ou viu sem fonte), e fica em cinza porque não é um canal.
+const CANAIS = [
+  { nome: 'Metasearch',  cor: '#2a78d6' },
+  { nome: 'Midia paga',  cor: '#eb6834', label: 'Mídia paga' },
+  { nome: 'Organico',    cor: '#1a9c6b', label: 'Orgânico' },
+  { nome: 'Direto',      cor: '#8b5cf6' },
+  { nome: 'Push',        cor: '#b8860b' },
+  { nome: 'CRM',         cor: '#d1478f' },
+  { nome: 'Outros',      cor: '#898781' },
+  { nome: 'Sem origem',  cor: '#c3c2b7' }
+];
+const COR_CANAL = Object.fromEntries(CANAIS.map(c => [c.nome, c.cor]));
+const LABEL_CANAL = Object.fromEntries(CANAIS.map(c => [c.nome, c.label || c.nome]));
+const CONHECIDOS = new Set(CANAIS.map(c => c.nome));
+
+function normalizaCanal(canal) {
+  if (canal === 'Nao identificado' || canal === 'Sem dado de origem') return 'Sem origem';
+  return CONHECIDOS.has(canal) ? canal : 'Outros';
+}
+
+let originPlatform = 'total';
+let originChart = null;
+let originData = null;
+
+document.querySelectorAll('#originSeg button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#originSeg button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    originPlatform = btn.dataset.plat;
+    if (originData) renderOrigin(originData);
+  });
+});
+
+/** Lista ranqueada com o nome do canal escrito em cada linha — a cor nunca é o
+ *  único jeito de saber qual canal é qual. */
+function renderRank(el, itens, total, formata) {
+  const max = itens.length ? itens[0].valor : 0;
+  el.innerHTML = itens.map(i => `
+    <div class="rank-row">
+      <div class="rank-name">
+        <span class="swatch" style="background:${COR_CANAL[i.canal] || '#898781'}"></span>
+        <span>${LABEL_CANAL[i.canal] || i.canal}</span>
+      </div>
+      <div class="rank-track">
+        <div class="rank-bar" style="width:${max ? (i.valor / max * 100) : 0}%;background:${COR_CANAL[i.canal] || '#898781'}"></div>
+      </div>
+      <div class="rank-val"><b>${formata(i.valor)}</b> · ${total ? (i.valor / total * 100).toFixed(1) : '0.0'}%</div>
+    </div>
+  `).join('');
+}
+
+function renderOrigin(data) {
+  originData = data;
+  const painel = document.getElementById('originPanel');
+  const painelDiario = document.getElementById('originDailyPanel');
+  if (!data.origin || !data.origin.rows.length) {
+    painel.style.display = 'none';
+    painelDiario.style.display = 'none';
+    return;
+  }
+  painel.style.display = '';
+  painelDiario.style.display = '';
+
+  const linhas = data.origin.rows.filter(r => originPlatform === 'total' || r.platform === originPlatform);
+
+  const porCanal = {};
+  linhas.forEach(r => {
+    const c = normalizaCanal(r.canal);
+    porCanal[c] = porCanal[c] || { pedidos: 0, receita: 0 };
+    porCanal[c].pedidos += r.orders;
+    porCanal[c].receita += r.revenue;
+  });
+
+  const itens = Object.entries(porCanal)
+    .map(([canal, v]) => ({ canal, valor: v.pedidos, receita: v.receita }))
+    .sort((a, b) => b.valor - a.valor);
+  const total = itens.reduce((s, i) => s + i.valor, 0);
+
+  document.getElementById('originSub').textContent =
+    `De onde vem a sessão que terminou em pedido — ${data.period.start} a ${data.period.end}`;
+  renderRank(document.getElementById('originRank'), itens, total, v => fmtInt(Math.round(v)));
+
+  document.getElementById('originNote').innerHTML =
+    `Origem medida no GA4 (último clique), que casa com <b>${data.origin.match_pct}%</b> dos pedidos do ERP. ` +
+    `Essa proporção é aplicada ao total do ERP, então o bloco fecha com os números do topo. ` +
+    `Disponível a partir de ${data.origin.start} — o export do GA4 só guarda ~36 dias. ` +
+    `Faturamento por canal: ${itens.map(i => `${LABEL_CANAL[i.canal] || i.canal} ${fmtBRLCompact(i.receita)}`).join(' · ')}.`;
+
+  // ---- empilhado por dia ----
+  const dias = [...new Set(linhas.map(r => r.date))].sort();
+  const porDiaCanal = {};
+  linhas.forEach(r => {
+    const c = normalizaCanal(r.canal);
+    porDiaCanal[c] = porDiaCanal[c] || {};
+    porDiaCanal[c][r.date] = (porDiaCanal[c][r.date] || 0) + r.orders;
+  });
+
+  const presentes = CANAIS.filter(c => porDiaCanal[c.nome]);
+  document.getElementById('originLegend').innerHTML = presentes.map(c =>
+    `<span><span class="swatch" style="background:${c.cor}"></span> ${c.label || c.nome}</span>`).join('');
+
+  const datasets = presentes.map(c => ({
+    label: c.label || c.nome,
+    data: dias.map(d => Math.round(porDiaCanal[c.nome][d] || 0)),
+    backgroundColor: c.cor,
+    borderColor: '#fcfcfb', // respiro de 2px entre as fatias empilhadas
+    borderWidth: { top: 2, right: 0, bottom: 0, left: 0 },
+    borderSkipped: false
+  }));
+
+  if (originChart) originChart.destroy();
+  originChart = new Chart(document.getElementById('originChart'), {
+    type: 'bar',
+    data: { labels: dias.map(d => d.slice(5)), datasets },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0b0b0b', titleColor: '#fff', bodyColor: '#fff', padding: 10,
+          callbacks: { label: (ctx) => `${ctx.dataset.label}: ${fmtInt(ctx.parsed.y)}` }
+        }
+      },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { color: '#898781', maxTicksLimit: 12 } },
+        y: { stacked: true, grid: { color: '#e1e0d9' }, ticks: { color: '#898781', callback: (v) => fmtInt(v) }, beginAtZero: true }
+      }
+    }
+  });
 }
 
 // ---------------- Intraday ----------------
@@ -637,15 +898,15 @@ fetch('intraday.json')
   });
 
 function renderIntraday(data) {
-  const { hours, series, current_hour, today, yesterday, last_week, generated_at, last_data_at } = data;
+  const { hours, series, current_hour, today, yesterday, last_week, generated_at, erp, origin } = data;
   const cut = current_hour; // último índice com dado real de "hoje"
 
-  const ordersNow = series.today.orders_cum[cut];
-  const revenueNow = series.today.revenue_cum[cut];
-  const ordersYesterdaySameHour = series.yesterday.orders_cum[cut];
-  const revenueYesterdaySameHour = series.yesterday.revenue_cum[cut];
-  const ordersLastWeekSameHour = series.last_week.orders_cum[cut];
-  const revenueLastWeekSameHour = series.last_week.revenue_cum[cut];
+  const hoje = series.today.total;
+  const ontem = series.yesterday.total;
+  const semana = series.last_week.total;
+
+  const ordersNow = hoje.orders_cum[cut];
+  const revenueNow = hoje.revenue_cum[cut];
 
   document.getElementById('intradaySub').textContent =
     `Hoje (${today}) até ${String(cut).padStart(2, '0')}h x ontem (${yesterday}) x mesmo dia da semana passada (${last_week})`;
@@ -654,25 +915,51 @@ function renderIntraday(data) {
     <div class="stat-tile">
       <div class="label">Pedidos hoje até ${String(cut).padStart(2, '0')}h</div>
       <div class="value">${fmtInt(ordersNow)}</div>
-      <div class="sub">vs ontem ${compareBadge(ordersNow, ordersYesterdaySameHour)} · vs sem. passada ${compareBadge(ordersNow, ordersLastWeekSameHour)}</div>
+      <div class="sub">vs ontem ${compareBadge(ordersNow, ontem.orders_cum[cut])} · vs sem. passada ${compareBadge(ordersNow, semana.orders_cum[cut])}</div>
     </div>
     <div class="stat-tile">
       <div class="label">Faturamento hoje até ${String(cut).padStart(2, '0')}h</div>
       <div class="value">${fmtBRLCompact(revenueNow)}</div>
-      <div class="sub">vs ontem ${compareBadge(revenueNow, revenueYesterdaySameHour)} · vs sem. passada ${compareBadge(revenueNow, revenueLastWeekSameHour)}</div>
+      <div class="sub">vs ontem ${compareBadge(revenueNow, ontem.revenue_cum[cut])} · vs sem. passada ${compareBadge(revenueNow, semana.revenue_cum[cut])}</div>
     </div>
     <div class="stat-tile">
-      <div class="label">Ticket médio hoje</div>
-      <div class="value">${fmtBRLCompact(ordersNow ? revenueNow / ordersNow : 0)}</div>
-      <div class="sub">${fmtInt(ordersNow)} pedidos até agora</div>
+      <div class="label">App x Web hoje</div>
+      <div class="value">${fmtInt(series.today.app.orders_cum[cut])} / ${fmtInt(series.today.web.orders_cum[cut])}</div>
+      <div class="sub"><span class="dot app"></span>App · <span class="dot web"></span>Web · ticket ${fmtBRLCompact(ordersNow ? revenueNow / ordersNow : 0)}</div>
     </div>
   `;
 
   const fmtDT = (iso) => new Date(iso).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+  const erpTxt = erp && erp.last_order_at
+    ? `Para conferência, o ERP (fonte oficial de faturamento) registra ${fmtInt(erp.orders)} pedidos hoje, ` +
+      `mas chega atrasado: último pedido ${fmtDT(erp.last_order_at)}, última carga ${fmtDT(erp.last_load_at)}.`
+    : '';
   document.getElementById('intradayGenerated').textContent =
-    `Snapshot gerado em ${fmtDT(generated_at)} (BRT). Dado mais recente na fonte: ${fmtDT(last_data_at)} — ` +
-    `se estiver muito atrás do horário atual, a ingestão de pedidos pode estar atrasada. ` +
-    `Não atualiza sozinho, precisa rodar refresh_data.py de novo.`;
+    `Atualizado em ${fmtDT(generated_at)} (BRT), a partir do evento purchase do GA4 em tempo real. ` +
+    `O GA4 enxerga ~85% dos pedidos do ERP, então use estas linhas pra comparar o ritmo do dia, não como total oficial. ` +
+    erpTxt;
+
+  // ---- origem do dia ----
+  const rankEl = document.getElementById('intradayOriginRank');
+  if (origin && origin.length) {
+    const porCanal = {};
+    origin.forEach(r => {
+      const c = normalizaCanal(r.canal);
+      porCanal[c] = (porCanal[c] || 0) + r.orders;
+    });
+    const itens = Object.entries(porCanal).map(([canal, valor]) => ({ canal, valor }))
+      .sort((a, b) => b.valor - a.valor);
+    const total = itens.reduce((s, i) => s + i.valor, 0);
+    renderRank(rankEl, itens, total, fmtInt);
+    document.getElementById('intradayOriginSub').textContent =
+      `Parcial de hoje (${today}) até ${String(cut).padStart(2, '0')}h — ${fmtInt(total)} pedidos vistos pelo GA4`;
+    document.getElementById('intradayOriginNote').textContent =
+      'A tabela de tempo real do GA4 não traz a origem já resolvida: ela é reconstruída aqui a partir do ' +
+      'início de sessão, o que deixa uma fatia em "Sem origem". O número consolidado do dia aparece na ' +
+      'aba Visão geral no dia seguinte.';
+  } else {
+    rankEl.innerHTML = '<p class="origin-note">Sem dados de origem para hoje ainda.</p>';
+  }
 
   const labels = hours.map(h => String(h).padStart(2, '0') + 'h');
 
@@ -696,9 +983,9 @@ function renderIntraday(data) {
   });
 
   const mkDatasets = (key) => [
-    { label: 'Hoje', data: series.today[key], borderColor: '#2a78d6', backgroundColor: 'rgba(42,120,214,0.10)', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.25 },
-    { label: 'Ontem', data: series.yesterday[key], borderColor: '#eb6834', backgroundColor: 'rgba(235,104,52,0.06)', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.25, borderDash: [4, 3] },
-    { label: 'Semana passada', data: series.last_week[key], borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.06)', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.25, borderDash: [4, 3] }
+    { label: 'Hoje', data: hoje[key], borderColor: '#2a78d6', backgroundColor: 'rgba(42,120,214,0.10)', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.25 },
+    { label: 'Ontem', data: ontem[key], borderColor: '#eb6834', backgroundColor: 'rgba(235,104,52,0.06)', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.25, borderDash: [4, 3] },
+    { label: 'Semana passada', data: semana[key], borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.06)', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.25, borderDash: [4, 3] }
   ];
 
   if (intradayOrdersChart) intradayOrdersChart.destroy();
