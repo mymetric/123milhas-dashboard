@@ -47,12 +47,23 @@ divergem perto da virada UTC porque `order_date` parece ser atribuído em
 UTC. Manter os dois arquivos na mesma definição evita números que não batem
 entre as duas abas.
 
-**Atraso de ingestão do ERP (medido, não é bug do dash):** `df_granular.orders`
-recebe uma carga a cada 20 minutos, mas cada carga traz pedidos de ~3h atrás.
-Em 10/08/2026 a carga também parou por 3h (última às 07:40, com o pedido mais
-novo criado 04:35 — ou seja, dado 6h velho). É por isso que a aba Intraday
-**não** usa mais o ERP como linha principal: ela vem do evento `purchase` do
-GA4, que é tempo real. O número do ERP aparece no rodapé só como conferência.
+**O ERP não é intraday (medido, não é bug do dash):** `df_granular.orders` é
+reconstruída **uma vez por dia, às 08:00**, por um `CREATE OR REPLACE TABLE` do
+Dataform (confirmado em `INFORMATION_SCHEMA.JOBS`: exatamente 4 jobs às 08:00,
+todo dia, sem exceção nos últimos 7 dias). Durante o resto do dia a tabela não
+muda — não existe carga intraday pra estar atrasada ou pra "cair".
+
+Dentro de cada build, o `received_at` que vem no dado mostra a esteira upstream
+rodando de 20 em 20 minutos, e cada lote carrega pedidos de ~3h antes. Por isso
+o build das 08:00 chega com o pedido mais novo por volta das 04:30 — é esse o
+"trava às 4-5h da manhã" que aparecia na aba Intraday antiga.
+
+É por isso que a aba Intraday **não** usa mais o ERP como linha principal: ela
+vem do evento `purchase` do GA4, que é tempo real. O número do ERP aparece no
+rodapé só como conferência do que já fechou.
+
+Se quiserem número do ERP ao longo do dia, o caminho é aumentar a frequência do
+schedule do Dataform — não tem o que ajustar no dashboard.
 
 **Dois recortes automáticos na série diária:** o `refresh_data.py` corta os
 dias iniciais com menos de 500 pedidos (a tabela do ERP só ganha volume real a
