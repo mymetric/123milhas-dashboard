@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-11T15:40:02.339584-03:00",
+  "generated_at": "2026-08-11T15:50:03.304604-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-11",
@@ -51,7 +51,7 @@
           43,
           55,
           42,
-          27,
+          37,
           null,
           null,
           null,
@@ -77,7 +77,7 @@
           63918.99,
           85107.93,
           67476.79,
-          39579.23,
+          59042.59,
           null,
           null,
           null,
@@ -103,7 +103,7 @@
           330,
           385,
           427,
-          454,
+          464,
           null,
           null,
           null,
@@ -129,7 +129,7 @@
           542726.86,
           627834.79,
           695311.58,
-          734890.81,
+          754354.17,
           null,
           null,
           null,
@@ -157,7 +157,7 @@
           133,
           120,
           128,
-          82,
+          99,
           null,
           null,
           null,
@@ -183,7 +183,7 @@
           227693.36,
           197038.0,
           191953.95,
-          126047.54,
+          149901.03,
           null,
           null,
           null,
@@ -209,7 +209,7 @@
           748,
           868,
           996,
-          1078,
+          1095,
           null,
           null,
           null,
@@ -235,7 +235,7 @@
           1199129.28,
           1396167.28,
           1588121.23,
-          1714168.77,
+          1738022.26,
           null,
           null,
           null,
@@ -263,7 +263,7 @@
           176,
           175,
           170,
-          109,
+          136,
           null,
           null,
           null,
@@ -289,7 +289,7 @@
           291612.35,
           282145.93,
           259430.74,
-          165626.77,
+          208943.62,
           null,
           null,
           null,
@@ -315,7 +315,7 @@
           1078,
           1253,
           1423,
-          1532,
+          1559,
           null,
           null,
           null,
@@ -341,7 +341,7 @@
           1741856.14,
           2024002.07,
           2283432.81,
-          2449059.58,
+          2492376.43,
           null,
           null,
           null,
@@ -997,18 +997,33 @@
   "origin": [
     {
       "platform": "app",
+      "canal": "Direto",
+      "orders": 179
+    },
+    {
+      "platform": "web",
+      "canal": "Nao identificado",
+      "orders": 231
+    },
+    {
+      "platform": "web",
       "canal": "Organico",
-      "orders": 147
+      "orders": 219
     },
     {
       "platform": "web",
       "canal": "Metasearch",
-      "orders": 403
+      "orders": 409
     },
     {
       "platform": "app",
-      "canal": "Direto",
-      "orders": 177
+      "canal": "Nao identificado",
+      "orders": 91
+    },
+    {
+      "platform": "app",
+      "canal": "Organico",
+      "orders": 149
     },
     {
       "platform": "web",
@@ -1016,24 +1031,14 @@
       "orders": 170
     },
     {
-      "platform": "app",
-      "canal": "Metasearch",
-      "orders": 5
+      "platform": "web",
+      "canal": "Outros",
+      "orders": 6
     },
     {
       "platform": "web",
-      "canal": "Organico",
-      "orders": 215
-    },
-    {
-      "platform": "web",
-      "canal": "Nao identificado",
-      "orders": 225
-    },
-    {
-      "platform": "app",
-      "canal": "Nao identificado",
-      "orders": 85
+      "canal": "Direto",
+      "orders": 57
     },
     {
       "platform": "app",
@@ -1042,13 +1047,13 @@
     },
     {
       "platform": "web",
-      "canal": "Direto",
-      "orders": 56
-    },
-    {
-      "platform": "web",
       "canal": "CRM",
       "orders": 3
+    },
+    {
+      "platform": "app",
+      "canal": "Outros",
+      "orders": 2
     },
     {
       "platform": "app",
@@ -1057,13 +1062,8 @@
     },
     {
       "platform": "app",
-      "canal": "Outros",
-      "orders": 2
-    },
-    {
-      "platform": "web",
-      "canal": "Outros",
-      "orders": 6
+      "canal": "Metasearch",
+      "orders": 5
     }
   ],
   "erp": {
