@@ -33,17 +33,17 @@ import google.auth.transport.requests
 import requests
 
 PROJECT = "grupo123-metrics"
-# bigquery (nao readonly): o refresh da origem grava em df_granular_us.order_origin
+# so leitura: quem mantem a tabela de origem agora e o Dataform (repo
+# ga4-sessions, projeto grupo123-metrics), nao este script.
 SCOPES = ["https://www.googleapis.com/auth/bigquery"]
 BRT = datetime.timezone(datetime.timedelta(hours=-3))
 
 GA4_DATASET = "grupo123-metrics.analytics_327722742"
-ORIGIN_TABLE = "grupo123-metrics.df_granular_us.order_origin"
+ORIGIN_TABLE = "grupo123-metrics.df_granular_us.order_origin_full"
 ERP_TABLE = "grupo123-metrics.df_granular.orders"
 
 # Quantos dias reprocessar de origem a cada rodada. O GA4 fecha a tabela do dia
 # so na madrugada seguinte, e ainda corrige numeros por ~2 dias.
-ORIGIN_REFRESH_DAYS = 4
 
 
 def bq_query(creds, sql, params=None):
@@ -106,76 +106,24 @@ def p_str(name, value):
     return {"name": name, "parameterType": {"type": "STRING"}, "parameterValue": {"value": value}}
 
 
-# --------------------------------------------------------------------------
-# origem de sessao (GA4 -> tabela materializada em US)
-# --------------------------------------------------------------------------
-
-CANAL_CASE = """
-  CASE
-    WHEN medium = "metasearch" THEN "Metasearch"
-    WHEN medium IN ("cpc", "ppc", "cpa", "paid") THEN "Midia paga"
-    WHEN medium IN ("push", "notification") THEN "Push"
-    WHEN medium IN ("email", "email_marketing", "sms", "chat", "radar",
-                    "botaorecompra", "botaocta", "botao_comprar") THEN "CRM"
-    WHEN medium IN ("organic", "organico") THEN "Organico"
-    WHEN medium = "(none)" AND source = "(direct)" THEN "Direto"
-    WHEN ga_group IN ("Organic Social", "Paid Social") THEN "Social"
-    WHEN medium = "referral" THEN "Referral"
-    WHEN source IS NULL OR medium IS NULL OR medium = "(not set)" THEN "Nao identificado"
-    ELSE "Outros"
-  END
-"""
-
-
-def refresh_origin(creds, days=ORIGIN_REFRESH_DAYS):
-    """Recarrega as ultimas particoes de order_origin a partir do export do GA4.
-
-    A tabela do GA4 e apagada depois de ~36 dias; order_origin e o unico registro
-    historico de origem que sobra, entao ela so acumula, nunca e truncada.
-    """
-    hoje = datetime.datetime.now(BRT).date()
-    de = hoje - datetime.timedelta(days=days)
-    ate = hoje - datetime.timedelta(days=1)  # o dia corrente ainda nao fechou no GA4
-
-    params = [p_date("de", de.isoformat()), p_date("ate", ate.isoformat()),
-              p_str("sufixo_de", de.strftime("%Y%m%d")), p_str("sufixo_ate", ate.strftime("%Y%m%d"))]
-
-    bq_query(creds, f"DELETE FROM `{ORIGIN_TABLE}` WHERE order_date BETWEEN @de AND @ate", params)
-    bq_query(creds, f"""
-    INSERT INTO `{ORIGIN_TABLE}` (order_date, order_id, plataforma, source, medium, campaign, canal)
-    WITH purchases AS (
-      SELECT
-        PARSE_DATE("%Y%m%d", event_date) AS order_date,
-        REPLACE(ecommerce.transaction_id, "f-", "") AS order_id,
-        IF(platform = "WEB", "web", "app") AS plataforma,
-        session_traffic_source_last_click.cross_channel_campaign.source AS source,
-        session_traffic_source_last_click.cross_channel_campaign.medium AS medium,
-        session_traffic_source_last_click.cross_channel_campaign.campaign_name AS campaign,
-        session_traffic_source_last_click.cross_channel_campaign.default_channel_group AS ga_group,
-        ROW_NUMBER() OVER (PARTITION BY ecommerce.transaction_id ORDER BY event_timestamp) AS rn
-      FROM `{GA4_DATASET}.events_*`
-      WHERE _TABLE_SUFFIX BETWEEN @sufixo_de AND @sufixo_ate
-        AND event_name = "purchase"
-        AND ecommerce.transaction_id IS NOT NULL
-        AND ecommerce.transaction_id NOT LIKE "(%"
-    )
-    SELECT order_date, order_id, plataforma, source, medium, campaign, {CANAL_CASE} AS canal
-    FROM purchases
-    WHERE rn = 1 AND order_date BETWEEN @de AND @ate
-    """, params)
-    return {"de": de.isoformat(), "ate": ate.isoformat()}
 
 
 def gen_origin_block(creds, erp_series):
-    """Distribuicao de origem por dia/plataforma, ja aplicada aos totais do ERP.
+    """Origem por dia/plataforma, contada pedido a pedido.
 
-    O GA4 nao ve 100% dos pedidos (~85%), entao ele nao entra como volume: entra
-    como *proporcao*. Os pedidos e a receita mostrados no bloco de origem sao os
-    do ERP, rateados pela participacao de cada canal medida no GA4 daquele mesmo
-    dia e plataforma. Assim o bloco fecha com os totais do topo do dashboard.
+    `order_origin_full` (mantida pelo Dataform) tem 1 linha por pedido do ERP,
+    com a origem ja resolvida por 3 rotas (search_id / purchase / URL do
+    checkout) e cobertura de ~97% dos pedidos. Entao aqui nao ha mais rateio:
+    contamos pedido e receita de verdade por canal.
+
+    O que a pipeline nao resolveu vira "Sem origem" explicito. A diferenca entre
+    o total do ERP (serie do topo, atualizada de hora em hora) e o que existe na
+    tabela replicada (que anda 1x/dia) cai no mesmo balde, pro bloco continuar
+    fechando com os totais do topo.
     """
     rows = bq_query(creds, f"""
-      SELECT CAST(order_date AS STRING) AS d, plataforma, canal, COUNT(*) AS pedidos
+      SELECT CAST(order_date AS STRING) AS d, plataforma, canal,
+             COUNT(*) AS pedidos, SUM(grand_total) AS receita
       FROM `{ORIGIN_TABLE}`
       WHERE order_date >= DATE_SUB(CURRENT_DATE("America/Sao_Paulo"), INTERVAL 120 DAY)
       GROUP BY 1, 2, 3
@@ -183,60 +131,74 @@ def gen_origin_block(creds, erp_series):
     if not rows:
         return None
 
-    # {(data, plataforma): {canal: pedidos_ga4}}
-    ga4 = {}
+    # {(data, plataforma): {canal: (pedidos, receita)}}
+    tab = {}
     for r in rows:
-        ga4.setdefault((r["d"], r["plataforma"]), {})[r["canal"]] = int(r["pedidos"])
+        canal = r["canal"] if r["canal"] != "Nao identificado" else "Sem origem"
+        chave = (r["d"], r["plataforma"])
+        ped, rec = tab.setdefault(chave, {}).get(canal, (0, 0.0))
+        tab[chave][canal] = (ped + int(r["pedidos"]), rec + float(r["receita"] or 0))
 
     erp = {d["date"]: d for d in erp_series}
 
-    # Dias em que o GA4 mal registrou compra (export incompleto, tag fora do ar)
-    # nao podem ratear o dia inteiro em cima de um punhado de pedidos.
-    MINIMO_GA4 = 20
-
-    # So entram no bloco os dias em que o GA4 existe; antes disso o export ja foi
-    # apagado pela retencao e o rateio nao teria base nenhuma.
-    dias_com_ga4 = {d for d, _ in ga4}
-    primeiro = min(dias_com_ga4) if dias_com_ga4 else None
+    # Dia em que a tabela mal tem pedido nao entra: a replicacao nao passou.
+    COBERTURA_MINIMA = 0.5
+    # Dia em que quase nenhum pedido tem origem nao e um dia de atribuicao ruim:
+    # e um dia cujo export do GA4 ja foi apagado pela retencao (~36 dias). Mostrar
+    # esses dias como "100% sem origem" mentiria sobre a qualidade da atribuicao,
+    # entao eles ficam fora do bloco (o volume continua no topo do dashboard).
+    ORIGEM_MINIMA = 0.2
 
     out = []
-    coberto_ga4 = 0
-    coberto_erp = 0
+    com_origem = 0
+    total_erp = 0
     for dia in sorted(d["date"] for d in erp_series):
-        if primeiro is None or dia < primeiro:
-            continue
         dia_erp = erp[dia]
         for plataforma in ("app", "web"):
             erp_pedidos = dia_erp[f"{plataforma}_orders"]
             erp_receita = dia_erp[f"{plataforma}_revenue"]
             if not erp_pedidos:
                 continue
-            canais = ga4.get((dia, plataforma), {})
-            total_ga4 = sum(canais.values())
-            if total_ga4 < MINIMO_GA4:
-                # sem base pra ratear: o volume do ERP aparece, mas como sem origem
-                out.append({"date": dia, "platform": plataforma, "canal": "Sem dado de origem",
-                            "orders": float(erp_pedidos), "revenue": erp_receita})
-                coberto_erp += erp_pedidos
+            canais = tab.get((dia, plataforma), {})
+            na_tabela = sum(p for p, _ in canais.values())
+            if na_tabela < erp_pedidos * COBERTURA_MINIMA:
                 continue
-            coberto_ga4 += total_ga4
-            coberto_erp += erp_pedidos
-            for canal, n in canais.items():
-                share = n / total_ga4
-                out.append({
-                    "date": dia,
-                    "platform": plataforma,
-                    "canal": canal,
-                    "orders": round(erp_pedidos * share, 2),
-                    "revenue": round(erp_receita * share, 2),
-                })
+            resolvidos = sum(p for c, (p, _) in canais.items() if c != "Sem origem")
+            if resolvidos < na_tabela * ORIGEM_MINIMA:
+                continue
+
+            total_erp += erp_pedidos
+            com_origem += resolvidos
+
+            for canal, (ped, rec) in canais.items():
+                out.append({"date": dia, "platform": plataforma, "canal": canal,
+                            "orders": float(ped), "revenue": round(rec, 2)})
+
+            # pedido que o ERP ja tem e a replicacao ainda nao trouxe
+            sobra = erp_pedidos - na_tabela
+            if sobra > 0:
+                sobra_receita = max(erp_receita - sum(r for _, r in canais.values()), 0)
+                out.append({"date": dia, "platform": plataforma, "canal": "Sem origem",
+                            "orders": float(sobra), "revenue": round(sobra_receita, 2)})
+
+    # junta os dois caminhos que viram "Sem origem" numa linha so por dia/plataforma
+    juntado = {}
+    for r in out:
+        k = (r["date"], r["platform"], r["canal"])
+        if k in juntado:
+            juntado[k]["orders"] += r["orders"]
+            juntado[k]["revenue"] = round(juntado[k]["revenue"] + r["revenue"], 2)
+        else:
+            juntado[k] = r
+    out = list(juntado.values())
 
     dias = sorted({r["date"] for r in out})
     return {
-        "source": "GA4 (analytics_327722742) purchase + session_traffic_source_last_click",
+        "source": "df_granular_us.order_origin_full (Dataform): search_id do GA4, "
+                  "purchase (transaction_id) e deeplink da URL do checkout",
         "start": dias[0] if dias else None,
         "end": dias[-1] if dias else None,
-        "match_pct": round(coberto_ga4 / coberto_erp * 100, 1) if coberto_erp else 0,
+        "match_pct": round(com_origem / total_erp * 100, 1) if total_erp else 0,
         "rows": out,
     }
 
@@ -517,8 +479,6 @@ def main():
         return os.path.join(out_dir, nome)
 
     if args.only in ("all", "daily"):
-        janela = refresh_origin(creds)
-        print(f"order_origin recarregado: {janela['de']} a {janela['ate']}")
 
         daily = gen_daily(creds)
         origem = gen_origin_block(creds, daily["series"])
