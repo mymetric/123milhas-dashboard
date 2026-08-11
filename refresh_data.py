@@ -123,21 +123,30 @@ def gen_origin_block(creds, erp_series):
     """
     rows = bq_query(creds, f"""
       SELECT CAST(order_date AS STRING) AS d, plataforma, canal,
+             COALESCE(source, "(not set)") AS source,
+             COALESCE(medium, "(not set)") AS medium,
              COUNT(*) AS pedidos, SUM(grand_total) AS receita
       FROM `{ORIGIN_TABLE}`
       WHERE order_date >= DATE_SUB(CURRENT_DATE("America/Sao_Paulo"), INTERVAL 120 DAY)
-      GROUP BY 1, 2, 3
+      GROUP BY 1, 2, 3, 4, 5
     """)
     if not rows:
         return None
 
-    # {(data, plataforma): {canal: (pedidos, receita)}}
+    # {(data, plataforma): {canal: (pedidos, receita)}} e o mesmo quebrado por
+    # source/medium, que alimenta o ranking detalhado do dashboard.
     tab = {}
+    tab_sm = {}
     for r in rows:
         canal = r["canal"] if r["canal"] != "Nao identificado" else "Sem origem"
         chave = (r["d"], r["plataforma"])
-        ped, rec = tab.setdefault(chave, {}).get(canal, (0, 0.0))
-        tab[chave][canal] = (ped + int(r["pedidos"]), rec + float(r["receita"] or 0))
+        ped, rec = int(r["pedidos"]), float(r["receita"] or 0)
+        p0, r0 = tab.setdefault(chave, {}).get(canal, (0, 0.0))
+        tab[chave][canal] = (p0 + ped, r0 + rec)
+        # o "Sem origem" nao tem source/medium util: colapsa numa linha so
+        sm = ("(sem origem)", "(sem origem)") if canal == "Sem origem" else (r["source"], r["medium"])
+        p1, r1 = tab_sm.setdefault(chave, {}).get((canal,) + sm, (0, 0.0))
+        tab_sm[chave][(canal,) + sm] = (p1 + ped, r1 + rec)
 
     erp = {d["date"]: d for d in erp_series}
 
@@ -150,6 +159,7 @@ def gen_origin_block(creds, erp_series):
     ORIGEM_MINIMA = 0.2
 
     out = []
+    out_sm = []
     com_origem = 0
     total_erp = 0
     for dia in sorted(d["date"] for d in erp_series):
@@ -173,6 +183,10 @@ def gen_origin_block(creds, erp_series):
             for canal, (ped, rec) in canais.items():
                 out.append({"date": dia, "platform": plataforma, "canal": canal,
                             "orders": float(ped), "revenue": round(rec, 2)})
+            for (canal, src, med), (ped, rec) in tab_sm.get((dia, plataforma), {}).items():
+                out_sm.append({"date": dia, "platform": plataforma, "canal": canal,
+                               "source": src, "medium": med,
+                               "orders": float(ped), "revenue": round(rec, 2)})
 
             # pedido que o ERP ja tem e a replicacao ainda nao trouxe
             sobra = erp_pedidos - na_tabela
@@ -180,17 +194,24 @@ def gen_origin_block(creds, erp_series):
                 sobra_receita = max(erp_receita - sum(r for _, r in canais.values()), 0)
                 out.append({"date": dia, "platform": plataforma, "canal": "Sem origem",
                             "orders": float(sobra), "revenue": round(sobra_receita, 2)})
+                out_sm.append({"date": dia, "platform": plataforma, "canal": "Sem origem",
+                               "source": "(sem origem)", "medium": "(sem origem)",
+                               "orders": float(sobra), "revenue": round(sobra_receita, 2)})
 
     # junta os dois caminhos que viram "Sem origem" numa linha so por dia/plataforma
-    juntado = {}
-    for r in out:
-        k = (r["date"], r["platform"], r["canal"])
-        if k in juntado:
-            juntado[k]["orders"] += r["orders"]
-            juntado[k]["revenue"] = round(juntado[k]["revenue"] + r["revenue"], 2)
-        else:
-            juntado[k] = r
-    out = list(juntado.values())
+    def junta(linhas, chaves):
+        juntado = {}
+        for r in linhas:
+            k = tuple(r[c] for c in chaves)
+            if k in juntado:
+                juntado[k]["orders"] += r["orders"]
+                juntado[k]["revenue"] = round(juntado[k]["revenue"] + r["revenue"], 2)
+            else:
+                juntado[k] = r
+        return list(juntado.values())
+
+    out = junta(out, ("date", "platform", "canal"))
+    out_sm = junta(out_sm, ("date", "platform", "canal", "source", "medium"))
 
     dias = sorted({r["date"] for r in out})
     return {
@@ -200,6 +221,7 @@ def gen_origin_block(creds, erp_series):
         "end": dias[-1] if dias else None,
         "match_pct": round(com_origem / total_erp * 100, 1) if total_erp else 0,
         "rows": out,
+        "rows_sm": out_sm,
     }
 
 

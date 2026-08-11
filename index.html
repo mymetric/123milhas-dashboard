@@ -373,6 +373,21 @@
     color: var(--text-primary);
     font-weight: 600;
   }
+  .rank-split {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin: 18px 0 6px; padding-top: 14px;
+    border-top: 1px solid var(--linha, #e8e7e0);
+    font-size: 12px; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--fraco, #898781);
+  }
+  .rank-split button {
+    background: none; border: 0; padding: 0; cursor: pointer;
+    font: inherit; text-transform: none; letter-spacing: 0;
+    color: #2a78d6; text-decoration: underline;
+  }
+  .rank-sm .rank-row { grid-template-columns: 230px 1fr 132px; }
+  .rank-sm .rank-name { font-variant-numeric: tabular-nums; }
+  @media (max-width: 720px) { .rank-sm .rank-row { grid-template-columns: 150px 1fr 110px; } }
   .origin-note {
     font-size: 12px;
     color: var(--text-muted);
@@ -464,6 +479,11 @@
       <button type="button" data-plat="web">Web</button>
     </div>
     <div class="rank" id="originRank"></div>
+    <div class="rank-split">
+      <span>Origem / mídia</span>
+      <button type="button" id="originSMToggle">ver tudo</button>
+    </div>
+    <div class="rank rank-sm" id="originRankSM"></div>
     <p class="origin-note" id="originNote"></p>
   </div>
 
@@ -605,7 +625,9 @@ function filterData(data, from, to) {
   const days = series.length;
 
   const origin = data.origin
-    ? { ...data.origin, rows: data.origin.rows.filter(r => (!from || r.date >= from) && (!to || r.date <= to)) }
+    ? { ...data.origin,
+        rows: data.origin.rows.filter(r => (!from || r.date >= from) && (!to || r.date <= to)),
+        rows_sm: (data.origin.rows_sm || []).filter(r => (!from || r.date >= from) && (!to || r.date <= to)) }
     : null;
 
   return { ...data, period: { start, end, days }, summary, series, origin };
@@ -762,8 +784,15 @@ function normalizaCanal(canal) {
 }
 
 let originPlatform = 'total';
+let originSMTudo = false;
+const ORIGIN_SM_TOPO = 10;
 let originChart = null;
 let originData = null;
+
+document.getElementById('originSMToggle').addEventListener('click', () => {
+  originSMTudo = !originSMTudo;
+  if (originData) renderOrigin(originData);
+});
 
 document.querySelectorAll('#originSeg button').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -782,7 +811,7 @@ function renderRank(el, itens, total, formata) {
     <div class="rank-row">
       <div class="rank-name">
         <span class="swatch" style="background:${COR_CANAL[i.canal] || '#898781'}"></span>
-        <span>${LABEL_CANAL[i.canal] || i.canal}</span>
+        <span>${i.label || LABEL_CANAL[i.canal] || i.canal}</span>
       </div>
       <div class="rank-track">
         <div class="rank-bar" style="width:${max ? (i.valor / max * 100) : 0}%;background:${COR_CANAL[i.canal] || '#898781'}"></div>
@@ -823,9 +852,48 @@ function renderOrigin(data) {
     `De onde vem a sessão que terminou em pedido — ${data.period.start} a ${data.period.end}`;
   renderRank(document.getElementById('originRank'), itens, total, v => fmtInt(Math.round(v)));
 
+  // ---- origem / mídia ----
+  // Mesma cor do canal a que o par pertence, pra leitura cruzada com o ranking
+  // de cima. "(sem origem)" é o pedido que nenhuma das rotas resolveu.
+  const linhasSM = (data.origin.rows_sm || [])
+    .filter(r => originPlatform === 'total' || r.platform === originPlatform);
+  const painelSM = document.getElementById('originRankSM');
+  const toggleSM = document.getElementById('originSMToggle');
+
+  if (!linhasSM.length) {
+    painelSM.innerHTML = '';
+    document.querySelector('.rank-split').style.display = 'none';
+  } else {
+    document.querySelector('.rank-split').style.display = '';
+    const porSM = {};
+    linhasSM.forEach(r => {
+      const k = `${r.source} / ${r.medium}`;
+      porSM[k] = porSM[k] || { canal: normalizaCanal(r.canal), pedidos: 0, receita: 0 };
+      porSM[k].pedidos += r.orders;
+      porSM[k].receita += r.revenue;
+    });
+    const todos = Object.entries(porSM)
+      .map(([label, v]) => ({ label, canal: v.canal, valor: v.pedidos, receita: v.receita }))
+      .sort((a, b) => b.valor - a.valor);
+    const totalSM = todos.reduce((s, i) => s + i.valor, 0);
+
+    let mostra = todos;
+    if (!originSMTudo && todos.length > ORIGIN_SM_TOPO) {
+      const resto = todos.slice(ORIGIN_SM_TOPO);
+      mostra = todos.slice(0, ORIGIN_SM_TOPO).concat([{
+        label: `outros (${resto.length})`, canal: 'Outros',
+        valor: resto.reduce((s, i) => s + i.valor, 0),
+        receita: resto.reduce((s, i) => s + i.receita, 0)
+      }]);
+    }
+    renderRank(painelSM, mostra, totalSM, v => fmtInt(Math.round(v)));
+    toggleSM.style.display = todos.length > ORIGIN_SM_TOPO ? '' : 'none';
+    toggleSM.textContent = originSMTudo ? 'ver top 10' : `ver todos (${todos.length})`;
+  }
+
   document.getElementById('originNote').innerHTML =
-    `Origem medida no GA4 (último clique), que casa com <b>${data.origin.match_pct}%</b> dos pedidos do ERP. ` +
-    `Essa proporção é aplicada ao total do ERP, então o bloco fecha com os números do topo. ` +
+    `Origem resolvida pedido a pedido (não é rateio): <b>${data.origin.match_pct}%</b> dos pedidos do ERP ` +
+    `têm origem identificada, e o resto aparece como "Sem origem" — o bloco fecha com os números do topo. ` +
     `Disponível a partir de ${data.origin.start} — o export do GA4 só guarda ~36 dias. ` +
     `Faturamento por canal: ${itens.map(i => `${LABEL_CANAL[i.canal] || i.canal} ${fmtBRLCompact(i.receita)}`).join(' · ')}.`;
 
