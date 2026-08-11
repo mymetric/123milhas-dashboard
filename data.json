@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-08-10T23:07:08.232676-03:00",
+  "generated_at": "2026-08-11T10:07:07.901920-03:00",
   "source": "grupo123-metrics.df_granular.orders",
   "period": {
     "start": "2026-06-30",
-    "end": "2026-08-09",
-    "days": 41
+    "end": "2026-08-10",
+    "days": 42
   },
   "summary": {
-    "app_orders": 82648,
-    "web_orders": 156584,
-    "app_revenue": 78454711.2,
-    "web_revenue": 142682163.02,
-    "total_orders": 239232,
-    "total_revenue": 221136874.22,
-    "app_orders_pct": 34.55,
-    "web_orders_pct": 65.45,
-    "app_revenue_pct": 35.48,
-    "web_revenue_pct": 64.52
+    "app_orders": 83971,
+    "web_orders": 159760,
+    "app_revenue": 80709796.56,
+    "web_revenue": 148338031.36,
+    "total_orders": 243731,
+    "total_revenue": 229047827.92,
+    "app_orders_pct": 34.45,
+    "web_orders_pct": 65.55,
+    "app_revenue_pct": 35.24,
+    "web_revenue_pct": 64.76
   },
   "series": [
     {
@@ -30,8 +30,8 @@
       "date": "2026-07-01",
       "app_orders": 76,
       "app_revenue": 21136.6,
-      "web_orders": 131,
-      "web_revenue": 24414.8
+      "web_orders": 132,
+      "web_revenue": 30177.24
     },
     {
       "date": "2026-07-02",
@@ -305,13 +305,20 @@
       "app_revenue": 1943542.07,
       "web_orders": 2685,
       "web_revenue": 4382555.59
+    },
+    {
+      "date": "2026-08-10",
+      "app_orders": 1323,
+      "app_revenue": 2255085.36,
+      "web_orders": 3175,
+      "web_revenue": 5650105.9
     }
   ],
   "origin": {
     "source": "GA4 (analytics_327722742) purchase + session_traffic_source_last_click",
     "start": "2026-07-07",
-    "end": "2026-08-09",
-    "match_pct": 81.2,
+    "end": "2026-08-10",
+    "match_pct": 81.4,
     "rows": [
       {
         "date": "2026-07-07",
@@ -330,20 +337,6 @@
       {
         "date": "2026-07-08",
         "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 50.31,
-        "revenue": 72134.41
-      },
-      {
-        "date": "2026-07-08",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 295.89,
-        "revenue": 424219.03
-      },
-      {
-        "date": "2026-07-08",
-        "platform": "app",
         "canal": "Organico",
         "orders": 137.76,
         "revenue": 197510.88
@@ -358,9 +351,9 @@
       {
         "date": "2026-07-08",
         "platform": "app",
-        "canal": "Midia paga",
-        "orders": 469.59,
-        "revenue": 673254.49
+        "canal": "Direto",
+        "orders": 295.89,
+        "revenue": 424219.03
       },
       {
         "date": "2026-07-08",
@@ -372,30 +365,23 @@
       {
         "date": "2026-07-08",
         "platform": "app",
+        "canal": "Midia paga",
+        "orders": 469.59,
+        "revenue": 673254.49
+      },
+      {
+        "date": "2026-07-08",
+        "platform": "app",
         "canal": "Metasearch",
         "orders": 164.12,
         "revenue": 235295.57
       },
       {
         "date": "2026-07-08",
-        "platform": "web",
+        "platform": "app",
         "canal": "Nao identificado",
-        "orders": 136.55,
-        "revenue": 206528.42
-      },
-      {
-        "date": "2026-07-08",
-        "platform": "web",
-        "canal": "Outros",
-        "orders": 4.83,
-        "revenue": 7310.74
-      },
-      {
-        "date": "2026-07-08",
-        "platform": "web",
-        "canal": "Direto",
-        "orders": 242.89,
-        "revenue": 367364.71
+        "orders": 50.31,
+        "revenue": 72134.41
       },
       {
         "date": "2026-07-08",
@@ -414,6 +400,20 @@
       {
         "date": "2026-07-08",
         "platform": "web",
+        "canal": "Outros",
+        "orders": 4.83,
+        "revenue": 7310.74
+      },
+      {
+        "date": "2026-07-08",
+        "platform": "web",
+        "canal": "Direto",
+        "orders": 242.89,
+        "revenue": 367364.71
+      },
+      {
+        "date": "2026-07-08",
+        "platform": "web",
         "canal": "Midia paga",
         "orders": 212.68,
         "revenue": 321672.58
@@ -426,32 +426,11 @@
         "revenue": 2235258.91
       },
       {
-        "date": "2026-07-09",
-        "platform": "app",
-        "canal": "Push",
-        "orders": 394.68,
-        "revenue": 582341.86
-      },
-      {
-        "date": "2026-07-09",
-        "platform": "app",
-        "canal": "Metasearch",
-        "orders": 126.86,
-        "revenue": 187181.31
-      },
-      {
-        "date": "2026-07-09",
-        "platform": "app",
-        "canal": "Midia paga",
-        "orders": 392.33,
-        "revenue": 578875.53
-      },
-      {
-        "date": "2026-07-09",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 293.66,
-        "revenue": 433290.07
+        "date": "2026-07-08",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 136.55,
+        "revenue": 206528.42
       },
       {
         "date": "2026-07-09",
@@ -470,6 +449,27 @@
       {
         "date": "2026-07-09",
         "platform": "app",
+        "canal": "Direto",
+        "orders": 293.66,
+        "revenue": 433290.07
+      },
+      {
+        "date": "2026-07-09",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 394.68,
+        "revenue": 582341.86
+      },
+      {
+        "date": "2026-07-09",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 392.33,
+        "revenue": 578875.53
+      },
+      {
+        "date": "2026-07-09",
+        "platform": "app",
         "canal": "Outros",
         "orders": 1.17,
         "revenue": 1733.16
@@ -477,37 +477,16 @@
       {
         "date": "2026-07-09",
         "platform": "app",
+        "canal": "Metasearch",
+        "orders": 126.86,
+        "revenue": 187181.31
+      },
+      {
+        "date": "2026-07-09",
+        "platform": "app",
         "canal": "Nao identificado",
         "orders": 41.11,
         "revenue": 60660.61
-      },
-      {
-        "date": "2026-07-09",
-        "platform": "web",
-        "canal": "Metasearch",
-        "orders": 985.28,
-        "revenue": 1516529.37
-      },
-      {
-        "date": "2026-07-09",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 177.13,
-        "revenue": 272634.49
-      },
-      {
-        "date": "2026-07-09",
-        "platform": "web",
-        "canal": "Outros",
-        "orders": 3.69,
-        "revenue": 5679.89
-      },
-      {
-        "date": "2026-07-09",
-        "platform": "web",
-        "canal": "Direto",
-        "orders": 206.65,
-        "revenue": 318073.58
       },
       {
         "date": "2026-07-09",
@@ -526,6 +505,34 @@
       {
         "date": "2026-07-09",
         "platform": "web",
+        "canal": "Outros",
+        "orders": 3.69,
+        "revenue": 5679.89
+      },
+      {
+        "date": "2026-07-09",
+        "platform": "web",
+        "canal": "Direto",
+        "orders": 206.65,
+        "revenue": 318073.58
+      },
+      {
+        "date": "2026-07-09",
+        "platform": "web",
+        "canal": "Midia paga",
+        "orders": 177.13,
+        "revenue": 272634.49
+      },
+      {
+        "date": "2026-07-09",
+        "platform": "web",
+        "canal": "Metasearch",
+        "orders": 985.28,
+        "revenue": 1516529.37
+      },
+      {
+        "date": "2026-07-09",
+        "platform": "web",
         "canal": "Nao identificado",
         "orders": 129.16,
         "revenue": 198795.98
@@ -533,16 +540,9 @@
       {
         "date": "2026-07-10",
         "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 39.38,
-        "revenue": 60371.94
-      },
-      {
-        "date": "2026-07-10",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 281.66,
-        "revenue": 431750.85
+        "canal": "Metasearch",
+        "orders": 90.7,
+        "revenue": 139038.41
       },
       {
         "date": "2026-07-10",
@@ -561,9 +561,16 @@
       {
         "date": "2026-07-10",
         "platform": "app",
-        "canal": "Midia paga",
-        "orders": 422.49,
-        "revenue": 647626.27
+        "canal": "Nao identificado",
+        "orders": 39.38,
+        "revenue": 60371.94
+      },
+      {
+        "date": "2026-07-10",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 281.66,
+        "revenue": 431750.85
       },
       {
         "date": "2026-07-10",
@@ -575,23 +582,16 @@
       {
         "date": "2026-07-10",
         "platform": "app",
+        "canal": "Midia paga",
+        "orders": 422.49,
+        "revenue": 647626.27
+      },
+      {
+        "date": "2026-07-10",
+        "platform": "web",
         "canal": "Metasearch",
-        "orders": 90.7,
-        "revenue": 139038.41
-      },
-      {
-        "date": "2026-07-10",
-        "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 103.9,
-        "revenue": 159628.63
-      },
-      {
-        "date": "2026-07-10",
-        "platform": "web",
-        "canal": "Direto",
-        "orders": 206.6,
-        "revenue": 317401.11
+        "orders": 802.22,
+        "revenue": 1232481.49
       },
       {
         "date": "2026-07-10",
@@ -610,37 +610,23 @@
       {
         "date": "2026-07-10",
         "platform": "web",
-        "canal": "Midia paga",
-        "orders": 137.73,
-        "revenue": 211600.74
+        "canal": "Nao identificado",
+        "orders": 103.9,
+        "revenue": 159628.63
       },
       {
         "date": "2026-07-10",
         "platform": "web",
-        "canal": "Metasearch",
-        "orders": 802.22,
-        "revenue": 1232481.49
+        "canal": "Direto",
+        "orders": 206.6,
+        "revenue": 317401.11
       },
       {
-        "date": "2026-07-11",
-        "platform": "app",
+        "date": "2026-07-10",
+        "platform": "web",
         "canal": "Midia paga",
-        "orders": 396.53,
-        "revenue": 575459.22
-      },
-      {
-        "date": "2026-07-11",
-        "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 48.36,
-        "revenue": 70177.95
-      },
-      {
-        "date": "2026-07-11",
-        "platform": "app",
-        "canal": "Push",
-        "orders": 378.4,
-        "revenue": 549142.48
+        "orders": 137.73,
+        "revenue": 211600.74
       },
       {
         "date": "2026-07-11",
@@ -648,13 +634,6 @@
         "canal": "Metasearch",
         "orders": 125.73,
         "revenue": 182462.68
-      },
-      {
-        "date": "2026-07-11",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 238.16,
-        "revenue": 345626.42
       },
       {
         "date": "2026-07-11",
@@ -672,17 +651,31 @@
       },
       {
         "date": "2026-07-11",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 128.44,
-        "revenue": 191439.74
+        "platform": "app",
+        "canal": "Nao identificado",
+        "orders": 48.36,
+        "revenue": 70177.95
       },
       {
         "date": "2026-07-11",
-        "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 79.04,
-        "revenue": 117809.07
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 238.16,
+        "revenue": 345626.42
+      },
+      {
+        "date": "2026-07-11",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 396.53,
+        "revenue": 575459.22
+      },
+      {
+        "date": "2026-07-11",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 378.4,
+        "revenue": 549142.48
       },
       {
         "date": "2026-07-11",
@@ -690,6 +683,27 @@
         "canal": "Metasearch",
         "orders": 708.9,
         "revenue": 1056600.08
+      },
+      {
+        "date": "2026-07-11",
+        "platform": "web",
+        "canal": "Organico",
+        "orders": 485.36,
+        "revenue": 723421.31
+      },
+      {
+        "date": "2026-07-11",
+        "platform": "web",
+        "canal": "CRM",
+        "orders": 17.29,
+        "revenue": 25770.73
+      },
+      {
+        "date": "2026-07-11",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 79.04,
+        "revenue": 117809.07
       },
       {
         "date": "2026-07-11",
@@ -708,44 +722,9 @@
       {
         "date": "2026-07-11",
         "platform": "web",
-        "canal": "Organico",
-        "orders": 485.36,
-        "revenue": 723421.31
-      },
-      {
-        "date": "2026-07-11",
-        "platform": "web",
-        "canal": "CRM",
-        "orders": 17.29,
-        "revenue": 25770.73
-      },
-      {
-        "date": "2026-07-12",
-        "platform": "app",
-        "canal": "Push",
-        "orders": 353.37,
-        "revenue": 524334.06
-      },
-      {
-        "date": "2026-07-12",
-        "platform": "app",
-        "canal": "Metasearch",
-        "orders": 124.36,
-        "revenue": 184521.74
-      },
-      {
-        "date": "2026-07-12",
-        "platform": "app",
         "canal": "Midia paga",
-        "orders": 348.45,
-        "revenue": 517026.26
-      },
-      {
-        "date": "2026-07-12",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 307.82,
-        "revenue": 456736.98
+        "orders": 128.44,
+        "revenue": 191439.74
       },
       {
         "date": "2026-07-12",
@@ -764,37 +743,37 @@
       {
         "date": "2026-07-12",
         "platform": "app",
+        "canal": "Direto",
+        "orders": 307.82,
+        "revenue": 456736.98
+      },
+      {
+        "date": "2026-07-12",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 353.37,
+        "revenue": 524334.06
+      },
+      {
+        "date": "2026-07-12",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 348.45,
+        "revenue": 517026.26
+      },
+      {
+        "date": "2026-07-12",
+        "platform": "app",
+        "canal": "Metasearch",
+        "orders": 124.36,
+        "revenue": 184521.74
+      },
+      {
+        "date": "2026-07-12",
+        "platform": "app",
         "canal": "Nao identificado",
         "orders": 41.86,
         "revenue": 62116.23
-      },
-      {
-        "date": "2026-07-12",
-        "platform": "web",
-        "canal": "Metasearch",
-        "orders": 994.61,
-        "revenue": 1607093.02
-      },
-      {
-        "date": "2026-07-12",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 117.52,
-        "revenue": 189892.83
-      },
-      {
-        "date": "2026-07-12",
-        "platform": "web",
-        "canal": "Outros",
-        "orders": 1.24,
-        "revenue": 1998.87
-      },
-      {
-        "date": "2026-07-12",
-        "platform": "web",
-        "canal": "Direto",
-        "orders": 142.26,
-        "revenue": 229870.27
       },
       {
         "date": "2026-07-12",
@@ -813,6 +792,34 @@
       {
         "date": "2026-07-12",
         "platform": "web",
+        "canal": "Outros",
+        "orders": 1.24,
+        "revenue": 1998.87
+      },
+      {
+        "date": "2026-07-12",
+        "platform": "web",
+        "canal": "Direto",
+        "orders": 142.26,
+        "revenue": 229870.27
+      },
+      {
+        "date": "2026-07-12",
+        "platform": "web",
+        "canal": "Midia paga",
+        "orders": 117.52,
+        "revenue": 189892.83
+      },
+      {
+        "date": "2026-07-12",
+        "platform": "web",
+        "canal": "Metasearch",
+        "orders": 994.61,
+        "revenue": 1607093.02
+      },
+      {
+        "date": "2026-07-12",
+        "platform": "web",
         "canal": "Nao identificado",
         "orders": 89.07,
         "revenue": 143918.78
@@ -820,23 +827,9 @@
       {
         "date": "2026-07-13",
         "platform": "app",
-        "canal": "Midia paga",
-        "orders": 324.49,
-        "revenue": 492643.78
-      },
-      {
-        "date": "2026-07-13",
-        "platform": "app",
         "canal": "Nao identificado",
         "orders": 45.67,
         "revenue": 69335.05
-      },
-      {
-        "date": "2026-07-13",
-        "platform": "app",
-        "canal": "Push",
-        "orders": 372.57,
-        "revenue": 565628.04
       },
       {
         "date": "2026-07-13",
@@ -862,6 +855,20 @@
       {
         "date": "2026-07-13",
         "platform": "app",
+        "canal": "Push",
+        "orders": 372.57,
+        "revenue": 565628.04
+      },
+      {
+        "date": "2026-07-13",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 324.49,
+        "revenue": 492643.78
+      },
+      {
+        "date": "2026-07-13",
+        "platform": "app",
         "canal": "Organico",
         "orders": 96.15,
         "revenue": 145968.53
@@ -872,13 +879,6 @@
         "canal": "CRM",
         "orders": 34.85,
         "revenue": 52913.59
-      },
-      {
-        "date": "2026-07-13",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 147.94,
-        "revenue": 221807.36
       },
       {
         "date": "2026-07-13",
@@ -911,6 +911,13 @@
       {
         "date": "2026-07-13",
         "platform": "web",
+        "canal": "Midia paga",
+        "orders": 147.94,
+        "revenue": 221807.36
+      },
+      {
+        "date": "2026-07-13",
+        "platform": "web",
         "canal": "Organico",
         "orders": 595.35,
         "revenue": 892639.38
@@ -925,16 +932,16 @@
       {
         "date": "2026-07-14",
         "platform": "app",
-        "canal": "Push",
-        "orders": 288.35,
-        "revenue": 446475.61
+        "canal": "Direto",
+        "orders": 246.99,
+        "revenue": 382424.25
       },
       {
         "date": "2026-07-14",
         "platform": "app",
-        "canal": "Metasearch",
-        "orders": 254.29,
-        "revenue": 393727.43
+        "canal": "Push",
+        "orders": 288.35,
+        "revenue": 446475.61
       },
       {
         "date": "2026-07-14",
@@ -946,9 +953,9 @@
       {
         "date": "2026-07-14",
         "platform": "app",
-        "canal": "Direto",
-        "orders": 246.99,
-        "revenue": 382424.25
+        "canal": "Nao identificado",
+        "orders": 42.58,
+        "revenue": 65935.22
       },
       {
         "date": "2026-07-14",
@@ -967,16 +974,16 @@
       {
         "date": "2026-07-14",
         "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 42.58,
-        "revenue": 65935.22
+        "canal": "Metasearch",
+        "orders": 254.29,
+        "revenue": 393727.43
       },
       {
         "date": "2026-07-14",
         "platform": "web",
-        "canal": "Metasearch",
-        "orders": 1793.15,
-        "revenue": 2657372.28
+        "canal": "Direto",
+        "orders": 170.38,
+        "revenue": 252502.61
       },
       {
         "date": "2026-07-14",
@@ -988,9 +995,9 @@
       {
         "date": "2026-07-14",
         "platform": "web",
-        "canal": "Direto",
-        "orders": 170.38,
-        "revenue": 252502.61
+        "canal": "Nao identificado",
+        "orders": 102.23,
+        "revenue": 151501.57
       },
       {
         "date": "2026-07-14",
@@ -1009,9 +1016,23 @@
       {
         "date": "2026-07-14",
         "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 102.23,
-        "revenue": 151501.57
+        "canal": "Metasearch",
+        "orders": 1793.15,
+        "revenue": 2657372.28
+      },
+      {
+        "date": "2026-07-15",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 308.41,
+        "revenue": 490893.21
+      },
+      {
+        "date": "2026-07-15",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 404.45,
+        "revenue": 643759.08
       },
       {
         "date": "2026-07-15",
@@ -1030,27 +1051,6 @@
       {
         "date": "2026-07-15",
         "platform": "app",
-        "canal": "Push",
-        "orders": 404.45,
-        "revenue": 643759.08
-      },
-      {
-        "date": "2026-07-15",
-        "platform": "app",
-        "canal": "Metasearch",
-        "orders": 183.96,
-        "revenue": 292813.5
-      },
-      {
-        "date": "2026-07-15",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 308.41,
-        "revenue": 490893.21
-      },
-      {
-        "date": "2026-07-15",
-        "platform": "app",
         "canal": "Organico",
         "orders": 90.63,
         "revenue": 144253.71
@@ -1061,6 +1061,20 @@
         "canal": "CRM",
         "orders": 36.52,
         "revenue": 58132.09
+      },
+      {
+        "date": "2026-07-15",
+        "platform": "app",
+        "canal": "Metasearch",
+        "orders": 183.96,
+        "revenue": 292813.5
+      },
+      {
+        "date": "2026-07-15",
+        "platform": "web",
+        "canal": "Direto",
+        "orders": 191.71,
+        "revenue": 300868.33
       },
       {
         "date": "2026-07-15",
@@ -1079,20 +1093,6 @@
       {
         "date": "2026-07-15",
         "platform": "web",
-        "canal": "Metasearch",
-        "orders": 1507.43,
-        "revenue": 2365731.81
-      },
-      {
-        "date": "2026-07-15",
-        "platform": "web",
-        "canal": "Direto",
-        "orders": 191.71,
-        "revenue": 300868.33
-      },
-      {
-        "date": "2026-07-15",
-        "platform": "web",
         "canal": "Organico",
         "orders": 610.59,
         "revenue": 958245.03
@@ -1105,32 +1105,11 @@
         "revenue": 30911.13
       },
       {
-        "date": "2026-07-16",
-        "platform": "app",
-        "canal": "Push",
-        "orders": 283.56,
-        "revenue": 486359.92
-      },
-      {
-        "date": "2026-07-16",
-        "platform": "app",
+        "date": "2026-07-15",
+        "platform": "web",
         "canal": "Metasearch",
-        "orders": 134.13,
-        "revenue": 230062.37
-      },
-      {
-        "date": "2026-07-16",
-        "platform": "app",
-        "canal": "Midia paga",
-        "orders": 369.45,
-        "revenue": 633680.56
-      },
-      {
-        "date": "2026-07-16",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 235.32,
-        "revenue": 403618.19
+        "orders": 1507.43,
+        "revenue": 2365731.81
       },
       {
         "date": "2026-07-16",
@@ -1149,30 +1128,37 @@
       {
         "date": "2026-07-16",
         "platform": "app",
+        "canal": "Direto",
+        "orders": 235.32,
+        "revenue": 403618.19
+      },
+      {
+        "date": "2026-07-16",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 283.56,
+        "revenue": 486359.92
+      },
+      {
+        "date": "2026-07-16",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 369.45,
+        "revenue": 633680.56
+      },
+      {
+        "date": "2026-07-16",
+        "platform": "app",
+        "canal": "Metasearch",
+        "orders": 134.13,
+        "revenue": 230062.37
+      },
+      {
+        "date": "2026-07-16",
+        "platform": "app",
         "canal": "Nao identificado",
         "orders": 41.18,
         "revenue": 70633.18
-      },
-      {
-        "date": "2026-07-16",
-        "platform": "web",
-        "canal": "Metasearch",
-        "orders": 986.44,
-        "revenue": 1535195.52
-      },
-      {
-        "date": "2026-07-16",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 141.1,
-        "revenue": 219596.27
-      },
-      {
-        "date": "2026-07-16",
-        "platform": "web",
-        "canal": "Direto",
-        "orders": 204.66,
-        "revenue": 318513.5
       },
       {
         "date": "2026-07-16",
@@ -1191,44 +1177,30 @@
       {
         "date": "2026-07-16",
         "platform": "web",
+        "canal": "Direto",
+        "orders": 204.66,
+        "revenue": 318513.5
+      },
+      {
+        "date": "2026-07-16",
+        "platform": "web",
+        "canal": "Midia paga",
+        "orders": 141.1,
+        "revenue": 219596.27
+      },
+      {
+        "date": "2026-07-16",
+        "platform": "web",
+        "canal": "Metasearch",
+        "orders": 986.44,
+        "revenue": 1535195.52
+      },
+      {
+        "date": "2026-07-16",
+        "platform": "web",
         "canal": "Nao identificado",
         "orders": 137.29,
         "revenue": 213661.23
-      },
-      {
-        "date": "2026-07-17",
-        "platform": "app",
-        "canal": "Midia paga",
-        "orders": 349.54,
-        "revenue": 556887.75
-      },
-      {
-        "date": "2026-07-17",
-        "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 30.6,
-        "revenue": 48751.12
-      },
-      {
-        "date": "2026-07-17",
-        "platform": "app",
-        "canal": "Push",
-        "orders": 310.7,
-        "revenue": 495011.33
-      },
-      {
-        "date": "2026-07-17",
-        "platform": "app",
-        "canal": "Metasearch",
-        "orders": 114.16,
-        "revenue": 181879.16
-      },
-      {
-        "date": "2026-07-17",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 221.26,
-        "revenue": 352508.07
       },
       {
         "date": "2026-07-17",
@@ -1246,31 +1218,38 @@
       },
       {
         "date": "2026-07-17",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 176.55,
-        "revenue": 331984.42
-      },
-      {
-        "date": "2026-07-17",
-        "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 93.47,
-        "revenue": 175756.46
-      },
-      {
-        "date": "2026-07-17",
-        "platform": "web",
-        "canal": "Metasearch",
-        "orders": 986.58,
-        "revenue": 1855207.08
-      },
-      {
-        "date": "2026-07-17",
-        "platform": "web",
+        "platform": "app",
         "canal": "Direto",
-        "orders": 125.77,
-        "revenue": 236511.78
+        "orders": 221.26,
+        "revenue": 352508.07
+      },
+      {
+        "date": "2026-07-17",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 310.7,
+        "revenue": 495011.33
+      },
+      {
+        "date": "2026-07-17",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 349.54,
+        "revenue": 556887.75
+      },
+      {
+        "date": "2026-07-17",
+        "platform": "app",
+        "canal": "Metasearch",
+        "orders": 114.16,
+        "revenue": 181879.16
+      },
+      {
+        "date": "2026-07-17",
+        "platform": "app",
+        "canal": "Nao identificado",
+        "orders": 30.6,
+        "revenue": 48751.12
       },
       {
         "date": "2026-07-17",
@@ -1285,6 +1264,48 @@
         "canal": "CRM",
         "orders": 18.46,
         "revenue": 34717.33
+      },
+      {
+        "date": "2026-07-17",
+        "platform": "web",
+        "canal": "Direto",
+        "orders": 125.77,
+        "revenue": 236511.78
+      },
+      {
+        "date": "2026-07-17",
+        "platform": "web",
+        "canal": "Midia paga",
+        "orders": 176.55,
+        "revenue": 331984.42
+      },
+      {
+        "date": "2026-07-17",
+        "platform": "web",
+        "canal": "Metasearch",
+        "orders": 986.58,
+        "revenue": 1855207.08
+      },
+      {
+        "date": "2026-07-17",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 93.47,
+        "revenue": 175756.46
+      },
+      {
+        "date": "2026-07-18",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 239.37,
+        "revenue": 352353.81
+      },
+      {
+        "date": "2026-07-18",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 266.49,
+        "revenue": 392275.67
       },
       {
         "date": "2026-07-18",
@@ -1303,27 +1324,6 @@
       {
         "date": "2026-07-18",
         "platform": "app",
-        "canal": "Push",
-        "orders": 266.49,
-        "revenue": 392275.67
-      },
-      {
-        "date": "2026-07-18",
-        "platform": "app",
-        "canal": "Metasearch",
-        "orders": 136.78,
-        "revenue": 201345.03
-      },
-      {
-        "date": "2026-07-18",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 239.37,
-        "revenue": 352353.81
-      },
-      {
-        "date": "2026-07-18",
-        "platform": "app",
         "canal": "Organico",
         "orders": 104.95,
         "revenue": 154480.24
@@ -1337,24 +1337,10 @@
       },
       {
         "date": "2026-07-18",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 128.42,
-        "revenue": 221899.31
-      },
-      {
-        "date": "2026-07-18",
-        "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 68.57,
-        "revenue": 118489.92
-      },
-      {
-        "date": "2026-07-18",
-        "platform": "web",
+        "platform": "app",
         "canal": "Metasearch",
-        "orders": 775.5,
-        "revenue": 1340013.29
+        "orders": 136.78,
+        "revenue": 201345.03
       },
       {
         "date": "2026-07-18",
@@ -1373,6 +1359,20 @@
       {
         "date": "2026-07-18",
         "platform": "web",
+        "canal": "Midia paga",
+        "orders": 128.42,
+        "revenue": 221899.31
+      },
+      {
+        "date": "2026-07-18",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 68.57,
+        "revenue": 118489.92
+      },
+      {
+        "date": "2026-07-18",
+        "platform": "web",
         "canal": "Organico",
         "orders": 401.46,
         "revenue": 693704.63
@@ -1385,18 +1385,25 @@
         "revenue": 45241.61
       },
       {
+        "date": "2026-07-18",
+        "platform": "web",
+        "canal": "Metasearch",
+        "orders": 775.5,
+        "revenue": 1340013.29
+      },
+      {
+        "date": "2026-07-19",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 238.4,
+        "revenue": 369263.61
+      },
+      {
         "date": "2026-07-19",
         "platform": "app",
         "canal": "Push",
         "orders": 291.79,
         "revenue": 451963.27
-      },
-      {
-        "date": "2026-07-19",
-        "platform": "app",
-        "canal": "Metasearch",
-        "orders": 103.06,
-        "revenue": 159629.58
       },
       {
         "date": "2026-07-19",
@@ -1408,9 +1415,9 @@
       {
         "date": "2026-07-19",
         "platform": "app",
-        "canal": "Direto",
-        "orders": 238.4,
-        "revenue": 369263.61
+        "canal": "Nao identificado",
+        "orders": 34.77,
+        "revenue": 53850.94
       },
       {
         "date": "2026-07-19",
@@ -1429,23 +1436,9 @@
       {
         "date": "2026-07-19",
         "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 34.77,
-        "revenue": 53850.94
-      },
-      {
-        "date": "2026-07-19",
-        "platform": "web",
         "canal": "Metasearch",
-        "orders": 716.64,
-        "revenue": 1236445.29
-      },
-      {
-        "date": "2026-07-19",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 130.97,
-        "revenue": 225971.04
+        "orders": 103.06,
+        "revenue": 159629.58
       },
       {
         "date": "2026-07-19",
@@ -1464,6 +1457,20 @@
       {
         "date": "2026-07-19",
         "platform": "web",
+        "canal": "Midia paga",
+        "orders": 130.97,
+        "revenue": 225971.04
+      },
+      {
+        "date": "2026-07-19",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 72.9,
+        "revenue": 125776.33
+      },
+      {
+        "date": "2026-07-19",
+        "platform": "web",
         "canal": "Organico",
         "orders": 417.63,
         "revenue": 720549.15
@@ -1478,16 +1485,16 @@
       {
         "date": "2026-07-19",
         "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 72.9,
-        "revenue": 125776.33
+        "canal": "Metasearch",
+        "orders": 716.64,
+        "revenue": 1236445.29
       },
       {
         "date": "2026-07-20",
         "platform": "app",
-        "canal": "Push",
-        "orders": 430.66,
-        "revenue": 637573.48
+        "canal": "Nao identificado",
+        "orders": 45.69,
+        "revenue": 67647.05
       },
       {
         "date": "2026-07-20",
@@ -1499,6 +1506,13 @@
       {
         "date": "2026-07-20",
         "platform": "app",
+        "canal": "Direto",
+        "orders": 283.3,
+        "revenue": 419411.73
+      },
+      {
+        "date": "2026-07-20",
+        "platform": "app",
         "canal": "Midia paga",
         "orders": 408.96,
         "revenue": 605441.13
@@ -1506,9 +1520,9 @@
       {
         "date": "2026-07-20",
         "platform": "app",
-        "canal": "Direto",
-        "orders": 283.3,
-        "revenue": 419411.73
+        "canal": "Push",
+        "orders": 430.66,
+        "revenue": 637573.48
       },
       {
         "date": "2026-07-20",
@@ -1526,10 +1540,10 @@
       },
       {
         "date": "2026-07-20",
-        "platform": "app",
+        "platform": "web",
         "canal": "Nao identificado",
-        "orders": 45.69,
-        "revenue": 67647.05
+        "orders": 112.35,
+        "revenue": 162105.23
       },
       {
         "date": "2026-07-20",
@@ -1537,13 +1551,6 @@
         "canal": "Metasearch",
         "orders": 1695.91,
         "revenue": 2446935.8
-      },
-      {
-        "date": "2026-07-20",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 158.47,
-        "revenue": 228653.69
       },
       {
         "date": "2026-07-20",
@@ -1562,6 +1569,13 @@
       {
         "date": "2026-07-20",
         "platform": "web",
+        "canal": "Midia paga",
+        "orders": 158.47,
+        "revenue": 228653.69
+      },
+      {
+        "date": "2026-07-20",
+        "platform": "web",
         "canal": "Organico",
         "orders": 640.99,
         "revenue": 924853.0
@@ -1572,48 +1586,6 @@
         "canal": "CRM",
         "orders": 29.57,
         "revenue": 42659.27
-      },
-      {
-        "date": "2026-07-20",
-        "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 112.35,
-        "revenue": 162105.23
-      },
-      {
-        "date": "2026-07-21",
-        "platform": "app",
-        "canal": "Midia paga",
-        "orders": 449.36,
-        "revenue": 670126.63
-      },
-      {
-        "date": "2026-07-21",
-        "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 62.02,
-        "revenue": 92491.44
-      },
-      {
-        "date": "2026-07-21",
-        "platform": "app",
-        "canal": "Push",
-        "orders": 393.19,
-        "revenue": 586360.8
-      },
-      {
-        "date": "2026-07-21",
-        "platform": "app",
-        "canal": "Metasearch",
-        "orders": 157.98,
-        "revenue": 235591.39
-      },
-      {
-        "date": "2026-07-21",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 320.64,
-        "revenue": 478163.27
       },
       {
         "date": "2026-07-21",
@@ -1631,24 +1603,52 @@
       },
       {
         "date": "2026-07-21",
-        "platform": "web",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 320.64,
+        "revenue": 478163.27
+      },
+      {
+        "date": "2026-07-21",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 393.19,
+        "revenue": 586360.8
+      },
+      {
+        "date": "2026-07-21",
+        "platform": "app",
         "canal": "Midia paga",
-        "orders": 225.1,
-        "revenue": 331237.48
+        "orders": 449.36,
+        "revenue": 670126.63
       },
       {
         "date": "2026-07-21",
-        "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 117.34,
-        "revenue": 172666.35
-      },
-      {
-        "date": "2026-07-21",
-        "platform": "web",
+        "platform": "app",
         "canal": "Metasearch",
-        "orders": 1129.09,
-        "revenue": 1661473.11
+        "orders": 157.98,
+        "revenue": 235591.39
+      },
+      {
+        "date": "2026-07-21",
+        "platform": "app",
+        "canal": "Nao identificado",
+        "orders": 62.02,
+        "revenue": 92491.44
+      },
+      {
+        "date": "2026-07-21",
+        "platform": "web",
+        "canal": "Organico",
+        "orders": 704.04,
+        "revenue": 1035998.08
+      },
+      {
+        "date": "2026-07-21",
+        "platform": "web",
+        "canal": "CRM",
+        "orders": 37.12,
+        "revenue": 54618.95
       },
       {
         "date": "2026-07-21",
@@ -1667,23 +1667,30 @@
       {
         "date": "2026-07-21",
         "platform": "web",
-        "canal": "Organico",
-        "orders": 704.04,
-        "revenue": 1035998.08
+        "canal": "Midia paga",
+        "orders": 225.1,
+        "revenue": 331237.48
       },
       {
         "date": "2026-07-21",
         "platform": "web",
-        "canal": "CRM",
-        "orders": 37.12,
-        "revenue": 54618.95
+        "canal": "Metasearch",
+        "orders": 1129.09,
+        "revenue": 1661473.11
+      },
+      {
+        "date": "2026-07-21",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 117.34,
+        "revenue": 172666.35
       },
       {
         "date": "2026-07-22",
         "platform": "app",
-        "canal": "Push",
-        "orders": 306.64,
-        "revenue": 492836.13
+        "canal": "Nao identificado",
+        "orders": 49.2,
+        "revenue": 79074.45
       },
       {
         "date": "2026-07-22",
@@ -1695,16 +1702,23 @@
       {
         "date": "2026-07-22",
         "platform": "app",
-        "canal": "Midia paga",
-        "orders": 326.1,
-        "revenue": 524098.12
+        "canal": "Direto",
+        "orders": 239.14,
+        "revenue": 384338.62
       },
       {
         "date": "2026-07-22",
         "platform": "app",
-        "canal": "Direto",
-        "orders": 239.14,
-        "revenue": 384338.62
+        "canal": "Push",
+        "orders": 306.64,
+        "revenue": 492836.13
+      },
+      {
+        "date": "2026-07-22",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 326.1,
+        "revenue": 524098.12
       },
       {
         "date": "2026-07-22",
@@ -1722,10 +1736,10 @@
       },
       {
         "date": "2026-07-22",
-        "platform": "app",
+        "platform": "web",
         "canal": "Nao identificado",
-        "orders": 49.2,
-        "revenue": 79074.45
+        "orders": 91.16,
+        "revenue": 148904.64
       },
       {
         "date": "2026-07-22",
@@ -1733,13 +1747,6 @@
         "canal": "Metasearch",
         "orders": 1023.12,
         "revenue": 1671258.66
-      },
-      {
-        "date": "2026-07-22",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 215.9,
-        "revenue": 352668.89
       },
       {
         "date": "2026-07-22",
@@ -1758,6 +1765,13 @@
       {
         "date": "2026-07-22",
         "platform": "web",
+        "canal": "Midia paga",
+        "orders": 215.9,
+        "revenue": 352668.89
+      },
+      {
+        "date": "2026-07-22",
+        "platform": "web",
         "canal": "Organico",
         "orders": 579.33,
         "revenue": 946328.18
@@ -1770,11 +1784,25 @@
         "revenue": 37226.16
       },
       {
-        "date": "2026-07-22",
-        "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 91.16,
-        "revenue": 148904.64
+        "date": "2026-07-23",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 267.36,
+        "revenue": 448447.08
+      },
+      {
+        "date": "2026-07-23",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 287.21,
+        "revenue": 481737.92
+      },
+      {
+        "date": "2026-07-23",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 340.91,
+        "revenue": 571818.99
       },
       {
         "date": "2026-07-23",
@@ -1782,13 +1810,6 @@
         "canal": "Nao identificado",
         "orders": 37.36,
         "revenue": 62665.09
-      },
-      {
-        "date": "2026-07-23",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 267.36,
-        "revenue": 448447.08
       },
       {
         "date": "2026-07-23",
@@ -1807,30 +1828,9 @@
       {
         "date": "2026-07-23",
         "platform": "app",
-        "canal": "Midia paga",
-        "orders": 340.91,
-        "revenue": 571818.99
-      },
-      {
-        "date": "2026-07-23",
-        "platform": "app",
-        "canal": "Push",
-        "orders": 287.21,
-        "revenue": 481737.92
-      },
-      {
-        "date": "2026-07-23",
-        "platform": "app",
         "canal": "Metasearch",
         "orders": 96.9,
         "revenue": 162537.59
-      },
-      {
-        "date": "2026-07-23",
-        "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 77.31,
-        "revenue": 128722.82
       },
       {
         "date": "2026-07-23",
@@ -1849,6 +1849,20 @@
       {
         "date": "2026-07-23",
         "platform": "web",
+        "canal": "Midia paga",
+        "orders": 197.96,
+        "revenue": 329608.44
+      },
+      {
+        "date": "2026-07-23",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 77.31,
+        "revenue": 128722.82
+      },
+      {
+        "date": "2026-07-23",
+        "platform": "web",
         "canal": "Organico",
         "orders": 504.85,
         "revenue": 840599.05
@@ -1863,13 +1877,6 @@
       {
         "date": "2026-07-23",
         "platform": "web",
-        "canal": "Midia paga",
-        "orders": 197.96,
-        "revenue": 329608.44
-      },
-      {
-        "date": "2026-07-23",
-        "platform": "web",
         "canal": "Metasearch",
         "orders": 860.93,
         "revenue": 1433504.18
@@ -1877,30 +1884,16 @@
       {
         "date": "2026-07-24",
         "platform": "app",
-        "canal": "Midia paga",
-        "orders": 328.23,
-        "revenue": 504122.96
+        "canal": "Organico",
+        "orders": 84.07,
+        "revenue": 129126.23
       },
       {
         "date": "2026-07-24",
         "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 32.25,
-        "revenue": 49527.87
-      },
-      {
-        "date": "2026-07-24",
-        "platform": "app",
-        "canal": "Push",
-        "orders": 259.13,
-        "revenue": 397991.81
-      },
-      {
-        "date": "2026-07-24",
-        "platform": "app",
-        "canal": "Metasearch",
-        "orders": 115.17,
-        "revenue": 176885.25
+        "canal": "CRM",
+        "orders": 57.58,
+        "revenue": 88442.62
       },
       {
         "date": "2026-07-24",
@@ -1919,37 +1912,44 @@
       {
         "date": "2026-07-24",
         "platform": "app",
-        "canal": "Organico",
-        "orders": 84.07,
-        "revenue": 129126.23
+        "canal": "Push",
+        "orders": 259.13,
+        "revenue": 397991.81
       },
       {
         "date": "2026-07-24",
         "platform": "app",
-        "canal": "CRM",
-        "orders": 57.58,
-        "revenue": 88442.62
-      },
-      {
-        "date": "2026-07-24",
-        "platform": "web",
         "canal": "Midia paga",
-        "orders": 179.4,
-        "revenue": 293046.72
+        "orders": 328.23,
+        "revenue": 504122.96
       },
       {
         "date": "2026-07-24",
-        "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 105.46,
-        "revenue": 172263.95
-      },
-      {
-        "date": "2026-07-24",
-        "platform": "web",
+        "platform": "app",
         "canal": "Metasearch",
-        "orders": 882.47,
-        "revenue": 1441473.03
+        "orders": 115.17,
+        "revenue": 176885.25
+      },
+      {
+        "date": "2026-07-24",
+        "platform": "app",
+        "canal": "Nao identificado",
+        "orders": 32.25,
+        "revenue": 49527.87
+      },
+      {
+        "date": "2026-07-24",
+        "platform": "web",
+        "canal": "Organico",
+        "orders": 510.33,
+        "revenue": 833599.1
+      },
+      {
+        "date": "2026-07-24",
+        "platform": "web",
+        "canal": "CRM",
+        "orders": 18.18,
+        "revenue": 29700.68
       },
       {
         "date": "2026-07-24",
@@ -1968,16 +1968,37 @@
       {
         "date": "2026-07-24",
         "platform": "web",
-        "canal": "Organico",
-        "orders": 510.33,
-        "revenue": 833599.1
+        "canal": "Midia paga",
+        "orders": 179.4,
+        "revenue": 293046.72
       },
       {
         "date": "2026-07-24",
         "platform": "web",
-        "canal": "CRM",
-        "orders": 18.18,
-        "revenue": 29700.68
+        "canal": "Metasearch",
+        "orders": 882.47,
+        "revenue": 1441473.03
+      },
+      {
+        "date": "2026-07-24",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 105.46,
+        "revenue": 172263.95
+      },
+      {
+        "date": "2026-07-25",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 231.39,
+        "revenue": 361828.78
+      },
+      {
+        "date": "2026-07-25",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 287.41,
+        "revenue": 449429.43
       },
       {
         "date": "2026-07-25",
@@ -1996,27 +2017,6 @@
       {
         "date": "2026-07-25",
         "platform": "app",
-        "canal": "Push",
-        "orders": 287.41,
-        "revenue": 449429.43
-      },
-      {
-        "date": "2026-07-25",
-        "platform": "app",
-        "canal": "Metasearch",
-        "orders": 135.18,
-        "revenue": 211384.18
-      },
-      {
-        "date": "2026-07-25",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 231.39,
-        "revenue": 361828.78
-      },
-      {
-        "date": "2026-07-25",
-        "platform": "app",
         "canal": "Organico",
         "orders": 76.72,
         "revenue": 119974.81
@@ -2027,6 +2027,20 @@
         "canal": "CRM",
         "orders": 37.75,
         "revenue": 59035.22
+      },
+      {
+        "date": "2026-07-25",
+        "platform": "app",
+        "canal": "Metasearch",
+        "orders": 135.18,
+        "revenue": 211384.18
+      },
+      {
+        "date": "2026-07-25",
+        "platform": "web",
+        "canal": "Direto",
+        "orders": 97.57,
+        "revenue": 144874.93
       },
       {
         "date": "2026-07-25",
@@ -2045,20 +2059,6 @@
       {
         "date": "2026-07-25",
         "platform": "web",
-        "canal": "Metasearch",
-        "orders": 1086.47,
-        "revenue": 1613298.62
-      },
-      {
-        "date": "2026-07-25",
-        "platform": "web",
-        "canal": "Direto",
-        "orders": 97.57,
-        "revenue": 144874.93
-      },
-      {
-        "date": "2026-07-25",
-        "platform": "web",
         "canal": "Organico",
         "orders": 336.06,
         "revenue": 499013.65
@@ -2071,11 +2071,11 @@
         "revenue": 28617.27
       },
       {
-        "date": "2026-07-26",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 233.53,
-        "revenue": 408532.35
+        "date": "2026-07-25",
+        "platform": "web",
+        "canal": "Metasearch",
+        "orders": 1086.47,
+        "revenue": 1613298.62
       },
       {
         "date": "2026-07-26",
@@ -2090,6 +2090,20 @@
         "canal": "CRM",
         "orders": 42.68,
         "revenue": 74655.66
+      },
+      {
+        "date": "2026-07-26",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 233.53,
+        "revenue": 408532.35
+      },
+      {
+        "date": "2026-07-26",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 312.95,
+        "revenue": 547474.82
       },
       {
         "date": "2026-07-26",
@@ -2114,20 +2128,6 @@
       },
       {
         "date": "2026-07-26",
-        "platform": "app",
-        "canal": "Midia paga",
-        "orders": 312.95,
-        "revenue": 547474.82
-      },
-      {
-        "date": "2026-07-26",
-        "platform": "web",
-        "canal": "Direto",
-        "orders": 154.69,
-        "revenue": 237759.9
-      },
-      {
-        "date": "2026-07-26",
         "platform": "web",
         "canal": "Organico",
         "orders": 348.93,
@@ -2139,6 +2139,20 @@
         "canal": "CRM",
         "orders": 25.59,
         "revenue": 39328.7
+      },
+      {
+        "date": "2026-07-26",
+        "platform": "web",
+        "canal": "Direto",
+        "orders": 154.69,
+        "revenue": 237759.9
+      },
+      {
+        "date": "2026-07-26",
+        "platform": "web",
+        "canal": "Midia paga",
+        "orders": 165.16,
+        "revenue": 253848.91
       },
       {
         "date": "2026-07-26",
@@ -2155,11 +2169,18 @@
         "revenue": 126924.46
       },
       {
-        "date": "2026-07-26",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 165.16,
-        "revenue": 253848.91
+        "date": "2026-07-27",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 252.39,
+        "revenue": 396955.98
+      },
+      {
+        "date": "2026-07-27",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 291.13,
+        "revenue": 457884.1
       },
       {
         "date": "2026-07-27",
@@ -2178,27 +2199,6 @@
       {
         "date": "2026-07-27",
         "platform": "app",
-        "canal": "Push",
-        "orders": 291.13,
-        "revenue": 457884.1
-      },
-      {
-        "date": "2026-07-27",
-        "platform": "app",
-        "canal": "Metasearch",
-        "orders": 163.17,
-        "revenue": 256636.66
-      },
-      {
-        "date": "2026-07-27",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 252.39,
-        "revenue": 396955.98
-      },
-      {
-        "date": "2026-07-27",
-        "platform": "app",
         "canal": "Organico",
         "orders": 84.52,
         "revenue": 132934.09
@@ -2212,24 +2212,10 @@
       },
       {
         "date": "2026-07-27",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 210.58,
-        "revenue": 321784.17
-      },
-      {
-        "date": "2026-07-27",
-        "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 194.64,
-        "revenue": 297432.94
-      },
-      {
-        "date": "2026-07-27",
-        "platform": "web",
+        "platform": "app",
         "canal": "Metasearch",
-        "orders": 1296.48,
-        "revenue": 1981146.88
+        "orders": 163.17,
+        "revenue": 256636.66
       },
       {
         "date": "2026-07-27",
@@ -2248,6 +2234,20 @@
       {
         "date": "2026-07-27",
         "platform": "web",
+        "canal": "Midia paga",
+        "orders": 210.58,
+        "revenue": 321784.17
+      },
+      {
+        "date": "2026-07-27",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 194.64,
+        "revenue": 297432.94
+      },
+      {
+        "date": "2026-07-27",
+        "platform": "web",
         "canal": "Organico",
         "orders": 478.07,
         "revenue": 730537.04
@@ -2260,18 +2260,25 @@
         "revenue": 22611.86
       },
       {
+        "date": "2026-07-27",
+        "platform": "web",
+        "canal": "Metasearch",
+        "orders": 1296.48,
+        "revenue": 1981146.88
+      },
+      {
+        "date": "2026-07-28",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 248.54,
+        "revenue": 379415.57
+      },
+      {
         "date": "2026-07-28",
         "platform": "app",
         "canal": "Push",
         "orders": 296.87,
         "revenue": 453190.82
-      },
-      {
-        "date": "2026-07-28",
-        "platform": "app",
-        "canal": "Metasearch",
-        "orders": 165.69,
-        "revenue": 252943.72
       },
       {
         "date": "2026-07-28",
@@ -2283,9 +2290,9 @@
       {
         "date": "2026-07-28",
         "platform": "app",
-        "canal": "Direto",
-        "orders": 248.54,
-        "revenue": 379415.57
+        "canal": "Nao identificado",
+        "orders": 40.27,
+        "revenue": 61479.38
       },
       {
         "date": "2026-07-28",
@@ -2304,23 +2311,9 @@
       {
         "date": "2026-07-28",
         "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 40.27,
-        "revenue": 61479.38
-      },
-      {
-        "date": "2026-07-28",
-        "platform": "web",
         "canal": "Metasearch",
-        "orders": 1404.04,
-        "revenue": 2041327.21
-      },
-      {
-        "date": "2026-07-28",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 204.44,
-        "revenue": 297230.91
+        "orders": 165.69,
+        "revenue": 252943.72
       },
       {
         "date": "2026-07-28",
@@ -2339,6 +2332,20 @@
       {
         "date": "2026-07-28",
         "platform": "web",
+        "canal": "Midia paga",
+        "orders": 204.44,
+        "revenue": 297230.91
+      },
+      {
+        "date": "2026-07-28",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 236.16,
+        "revenue": 343352.94
+      },
+      {
+        "date": "2026-07-28",
+        "platform": "web",
         "canal": "Organico",
         "orders": 472.32,
         "revenue": 686705.89
@@ -2353,16 +2360,9 @@
       {
         "date": "2026-07-28",
         "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 236.16,
-        "revenue": 343352.94
-      },
-      {
-        "date": "2026-07-29",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 285.69,
-        "revenue": 467576.94
+        "canal": "Metasearch",
+        "orders": 1404.04,
+        "revenue": 2041327.21
       },
       {
         "date": "2026-07-29",
@@ -2381,9 +2381,23 @@
       {
         "date": "2026-07-29",
         "platform": "app",
+        "canal": "Direto",
+        "orders": 285.69,
+        "revenue": 467576.94
+      },
+      {
+        "date": "2026-07-29",
+        "platform": "app",
         "canal": "Push",
         "orders": 277.39,
         "revenue": 453995.86
+      },
+      {
+        "date": "2026-07-29",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 367.48,
+        "revenue": 601447.51
       },
       {
         "date": "2026-07-29",
@@ -2398,27 +2412,6 @@
         "canal": "Nao identificado",
         "orders": 45.05,
         "revenue": 73725.82
-      },
-      {
-        "date": "2026-07-29",
-        "platform": "app",
-        "canal": "Midia paga",
-        "orders": 367.48,
-        "revenue": 601447.51
-      },
-      {
-        "date": "2026-07-29",
-        "platform": "web",
-        "canal": "Outros",
-        "orders": 1.2,
-        "revenue": 1815.83
-      },
-      {
-        "date": "2026-07-29",
-        "platform": "web",
-        "canal": "Direto",
-        "orders": 172.4,
-        "revenue": 261479.62
       },
       {
         "date": "2026-07-29",
@@ -2437,6 +2430,27 @@
       {
         "date": "2026-07-29",
         "platform": "web",
+        "canal": "Outros",
+        "orders": 1.2,
+        "revenue": 1815.83
+      },
+      {
+        "date": "2026-07-29",
+        "platform": "web",
+        "canal": "Direto",
+        "orders": 172.4,
+        "revenue": 261479.62
+      },
+      {
+        "date": "2026-07-29",
+        "platform": "web",
+        "canal": "Midia paga",
+        "orders": 193.95,
+        "revenue": 294164.57
+      },
+      {
+        "date": "2026-07-29",
+        "platform": "web",
         "canal": "Metasearch",
         "orders": 1198.43,
         "revenue": 1817646.51
@@ -2449,39 +2463,11 @@
         "revenue": 601039.96
       },
       {
-        "date": "2026-07-29",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 193.95,
-        "revenue": 294164.57
-      },
-      {
-        "date": "2026-07-30",
-        "platform": "app",
-        "canal": "Push",
-        "orders": 283.17,
-        "revenue": 431276.98
-      },
-      {
         "date": "2026-07-30",
         "platform": "app",
         "canal": "Metasearch",
         "orders": 105.18,
         "revenue": 160188.59
-      },
-      {
-        "date": "2026-07-30",
-        "platform": "app",
-        "canal": "Midia paga",
-        "orders": 337.49,
-        "revenue": 514011.75
-      },
-      {
-        "date": "2026-07-30",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 232.32,
-        "revenue": 353823.16
       },
       {
         "date": "2026-07-30",
@@ -2500,6 +2486,27 @@
       {
         "date": "2026-07-30",
         "platform": "app",
+        "canal": "Nao identificado",
+        "orders": 33.52,
+        "revenue": 51049.11
+      },
+      {
+        "date": "2026-07-30",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 232.32,
+        "revenue": 353823.16
+      },
+      {
+        "date": "2026-07-30",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 283.17,
+        "revenue": 431276.98
+      },
+      {
+        "date": "2026-07-30",
+        "platform": "app",
         "canal": "Outros",
         "orders": 4.62,
         "revenue": 7041.26
@@ -2507,9 +2514,9 @@
       {
         "date": "2026-07-30",
         "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 33.52,
-        "revenue": 51049.11
+        "canal": "Midia paga",
+        "orders": 337.49,
+        "revenue": 514011.75
       },
       {
         "date": "2026-07-30",
@@ -2517,27 +2524,6 @@
         "canal": "Metasearch",
         "orders": 1235.1,
         "revenue": 1996385.49
-      },
-      {
-        "date": "2026-07-30",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 191.38,
-        "revenue": 309349.82
-      },
-      {
-        "date": "2026-07-30",
-        "platform": "web",
-        "canal": "Outros",
-        "orders": 1.11,
-        "revenue": 1798.55
-      },
-      {
-        "date": "2026-07-30",
-        "platform": "web",
-        "canal": "Direto",
-        "orders": 154.67,
-        "revenue": 249997.82
       },
       {
         "date": "2026-07-30",
@@ -2561,11 +2547,25 @@
         "revenue": 411866.92
       },
       {
-        "date": "2026-07-31",
-        "platform": "app",
-        "canal": "Push",
-        "orders": 274.8,
-        "revenue": 440084.36
+        "date": "2026-07-30",
+        "platform": "web",
+        "canal": "Outros",
+        "orders": 1.11,
+        "revenue": 1798.55
+      },
+      {
+        "date": "2026-07-30",
+        "platform": "web",
+        "canal": "Direto",
+        "orders": 154.67,
+        "revenue": 249997.82
+      },
+      {
+        "date": "2026-07-30",
+        "platform": "web",
+        "canal": "Midia paga",
+        "orders": 191.38,
+        "revenue": 309349.82
       },
       {
         "date": "2026-07-31",
@@ -2573,20 +2573,6 @@
         "canal": "Metasearch",
         "orders": 153.19,
         "revenue": 245323.62
-      },
-      {
-        "date": "2026-07-31",
-        "platform": "app",
-        "canal": "Midia paga",
-        "orders": 351.98,
-        "revenue": 563682.53
-      },
-      {
-        "date": "2026-07-31",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 231.53,
-        "revenue": 370794.49
       },
       {
         "date": "2026-07-31",
@@ -2611,31 +2597,31 @@
       },
       {
         "date": "2026-07-31",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 231.53,
+        "revenue": 370794.49
+      },
+      {
+        "date": "2026-07-31",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 274.8,
+        "revenue": 440084.36
+      },
+      {
+        "date": "2026-07-31",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 351.98,
+        "revenue": 563682.53
+      },
+      {
+        "date": "2026-07-31",
         "platform": "web",
         "canal": "Metasearch",
         "orders": 1230.78,
         "revenue": 2154548.77
-      },
-      {
-        "date": "2026-07-31",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 175.01,
-        "revenue": 306371.66
-      },
-      {
-        "date": "2026-07-31",
-        "platform": "web",
-        "canal": "Outros",
-        "orders": 1.14,
-        "revenue": 1989.43
-      },
-      {
-        "date": "2026-07-31",
-        "platform": "web",
-        "canal": "Direto",
-        "orders": 138.65,
-        "revenue": 242710.02
       },
       {
         "date": "2026-07-31",
@@ -2659,25 +2645,25 @@
         "revenue": 417779.54
       },
       {
-        "date": "2026-08-01",
-        "platform": "app",
+        "date": "2026-07-31",
+        "platform": "web",
+        "canal": "Outros",
+        "orders": 1.14,
+        "revenue": 1989.43
+      },
+      {
+        "date": "2026-07-31",
+        "platform": "web",
+        "canal": "Direto",
+        "orders": 138.65,
+        "revenue": 242710.02
+      },
+      {
+        "date": "2026-07-31",
+        "platform": "web",
         "canal": "Midia paga",
-        "orders": 345.62,
-        "revenue": 538135.85
-      },
-      {
-        "date": "2026-08-01",
-        "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 32.47,
-        "revenue": 50563.1
-      },
-      {
-        "date": "2026-08-01",
-        "platform": "app",
-        "canal": "Push",
-        "orders": 229.64,
-        "revenue": 357553.35
+        "orders": 175.01,
+        "revenue": 306371.66
       },
       {
         "date": "2026-08-01",
@@ -2685,13 +2671,6 @@
         "canal": "Metasearch",
         "orders": 163.53,
         "revenue": 254621.32
-      },
-      {
-        "date": "2026-08-01",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 204.12,
-        "revenue": 317825.2
       },
       {
         "date": "2026-08-01",
@@ -2709,17 +2688,31 @@
       },
       {
         "date": "2026-08-01",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 171.03,
-        "revenue": 284036.04
+        "platform": "app",
+        "canal": "Nao identificado",
+        "orders": 32.47,
+        "revenue": 50563.1
       },
       {
         "date": "2026-08-01",
-        "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 177.65,
-        "revenue": 295030.98
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 204.12,
+        "revenue": 317825.2
+      },
+      {
+        "date": "2026-08-01",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 229.64,
+        "revenue": 357553.35
+      },
+      {
+        "date": "2026-08-01",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 345.62,
+        "revenue": 538135.85
       },
       {
         "date": "2026-08-01",
@@ -2727,6 +2720,27 @@
         "canal": "Metasearch",
         "orders": 1284.39,
         "revenue": 2133019.04
+      },
+      {
+        "date": "2026-08-01",
+        "platform": "web",
+        "canal": "Organico",
+        "orders": 358.61,
+        "revenue": 595559.44
+      },
+      {
+        "date": "2026-08-01",
+        "platform": "web",
+        "canal": "CRM",
+        "orders": 8.83,
+        "revenue": 14659.92
+      },
+      {
+        "date": "2026-08-01",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 177.65,
+        "revenue": 295030.98
       },
       {
         "date": "2026-08-01",
@@ -2745,23 +2759,9 @@
       {
         "date": "2026-08-01",
         "platform": "web",
-        "canal": "Organico",
-        "orders": 358.61,
-        "revenue": 595559.44
-      },
-      {
-        "date": "2026-08-01",
-        "platform": "web",
-        "canal": "CRM",
-        "orders": 8.83,
-        "revenue": 14659.92
-      },
-      {
-        "date": "2026-08-02",
-        "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 41.69,
-        "revenue": 62629.48
+        "canal": "Midia paga",
+        "orders": 171.03,
+        "revenue": 284036.04
       },
       {
         "date": "2026-08-02",
@@ -2769,6 +2769,27 @@
         "canal": "Direto",
         "orders": 254.77,
         "revenue": 382735.72
+      },
+      {
+        "date": "2026-08-02",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 238.56,
+        "revenue": 358379.81
+      },
+      {
+        "date": "2026-08-02",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 292.99,
+        "revenue": 440146.08
+      },
+      {
+        "date": "2026-08-02",
+        "platform": "app",
+        "canal": "Nao identificado",
+        "orders": 41.69,
+        "revenue": 62629.48
       },
       {
         "date": "2026-08-02",
@@ -2787,20 +2808,6 @@
       {
         "date": "2026-08-02",
         "platform": "app",
-        "canal": "Midia paga",
-        "orders": 292.99,
-        "revenue": 440146.08
-      },
-      {
-        "date": "2026-08-02",
-        "platform": "app",
-        "canal": "Push",
-        "orders": 238.56,
-        "revenue": 358379.81
-      },
-      {
-        "date": "2026-08-02",
-        "platform": "app",
         "canal": "Metasearch",
         "orders": 228.14,
         "revenue": 342722.44
@@ -2808,16 +2815,23 @@
       {
         "date": "2026-08-02",
         "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 257.23,
-        "revenue": 377880.21
+        "canal": "Direto",
+        "orders": 144.14,
+        "revenue": 211743.22
       },
       {
         "date": "2026-08-02",
         "platform": "web",
-        "canal": "Direto",
-        "orders": 144.14,
-        "revenue": 211743.22
+        "canal": "Midia paga",
+        "orders": 169.64,
+        "revenue": 249205.48
+      },
+      {
+        "date": "2026-08-02",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 257.23,
+        "revenue": 377880.21
       },
       {
         "date": "2026-08-02",
@@ -2836,13 +2850,6 @@
       {
         "date": "2026-08-02",
         "platform": "web",
-        "canal": "Midia paga",
-        "orders": 169.64,
-        "revenue": 249205.48
-      },
-      {
-        "date": "2026-08-02",
-        "platform": "web",
         "canal": "Metasearch",
         "orders": 2149.83,
         "revenue": 3158231.58
@@ -2857,23 +2864,16 @@
       {
         "date": "2026-08-03",
         "platform": "app",
+        "canal": "Metasearch",
+        "orders": 161.74,
+        "revenue": 256234.52
+      },
+      {
+        "date": "2026-08-03",
+        "platform": "app",
         "canal": "Direto",
         "orders": 266.53,
         "revenue": 422245.62
-      },
-      {
-        "date": "2026-08-03",
-        "platform": "app",
-        "canal": "Organico",
-        "orders": 85.43,
-        "revenue": 135335.14
-      },
-      {
-        "date": "2026-08-03",
-        "platform": "app",
-        "canal": "CRM",
-        "orders": 33.03,
-        "revenue": 52329.59
       },
       {
         "date": "2026-08-03",
@@ -2892,9 +2892,16 @@
       {
         "date": "2026-08-03",
         "platform": "app",
-        "canal": "Metasearch",
-        "orders": 161.74,
-        "revenue": 256234.52
+        "canal": "Organico",
+        "orders": 85.43,
+        "revenue": 135335.14
+      },
+      {
+        "date": "2026-08-03",
+        "platform": "app",
+        "canal": "CRM",
+        "orders": 33.03,
+        "revenue": 52329.59
       },
       {
         "date": "2026-08-03",
@@ -2902,6 +2909,13 @@
         "canal": "Nao identificado",
         "orders": 305.69,
         "revenue": 514615.78
+      },
+      {
+        "date": "2026-08-03",
+        "platform": "web",
+        "canal": "Metasearch",
+        "orders": 1666.56,
+        "revenue": 2805608.97
       },
       {
         "date": "2026-08-03",
@@ -2920,6 +2934,13 @@
       {
         "date": "2026-08-03",
         "platform": "web",
+        "canal": "Midia paga",
+        "orders": 208.32,
+        "revenue": 350701.12
+      },
+      {
+        "date": "2026-08-03",
+        "platform": "web",
         "canal": "Organico",
         "orders": 555.9,
         "revenue": 935838.32
@@ -2932,39 +2953,11 @@
         "revenue": 26683.78
       },
       {
-        "date": "2026-08-03",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 208.32,
-        "revenue": 350701.12
-      },
-      {
-        "date": "2026-08-03",
-        "platform": "web",
-        "canal": "Metasearch",
-        "orders": 1666.56,
-        "revenue": 2805608.97
-      },
-      {
-        "date": "2026-08-04",
-        "platform": "app",
-        "canal": "Midia paga",
-        "orders": 355.99,
-        "revenue": 590607.22
-      },
-      {
         "date": "2026-08-04",
         "platform": "app",
         "canal": "Nao identificado",
         "orders": 45.55,
         "revenue": 75565.91
-      },
-      {
-        "date": "2026-08-04",
-        "platform": "app",
-        "canal": "Push",
-        "orders": 256.51,
-        "revenue": 425555.37
       },
       {
         "date": "2026-08-04",
@@ -2983,6 +2976,20 @@
       {
         "date": "2026-08-04",
         "platform": "app",
+        "canal": "Push",
+        "orders": 256.51,
+        "revenue": 425555.37
+      },
+      {
+        "date": "2026-08-04",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 355.99,
+        "revenue": 590607.22
+      },
+      {
+        "date": "2026-08-04",
+        "platform": "app",
         "canal": "Organico",
         "orders": 106.68,
         "revenue": 176983.31
@@ -2993,13 +3000,6 @@
         "canal": "CRM",
         "orders": 44.35,
         "revenue": 73577.33
-      },
-      {
-        "date": "2026-08-04",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 191.77,
-        "revenue": 307597.31
       },
       {
         "date": "2026-08-04",
@@ -3032,6 +3032,13 @@
       {
         "date": "2026-08-04",
         "platform": "web",
+        "canal": "Midia paga",
+        "orders": 191.77,
+        "revenue": 307597.31
+      },
+      {
+        "date": "2026-08-04",
+        "platform": "web",
         "canal": "Organico",
         "orders": 502.26,
         "revenue": 805612.0
@@ -3046,9 +3053,9 @@
       {
         "date": "2026-08-05",
         "platform": "app",
-        "canal": "Direto",
-        "orders": 353.17,
-        "revenue": 563480.49
+        "canal": "Metasearch",
+        "orders": 276.65,
+        "revenue": 441393.05
       },
       {
         "date": "2026-08-05",
@@ -3067,23 +3074,23 @@
       {
         "date": "2026-08-05",
         "platform": "app",
-        "canal": "Push",
-        "orders": 295.49,
-        "revenue": 471445.34
-      },
-      {
-        "date": "2026-08-05",
-        "platform": "app",
-        "canal": "Metasearch",
-        "orders": 276.65,
-        "revenue": 441393.05
-      },
-      {
-        "date": "2026-08-05",
-        "platform": "app",
         "canal": "Nao identificado",
         "orders": 49.44,
         "revenue": 78887.27
+      },
+      {
+        "date": "2026-08-05",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 353.17,
+        "revenue": 563480.49
+      },
+      {
+        "date": "2026-08-05",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 295.49,
+        "revenue": 471445.34
       },
       {
         "date": "2026-08-05",
@@ -3095,16 +3102,9 @@
       {
         "date": "2026-08-05",
         "platform": "web",
-        "canal": "Outros",
-        "orders": 1.18,
-        "revenue": 1977.28
-      },
-      {
-        "date": "2026-08-05",
-        "platform": "web",
-        "canal": "Direto",
-        "orders": 267.16,
-        "revenue": 446864.98
+        "canal": "Metasearch",
+        "orders": 2321.66,
+        "revenue": 3883375.28
       },
       {
         "date": "2026-08-05",
@@ -3123,16 +3123,23 @@
       {
         "date": "2026-08-05",
         "platform": "web",
-        "canal": "Metasearch",
-        "orders": 2321.66,
-        "revenue": 3883375.28
+        "canal": "Nao identificado",
+        "orders": 429.11,
+        "revenue": 717752.15
       },
       {
         "date": "2026-08-05",
         "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 429.11,
-        "revenue": 717752.15
+        "canal": "Outros",
+        "orders": 1.18,
+        "revenue": 1977.28
+      },
+      {
+        "date": "2026-08-05",
+        "platform": "web",
+        "canal": "Direto",
+        "orders": 267.16,
+        "revenue": 446864.98
       },
       {
         "date": "2026-08-05",
@@ -3151,6 +3158,27 @@
       {
         "date": "2026-08-06",
         "platform": "app",
+        "canal": "Midia paga",
+        "orders": 518.3,
+        "revenue": 869379.04
+      },
+      {
+        "date": "2026-08-06",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 212.57,
+        "revenue": 356565.6
+      },
+      {
+        "date": "2026-08-06",
+        "platform": "app",
+        "canal": "Nao identificado",
+        "orders": 45.38,
+        "revenue": 76120.75
+      },
+      {
+        "date": "2026-08-06",
+        "platform": "app",
         "canal": "Organico",
         "orders": 144.5,
         "revenue": 242384.48
@@ -3165,30 +3193,9 @@
       {
         "date": "2026-08-06",
         "platform": "app",
-        "canal": "Push",
-        "orders": 212.57,
-        "revenue": 356565.6
-      },
-      {
-        "date": "2026-08-06",
-        "platform": "app",
         "canal": "Metasearch",
         "orders": 167.19,
         "revenue": 280444.85
-      },
-      {
-        "date": "2026-08-06",
-        "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 45.38,
-        "revenue": 76120.75
-      },
-      {
-        "date": "2026-08-06",
-        "platform": "app",
-        "canal": "Midia paga",
-        "orders": 518.3,
-        "revenue": 869379.04
       },
       {
         "date": "2026-08-06",
@@ -3203,6 +3210,20 @@
         "canal": "Direto",
         "orders": 193.31,
         "revenue": 326731.94
+      },
+      {
+        "date": "2026-08-06",
+        "platform": "web",
+        "canal": "Midia paga",
+        "orders": 297.58,
+        "revenue": 502969.16
+      },
+      {
+        "date": "2026-08-06",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 322.19,
+        "revenue": 544553.23
       },
       {
         "date": "2026-08-06",
@@ -3226,74 +3247,53 @@
         "revenue": 2693063.24
       },
       {
-        "date": "2026-08-06",
-        "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 322.19,
-        "revenue": 544553.23
-      },
-      {
-        "date": "2026-08-06",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 297.58,
-        "revenue": 502969.16
-      },
-      {
-        "date": "2026-08-07",
-        "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 40.74,
-        "revenue": 68198.83
-      },
-      {
         "date": "2026-08-07",
         "platform": "app",
         "canal": "Direto",
-        "orders": 281.6,
-        "revenue": 471374.25
-      },
-      {
-        "date": "2026-08-07",
-        "platform": "app",
-        "canal": "Organico",
-        "orders": 139.0,
-        "revenue": 232678.35
-      },
-      {
-        "date": "2026-08-07",
-        "platform": "app",
-        "canal": "CRM",
-        "orders": 51.53,
-        "revenue": 86251.46
-      },
-      {
-        "date": "2026-08-07",
-        "platform": "app",
-        "canal": "Midia paga",
-        "orders": 418.21,
-        "revenue": 700040.91
+        "orders": 281.34,
+        "revenue": 470933.71
       },
       {
         "date": "2026-08-07",
         "platform": "app",
         "canal": "Push",
-        "orders": 213.3,
-        "revenue": 357040.92
+        "orders": 213.1,
+        "revenue": 356707.24
+      },
+      {
+        "date": "2026-08-07",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 419.02,
+        "revenue": 701390.64
+      },
+      {
+        "date": "2026-08-07",
+        "platform": "app",
+        "canal": "Nao identificado",
+        "orders": 40.7,
+        "revenue": 68135.09
+      },
+      {
+        "date": "2026-08-07",
+        "platform": "app",
+        "canal": "Organico",
+        "orders": 138.87,
+        "revenue": 232460.9
+      },
+      {
+        "date": "2026-08-07",
+        "platform": "app",
+        "canal": "CRM",
+        "orders": 51.48,
+        "revenue": 86170.85
       },
       {
         "date": "2026-08-07",
         "platform": "app",
         "canal": "Metasearch",
-        "orders": 136.61,
-        "revenue": 228666.66
-      },
-      {
-        "date": "2026-08-07",
-        "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 289.18,
-        "revenue": 514930.47
+        "orders": 136.48,
+        "revenue": 228452.95
       },
       {
         "date": "2026-08-07",
@@ -3312,6 +3312,20 @@
       {
         "date": "2026-08-07",
         "platform": "web",
+        "canal": "Midia paga",
+        "orders": 248.72,
+        "revenue": 442882.58
+      },
+      {
+        "date": "2026-08-07",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 289.18,
+        "revenue": 514930.47
+      },
+      {
+        "date": "2026-08-07",
+        "platform": "web",
         "canal": "Organico",
         "orders": 579.55,
         "revenue": 1031979.99
@@ -3326,13 +3340,6 @@
       {
         "date": "2026-08-07",
         "platform": "web",
-        "canal": "Midia paga",
-        "orders": 248.72,
-        "revenue": 442882.58
-      },
-      {
-        "date": "2026-08-07",
-        "platform": "web",
         "canal": "Metasearch",
         "orders": 1507.79,
         "revenue": 2684843.21
@@ -3340,9 +3347,9 @@
       {
         "date": "2026-08-08",
         "platform": "app",
-        "canal": "Direto",
-        "orders": 216.44,
-        "revenue": 351180.72
+        "canal": "Metasearch",
+        "orders": 157.73,
+        "revenue": 255913.61
       },
       {
         "date": "2026-08-08",
@@ -3361,9 +3368,16 @@
       {
         "date": "2026-08-08",
         "platform": "app",
-        "canal": "Outros",
-        "orders": 1.15,
-        "revenue": 1867.98
+        "canal": "Nao identificado",
+        "orders": 37.99,
+        "revenue": 61643.42
+      },
+      {
+        "date": "2026-08-08",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 216.44,
+        "revenue": 351180.72
       },
       {
         "date": "2026-08-08",
@@ -3375,16 +3389,9 @@
       {
         "date": "2026-08-08",
         "platform": "app",
-        "canal": "Metasearch",
-        "orders": 157.73,
-        "revenue": 255913.61
-      },
-      {
-        "date": "2026-08-08",
-        "platform": "app",
-        "canal": "Nao identificado",
-        "orders": 37.99,
-        "revenue": 61643.42
+        "canal": "Outros",
+        "orders": 1.15,
+        "revenue": 1867.98
       },
       {
         "date": "2026-08-08",
@@ -3396,16 +3403,9 @@
       {
         "date": "2026-08-08",
         "platform": "web",
-        "canal": "Outros",
-        "orders": 2.31,
-        "revenue": 3684.7
-      },
-      {
-        "date": "2026-08-08",
-        "platform": "web",
-        "canal": "Direto",
-        "orders": 155.09,
-        "revenue": 246874.73
+        "canal": "Metasearch",
+        "orders": 1486.07,
+        "revenue": 2365575.76
       },
       {
         "date": "2026-08-08",
@@ -3424,16 +3424,23 @@
       {
         "date": "2026-08-08",
         "platform": "web",
-        "canal": "Metasearch",
-        "orders": 1486.07,
-        "revenue": 2365575.76
+        "canal": "Nao identificado",
+        "orders": 256.94,
+        "revenue": 409001.42
       },
       {
         "date": "2026-08-08",
         "platform": "web",
-        "canal": "Nao identificado",
-        "orders": 256.94,
-        "revenue": 409001.42
+        "canal": "Outros",
+        "orders": 2.31,
+        "revenue": 3684.7
+      },
+      {
+        "date": "2026-08-08",
+        "platform": "web",
+        "canal": "Direto",
+        "orders": 155.09,
+        "revenue": 246874.73
       },
       {
         "date": "2026-08-08",
@@ -3445,79 +3452,51 @@
       {
         "date": "2026-08-09",
         "platform": "app",
-        "canal": "Push",
-        "orders": 145.6,
-        "revenue": 260562.78
-      },
-      {
-        "date": "2026-08-09",
-        "platform": "app",
-        "canal": "Metasearch",
-        "orders": 163.5,
-        "revenue": 292599.19
-      },
-      {
-        "date": "2026-08-09",
-        "platform": "app",
-        "canal": "Midia paga",
-        "orders": 349.67,
-        "revenue": 625777.83
-      },
-      {
-        "date": "2026-08-09",
-        "platform": "app",
-        "canal": "Direto",
-        "orders": 230.33,
-        "revenue": 412201.78
-      },
-      {
-        "date": "2026-08-09",
-        "platform": "app",
         "canal": "Organico",
-        "orders": 112.18,
-        "revenue": 200761.49
+        "orders": 112.06,
+        "revenue": 200541.11
       },
       {
         "date": "2026-08-09",
         "platform": "app",
         "canal": "CRM",
-        "orders": 48.93,
-        "revenue": 87566.18
+        "orders": 48.88,
+        "revenue": 87470.06
+      },
+      {
+        "date": "2026-08-09",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 230.07,
+        "revenue": 411749.31
+      },
+      {
+        "date": "2026-08-09",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 145.44,
+        "revenue": 260276.76
+      },
+      {
+        "date": "2026-08-09",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 350.48,
+        "revenue": 627224.33
+      },
+      {
+        "date": "2026-08-09",
+        "platform": "app",
+        "canal": "Metasearch",
+        "orders": 163.32,
+        "revenue": 292278.01
       },
       {
         "date": "2026-08-09",
         "platform": "app",
         "canal": "Nao identificado",
-        "orders": 35.8,
-        "revenue": 64072.82
-      },
-      {
-        "date": "2026-08-09",
-        "platform": "web",
-        "canal": "Metasearch",
-        "orders": 1689.32,
-        "revenue": 2757373.51
-      },
-      {
-        "date": "2026-08-09",
-        "platform": "web",
-        "canal": "Midia paga",
-        "orders": 217.05,
-        "revenue": 354278.45
-      },
-      {
-        "date": "2026-08-09",
-        "platform": "web",
-        "canal": "Outros",
-        "orders": 3.45,
-        "revenue": 5623.47
-      },
-      {
-        "date": "2026-08-09",
-        "platform": "web",
-        "canal": "Direto",
-        "orders": 144.7,
-        "revenue": 236185.63
+        "orders": 35.76,
+        "revenue": 64002.48
       },
       {
         "date": "2026-08-09",
@@ -3536,9 +3515,135 @@
       {
         "date": "2026-08-09",
         "platform": "web",
+        "canal": "Outros",
+        "orders": 3.45,
+        "revenue": 5623.47
+      },
+      {
+        "date": "2026-08-09",
+        "platform": "web",
+        "canal": "Direto",
+        "orders": 144.7,
+        "revenue": 236185.63
+      },
+      {
+        "date": "2026-08-09",
+        "platform": "web",
+        "canal": "Midia paga",
+        "orders": 217.05,
+        "revenue": 354278.45
+      },
+      {
+        "date": "2026-08-09",
+        "platform": "web",
+        "canal": "Metasearch",
+        "orders": 1689.32,
+        "revenue": 2757373.51
+      },
+      {
+        "date": "2026-08-09",
+        "platform": "web",
         "canal": "Nao identificado",
         "orders": 243.46,
         "revenue": 397391.7
+      },
+      {
+        "date": "2026-08-10",
+        "platform": "app",
+        "canal": "Nao identificado",
+        "orders": 42.79,
+        "revenue": 72940.77
+      },
+      {
+        "date": "2026-08-10",
+        "platform": "app",
+        "canal": "Metasearch",
+        "orders": 153.34,
+        "revenue": 261371.08
+      },
+      {
+        "date": "2026-08-10",
+        "platform": "app",
+        "canal": "Direto",
+        "orders": 353.04,
+        "revenue": 601761.32
+      },
+      {
+        "date": "2026-08-10",
+        "platform": "app",
+        "canal": "Push",
+        "orders": 155.72,
+        "revenue": 265423.34
+      },
+      {
+        "date": "2026-08-10",
+        "platform": "app",
+        "canal": "Midia paga",
+        "orders": 448.13,
+        "revenue": 763851.91
+      },
+      {
+        "date": "2026-08-10",
+        "platform": "app",
+        "canal": "Organico",
+        "orders": 122.43,
+        "revenue": 208691.64
+      },
+      {
+        "date": "2026-08-10",
+        "platform": "app",
+        "canal": "CRM",
+        "orders": 47.55,
+        "revenue": 81045.3
+      },
+      {
+        "date": "2026-08-10",
+        "platform": "web",
+        "canal": "Nao identificado",
+        "orders": 301.29,
+        "revenue": 536171.08
+      },
+      {
+        "date": "2026-08-10",
+        "platform": "web",
+        "canal": "Metasearch",
+        "orders": 1650.27,
+        "revenue": 2936755.26
+      },
+      {
+        "date": "2026-08-10",
+        "platform": "web",
+        "canal": "Outros",
+        "orders": 2.28,
+        "revenue": 4061.9
+      },
+      {
+        "date": "2026-08-10",
+        "platform": "web",
+        "canal": "Direto",
+        "orders": 219.12,
+        "revenue": 389942.61
+      },
+      {
+        "date": "2026-08-10",
+        "platform": "web",
+        "canal": "Midia paga",
+        "orders": 326.4,
+        "revenue": 580852.01
+      },
+      {
+        "date": "2026-08-10",
+        "platform": "web",
+        "canal": "CRM",
+        "orders": 18.26,
+        "revenue": 32495.22
+      },
+      {
+        "date": "2026-08-10",
+        "platform": "web",
+        "canal": "Organico",
+        "orders": 657.37,
+        "revenue": 1169827.82
       }
     ]
   }
