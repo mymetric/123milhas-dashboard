@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-11T22:40:03.178299-03:00",
+  "generated_at": "2026-08-11T22:50:02.909614-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-11",
@@ -58,7 +58,7 @@
           81,
           86,
           83,
-          54,
+          66,
           null
         ],
         "revenue": [
@@ -84,7 +84,7 @@
           122997.71,
           137955.67,
           131472.09,
-          77061.7,
+          101605.75,
           null
         ],
         "orders_cum": [
@@ -110,7 +110,7 @@
           717,
           803,
           886,
-          940,
+          952,
           null
         ],
         "revenue_cum": [
@@ -136,7 +136,7 @@
           1188850.56,
           1326806.23,
           1458278.32,
-          1535340.02,
+          1559884.07,
           null
         ]
       },
@@ -164,7 +164,7 @@
           108,
           142,
           193,
-          140,
+          177,
           null
         ],
         "revenue": [
@@ -190,7 +190,7 @@
           190171.79,
           251382.74,
           293019.65,
-          194044.48,
+          248333.74,
           null
         ],
         "orders_cum": [
@@ -216,7 +216,7 @@
           1588,
           1730,
           1923,
-          2063,
+          2100,
           null
         ],
         "revenue_cum": [
@@ -242,7 +242,7 @@
           2605253.99,
           2856636.73,
           3149656.38,
-          3343700.86,
+          3397990.12,
           null
         ]
       },
@@ -270,7 +270,7 @@
           189,
           228,
           276,
-          194,
+          243,
           null
         ],
         "revenue": [
@@ -296,7 +296,7 @@
           313169.5,
           389338.41,
           424491.74,
-          271106.18,
+          349939.49,
           null
         ],
         "orders_cum": [
@@ -322,7 +322,7 @@
           2305,
           2533,
           2809,
-          3003,
+          3052,
           null
         ],
         "revenue_cum": [
@@ -348,7 +348,7 @@
           3794104.55,
           4183442.96,
           4607934.7,
-          4879040.88,
+          4957874.19,
           null
         ]
       }
@@ -996,49 +996,54 @@
   },
   "origin": [
     {
-      "platform": "web",
-      "canal": "Metasearch",
-      "orders": 806
+      "platform": "app",
+      "canal": "Direto",
+      "orders": 366
     },
     {
       "platform": "app",
-      "canal": "Direto",
-      "orders": 362
+      "canal": "Organico",
+      "orders": 295
     },
     {
       "platform": "web",
-      "canal": "Nao identificado",
+      "canal": "Organico",
       "orders": 412
     },
     {
-      "platform": "app",
+      "platform": "web",
       "canal": "Midia paga",
-      "orders": 69
+      "orders": 316
+    },
+    {
+      "platform": "web",
+      "canal": "Metasearch",
+      "orders": 829
     },
     {
       "platform": "web",
       "canal": "Direto",
-      "orders": 105
-    },
-    {
-      "platform": "web",
-      "canal": "Midia paga",
-      "orders": 312
-    },
-    {
-      "platform": "web",
-      "canal": "Organico",
-      "orders": 409
+      "orders": 107
     },
     {
       "platform": "app",
       "canal": "Nao identificado",
-      "orders": 192
+      "orders": 193
+    },
+    {
+      "platform": "web",
+      "canal": "Nao identificado",
+      "orders": 417
     },
     {
       "platform": "app",
-      "canal": "Organico",
-      "orders": 290
+      "canal": "Midia paga",
+      "orders": 70
+    },
+    {
+      "platform": "app",
+      "canal": "Push",
+      "orders": 12
     },
     {
       "platform": "web",
@@ -1048,7 +1053,7 @@
     {
       "platform": "app",
       "canal": "Metasearch",
-      "orders": 10
+      "orders": 11
     },
     {
       "platform": "app",
@@ -1059,11 +1064,6 @@
       "platform": "web",
       "canal": "CRM",
       "orders": 9
-    },
-    {
-      "platform": "app",
-      "canal": "Push",
-      "orders": 12
     },
     {
       "platform": "app",
