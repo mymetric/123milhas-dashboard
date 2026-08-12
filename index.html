@@ -306,6 +306,14 @@
     margin: -12px 0 24px;
   }
   /* ---- bloco de origem ---- */
+  .serie-topo {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px; margin-bottom: 10px;
+  }
+  .serie-topo .seg { margin-bottom: 0; }
+  .seg-serie button { font-size: 12px; padding: 4px 10px; }
+  .serie-topo .legend { margin-bottom: 0; }
+  .dot.total { background: #4a4842; }
   .baixar {
     background: none; border: 0; padding: 0; cursor: pointer;
     font: inherit; font-size: 12px; color: #2a78d6; text-decoration: underline;
@@ -505,9 +513,16 @@
     <h2>Pedidos por dia</h2>
     <button type="button" class="baixar" id="baixarSerie">baixar CSV</button>
     <p class="panel-sub">App = iOS + Android · Web = Mobile + DeskTop</p>
-    <div class="legend legend-plataforma">
-      <span data-plat="app"><span class="dot app"></span>App</span>
-      <span data-plat="web"><span class="dot web"></span>Web</span>
+    <div class="serie-topo">
+      <div class="seg seg-serie" data-serie="orders">
+        <button type="button" data-modo="split" class="active">App × Web</button>
+        <button type="button" data-modo="total">Total</button>
+      </div>
+      <div class="legend legend-plataforma" data-serie="orders">
+        <span data-plat="app"><span class="dot app"></span>App</span>
+        <span data-plat="web"><span class="dot web"></span>Web</span>
+        <span data-plat="total" style="display:none"><span class="dot total"></span>Total</span>
+      </div>
     </div>
     <canvas id="ordersChart"></canvas>
   </div>
@@ -515,9 +530,16 @@
   <div class="panel">
     <h2>Faturamento por dia (grand_total)</h2>
     <p class="panel-sub">Valores em R$</p>
-    <div class="legend legend-plataforma">
-      <span data-plat="app"><span class="dot app"></span>App</span>
-      <span data-plat="web"><span class="dot web"></span>Web</span>
+    <div class="serie-topo">
+      <div class="seg seg-serie" data-serie="revenue">
+        <button type="button" data-modo="split" class="active">App × Web</button>
+        <button type="button" data-modo="total">Total</button>
+      </div>
+      <div class="legend legend-plataforma" data-serie="revenue">
+        <span data-plat="app"><span class="dot app"></span>App</span>
+        <span data-plat="web"><span class="dot web"></span>Web</span>
+        <span data-plat="total" style="display:none"><span class="dot total"></span>Total</span>
+      </div>
     </div>
     <canvas id="revenueChart"></canvas>
   </div>
@@ -696,6 +718,10 @@ function filterData(data, from, to) {
 // Guarda o recorte de periodo em vigor: o filtro de plataforma re-renderiza
 // tudo em cima dele, sem refazer o filtro de datas.
 let dadosVisiveis = null;
+// Cada timeline tem o seu modo: 'split' compara App x Web, 'total' soma as duas
+// numa linha so. Quando o filtro global de plataforma esta em App ou Web nao ha
+// o que somar, entao o toggle some.
+const modoSerie = { orders: 'split', revenue: 'split' };
 
 function render(data) {
   dadosVisiveis = data;
@@ -752,13 +778,37 @@ function render(data) {
     </div>
   `;
 
-  document.querySelectorAll('.legend-plataforma span[data-plat]').forEach(el => {
-    el.style.display = (!soPlataforma || el.dataset.plat === plat) ? '' : 'none';
-  });
-
   const labels = series.map(d => d.date.slice(5)); // MM-DD
   const seriesApp = (key) => series.map(d => d[key]);
   const soDaPlataforma = (ds) => ds.filter(d => !soPlataforma || d.label.toLowerCase() === plat);
+
+  // monta os datasets de uma timeline conforme o filtro global + o modo dela
+  const datasetsSerie = (chave, campoApp, campoWeb) => {
+    const modo = soPlataforma ? 'split' : modoSerie[chave];
+    const seg = document.querySelector(`.seg-serie[data-serie="${chave}"]`);
+    if (seg) seg.style.display = soPlataforma ? 'none' : '';
+    document.querySelectorAll(`.legend-plataforma[data-serie="${chave}"] span[data-plat]`).forEach(el => {
+      const mostra = modo === 'total'
+        ? el.dataset.plat === 'total'
+        : el.dataset.plat !== 'total' && (!soPlataforma || el.dataset.plat === plat);
+      el.style.display = mostra ? '' : 'none';
+    });
+    if (modo === 'total') {
+      return [{
+        label: 'Total',
+        data: series.map(d => d[campoApp] + d[campoWeb]),
+        borderColor: '#4a4842',
+        backgroundColor: 'rgba(74,72,66,0.10)',
+        borderWidth: 2, pointRadius: 0, fill: true, tension: 0.25
+      }];
+    }
+    return soDaPlataforma([
+      { label: 'App', data: seriesApp(campoApp), borderColor: '#2a78d6',
+        backgroundColor: 'rgba(42,120,214,0.10)', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.25 },
+      { label: 'Web', data: seriesApp(campoWeb), borderColor: '#eb6834',
+        backgroundColor: 'rgba(235,104,52,0.10)', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.25 },
+    ]);
+  };
 
   const baseOptions = (yFmt) => ({
     responsive: true,
@@ -795,28 +845,7 @@ function render(data) {
     type: 'line',
     data: {
       labels,
-      datasets: soDaPlataforma([
-        {
-          label: 'App',
-          data: seriesApp('app_orders'),
-          borderColor: '#2a78d6',
-          backgroundColor: 'rgba(42,120,214,0.10)',
-          borderWidth: 2,
-          pointRadius: 0,
-          fill: true,
-          tension: 0.25
-        },
-        {
-          label: 'Web',
-          data: seriesApp('web_orders'),
-          borderColor: '#eb6834',
-          backgroundColor: 'rgba(235,104,52,0.10)',
-          borderWidth: 2,
-          pointRadius: 0,
-          fill: true,
-          tension: 0.25
-        }
-      ])
+      datasets: datasetsSerie('orders', 'app_orders', 'web_orders')
     },
     options: baseOptions(fmtInt)
   });
@@ -825,28 +854,7 @@ function render(data) {
     type: 'line',
     data: {
       labels,
-      datasets: soDaPlataforma([
-        {
-          label: 'App',
-          data: seriesApp('app_revenue'),
-          borderColor: '#2a78d6',
-          backgroundColor: 'rgba(42,120,214,0.10)',
-          borderWidth: 2,
-          pointRadius: 0,
-          fill: true,
-          tension: 0.25
-        },
-        {
-          label: 'Web',
-          data: seriesApp('web_revenue'),
-          borderColor: '#eb6834',
-          backgroundColor: 'rgba(235,104,52,0.10)',
-          borderWidth: 2,
-          pointRadius: 0,
-          fill: true,
-          tension: 0.25
-        }
-      ])
+      datasets: datasetsSerie('revenue', 'app_revenue', 'web_revenue')
     },
     options: baseOptions(fmtBRLCompact)
   });
@@ -941,6 +949,17 @@ const NOTA_MODELO = {
            'Ele só existe agregado (não vem no export do BigQuery, só na Data API), então aqui entra ' +
            'como proporção aplicada ao total do ERP — os outros dois são contagem exata por pedido.'
 };
+
+document.querySelectorAll('.seg-serie').forEach(seg => {
+  seg.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      seg.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      modoSerie[seg.dataset.serie] = btn.dataset.modo;
+      if (dadosVisiveis) render(dadosVisiveis);
+    });
+  });
+});
 
 document.getElementById('baixarCanal').addEventListener('click', () => {
   if (!exportaCanal) return;
