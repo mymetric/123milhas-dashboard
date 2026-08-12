@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-11T22:10:02.831552-03:00",
+  "generated_at": "2026-08-11T22:20:03.063930-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-11",
@@ -58,7 +58,7 @@
           81,
           86,
           83,
-          13,
+          25,
           null
         ],
         "revenue": [
@@ -84,7 +84,7 @@
           122997.71,
           137955.67,
           131472.09,
-          21477.17,
+          41695.79,
           null
         ],
         "orders_cum": [
@@ -110,7 +110,7 @@
           717,
           803,
           886,
-          899,
+          911,
           null
         ],
         "revenue_cum": [
@@ -136,7 +136,7 @@
           1188850.56,
           1326806.23,
           1458278.32,
-          1479755.49,
+          1499974.11,
           null
         ]
       },
@@ -164,7 +164,7 @@
           108,
           142,
           193,
-          25,
+          56,
           null
         ],
         "revenue": [
@@ -190,7 +190,7 @@
           190171.79,
           251382.74,
           293019.65,
-          28267.35,
+          69968.89,
           null
         ],
         "orders_cum": [
@@ -216,7 +216,7 @@
           1588,
           1730,
           1923,
-          1948,
+          1979,
           null
         ],
         "revenue_cum": [
@@ -242,7 +242,7 @@
           2605253.99,
           2856636.73,
           3149656.38,
-          3177923.73,
+          3219625.27,
           null
         ]
       },
@@ -270,7 +270,7 @@
           189,
           228,
           276,
-          38,
+          81,
           null
         ],
         "revenue": [
@@ -296,7 +296,7 @@
           313169.5,
           389338.41,
           424491.74,
-          49744.52,
+          111664.68,
           null
         ],
         "orders_cum": [
@@ -322,7 +322,7 @@
           2305,
           2533,
           2809,
-          2847,
+          2890,
           null
         ],
         "revenue_cum": [
@@ -348,7 +348,7 @@
           3794104.55,
           4183442.96,
           4607934.7,
-          4657679.22,
+          4719599.38,
           null
         ]
       }
@@ -996,44 +996,34 @@
   },
   "origin": [
     {
-      "platform": "app",
-      "canal": "Direto",
-      "orders": 343
-    },
-    {
-      "platform": "app",
-      "canal": "Nao identificado",
-      "orders": 182
-    },
-    {
-      "platform": "web",
-      "canal": "Metasearch",
-      "orders": 746
-    },
-    {
-      "platform": "web",
-      "canal": "Nao identificado",
-      "orders": 396
-    },
-    {
-      "platform": "web",
-      "canal": "Direto",
-      "orders": 98
-    },
-    {
       "platform": "web",
       "canal": "Midia paga",
-      "orders": 293
+      "orders": 299
+    },
+    {
+      "platform": "app",
+      "canal": "Nao identificado",
+      "orders": 186
     },
     {
       "platform": "web",
       "canal": "Organico",
-      "orders": 396
+      "orders": 402
     },
     {
       "platform": "app",
       "canal": "Organico",
-      "orders": 282
+      "orders": 284
+    },
+    {
+      "platform": "web",
+      "canal": "Direto",
+      "orders": 100
+    },
+    {
+      "platform": "web",
+      "canal": "Nao identificado",
+      "orders": 399
     },
     {
       "platform": "app",
@@ -1041,14 +1031,19 @@
       "orders": 66
     },
     {
-      "platform": "app",
+      "platform": "web",
       "canal": "Metasearch",
-      "orders": 9
+      "orders": 761
+    },
+    {
+      "platform": "app",
+      "canal": "Direto",
+      "orders": 348
     },
     {
       "platform": "web",
-      "canal": "Outros",
-      "orders": 10
+      "canal": "CRM",
+      "orders": 9
     },
     {
       "platform": "app",
@@ -1057,18 +1052,23 @@
     },
     {
       "platform": "web",
-      "canal": "CRM",
-      "orders": 9
+      "canal": "Outros",
+      "orders": 10
     },
     {
       "platform": "app",
-      "canal": "Outros",
-      "orders": 2
+      "canal": "Metasearch",
+      "orders": 10
     },
     {
       "platform": "app",
       "canal": "CRM",
       "orders": 3
+    },
+    {
+      "platform": "app",
+      "canal": "Outros",
+      "orders": 2
     }
   ],
   "erp": {
