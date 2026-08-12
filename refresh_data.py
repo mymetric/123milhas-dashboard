@@ -412,6 +412,26 @@ GA4_HOUR_SELECT = """
 """
 
 
+def _dia_ga4(creds, dia):
+    """Serie horaria de um dia fechado do GA4, tolerante a export atrasado.
+
+    A tabela diaria `events_YYYYMMDD` so aparece algumas horas depois da virada;
+    ate la existe `events_fresh_YYYYMMDD` com o mesmo schema. O BigQuery devolve
+    404 para tabela inexistente, entao sem esse fallback o intraday quebrava
+    toda manha -- e, como o tick aborta no primeiro erro, o data.json do dia
+    tambem deixava de ser publicado.
+    """
+    sufixo = dia.strftime("%Y%m%d")
+    for tabela in (f"{GA4_DATASET}.events_{sufixo}", f"{GA4_DATASET}.events_fresh_{sufixo}"):
+        try:
+            return bq_query(creds, GA4_HOUR_SELECT.format(table=tabela))
+        except requests.HTTPError as e:
+            if e.response is None or e.response.status_code != 404:
+                raise
+    print(f"aviso: sem tabela do GA4 para {dia} (nem events_ nem events_fresh_)", file=sys.stderr)
+    return None
+
+
 def gen_intraday(creds, anterior=None):
     """Hoje em tempo real (GA4 intraday) x ontem x mesmo dia da semana passada.
 
@@ -447,8 +467,9 @@ def gen_intraday(creds, anterior=None):
         series["last_week"] = anterior["series"]["last_week"]
     else:
         for chave, dia in (("yesterday", ontem), ("last_week", semana)):
-            series[chave] = _hourly_from_rows(bq_query(creds, GA4_HOUR_SELECT.format(
-                table=f"{GA4_DATASET}.events_{dia.strftime('%Y%m%d')}")))
+            linhas = _dia_ga4(creds, dia)
+            if linhas is not None:
+                series[chave] = _hourly_from_rows(linhas)
 
     # numero oficial do ERP pra hoje, so como referencia (chega atrasado)
     erp = bq_query(creds, f"""
