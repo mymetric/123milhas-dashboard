@@ -306,6 +306,17 @@
     margin: -12px 0 24px;
   }
   /* ---- bloco de origem ---- */
+  .filtros {
+    display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px;
+    margin-bottom: 18px;
+  }
+  .filtro { display: flex; flex-direction: column; gap: 5px; }
+  .filtro-label {
+    font-size: 11px; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--text-muted); font-weight: 600;
+  }
+  .filtros .seg, .filtros .date-filter { margin-bottom: 0; }
+  @media (max-width: 620px) { .filtros { gap: 12px; } }
   .seg {
     display: inline-flex;
     gap: 2px;
@@ -449,7 +460,10 @@
   </div>
 
   <div class="view active" id="viewGeral">
-  <div class="date-filter">
+  <div class="filtros">
+    <div class="filtro">
+      <span class="filtro-label">Período</span>
+      <div class="date-filter">
     <button class="date-filter-toggle" id="dateFilterToggle" type="button">
       <span id="dateFilterLabel">Período</span><span class="caret">▾</span>
     </button>
@@ -460,6 +474,20 @@
         <button class="reset" id="resetFilter" type="button">Limpar</button>
         <button id="applyFilter" type="button">Aplicar</button>
       </div>
+      </div>
+      </div>
+    </div>
+    <div class="filtro">
+      <span class="filtro-label">Plataforma</span>
+      <div class="seg" id="originSeg">
+        <button type="button" data-plat="total" class="active">Total</button>
+        <button type="button" data-plat="app">App</button>
+        <button type="button" data-plat="web">Web</button>
+      </div>
+    </div>
+    <div class="filtro">
+      <span class="filtro-label">Atribuição</span>
+      <div class="seg" id="originModelSeg"></div>
     </div>
   </div>
 
@@ -468,9 +496,9 @@
   <div class="panel">
     <h2>Pedidos por dia</h2>
     <p class="panel-sub">App = iOS + Android · Web = Mobile + DeskTop</p>
-    <div class="legend">
-      <span><span class="dot app"></span>App</span>
-      <span><span class="dot web"></span>Web</span>
+    <div class="legend legend-plataforma">
+      <span data-plat="app"><span class="dot app"></span>App</span>
+      <span data-plat="web"><span class="dot web"></span>Web</span>
     </div>
     <canvas id="ordersChart"></canvas>
   </div>
@@ -478,9 +506,9 @@
   <div class="panel">
     <h2>Faturamento por dia (grand_total)</h2>
     <p class="panel-sub">Valores em R$</p>
-    <div class="legend">
-      <span><span class="dot app"></span>App</span>
-      <span><span class="dot web"></span>Web</span>
+    <div class="legend legend-plataforma">
+      <span data-plat="app"><span class="dot app"></span>App</span>
+      <span data-plat="web"><span class="dot web"></span>Web</span>
     </div>
     <canvas id="revenueChart"></canvas>
   </div>
@@ -488,12 +516,6 @@
   <div class="panel" id="originPanel">
     <h2>Origem das vendas</h2>
     <p class="panel-sub" id="originSub">De onde vem a sessão que terminou em pedido</p>
-    <div class="seg seg-modelo" id="originModelSeg"></div>
-    <div class="seg" id="originSeg">
-      <button type="button" data-plat="total" class="active">Total</button>
-      <button type="button" data-plat="app">App</button>
-      <button type="button" data-plat="web">Web</button>
-    </div>
     <div class="rank" id="originRank"></div>
     <div class="rank-split">
       <span>Origem / mídia</span>
@@ -658,14 +680,43 @@ function filterData(data, from, to) {
   return { ...data, period: { start, end, days }, summary, series, origin };
 }
 
+// Guarda o recorte de periodo em vigor: o filtro de plataforma re-renderiza
+// tudo em cima dele, sem refazer o filtro de datas.
+let dadosVisiveis = null;
+
 function render(data) {
+  dadosVisiveis = data;
   const { period, summary, series } = data;
+  const plat = originPlatform;                    // 'total' | 'app' | 'web'
+  const soPlataforma = plat !== 'total';
 
   document.getElementById('period-sub').textContent =
     `Pedidos e faturamento por plataforma — ${period.days} dias (${period.start} a ${period.end}) — fonte: ${data.source}`;
 
   const statsEl = document.getElementById('stats');
-  statsEl.innerHTML = `
+  const rotulo = { app: 'App', web: 'Web' }[plat];
+  statsEl.innerHTML = soPlataforma ? `
+    <div class="stat-tile">
+      <div class="label">Pedidos via ${rotulo} no período</div>
+      <div class="value">${fmtInt(summary[plat + '_orders'])}</div>
+      <div class="sub">${summary[plat + '_orders_pct']}% dos pedidos do período</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Faturamento via ${rotulo} no período</div>
+      <div class="value">${fmtBRLCompact(summary[plat + '_revenue'])}</div>
+      <div class="sub">${summary[plat + '_revenue_pct']}% do faturamento do período</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Ticket médio</div>
+      <div class="value">${summary[plat + '_orders'] ? fmtBRLCompact(summary[plat + '_revenue'] / summary[plat + '_orders']) : '—'}</div>
+      <div class="sub">no recorte de ${rotulo}</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Total das duas plataformas</div>
+      <div class="value">${fmtInt(summary.total_orders)}</div>
+      <div class="sub">${fmtBRLCompact(summary.total_revenue)} em faturamento</div>
+    </div>
+  ` : `
     <div class="stat-tile">
       <div class="label">Pedidos totais no período</div>
       <div class="value">${fmtInt(summary.total_orders)}</div>
@@ -688,8 +739,13 @@ function render(data) {
     </div>
   `;
 
+  document.querySelectorAll('.legend-plataforma span[data-plat]').forEach(el => {
+    el.style.display = (!soPlataforma || el.dataset.plat === plat) ? '' : 'none';
+  });
+
   const labels = series.map(d => d.date.slice(5)); // MM-DD
   const seriesApp = (key) => series.map(d => d[key]);
+  const soDaPlataforma = (ds) => ds.filter(d => !soPlataforma || d.label.toLowerCase() === plat);
 
   const baseOptions = (yFmt) => ({
     responsive: true,
@@ -726,7 +782,7 @@ function render(data) {
     type: 'line',
     data: {
       labels,
-      datasets: [
+      datasets: soDaPlataforma([
         {
           label: 'App',
           data: seriesApp('app_orders'),
@@ -747,7 +803,7 @@ function render(data) {
           fill: true,
           tension: 0.25
         }
-      ]
+      ])
     },
     options: baseOptions(fmtInt)
   });
@@ -756,7 +812,7 @@ function render(data) {
     type: 'line',
     data: {
       labels,
-      datasets: [
+      datasets: soDaPlataforma([
         {
           label: 'App',
           data: seriesApp('app_revenue'),
@@ -777,7 +833,7 @@ function render(data) {
           fill: true,
           tension: 0.25
         }
-      ]
+      ])
     },
     options: baseOptions(fmtBRLCompact)
   });
@@ -851,7 +907,8 @@ document.querySelectorAll('#originSeg button').forEach(btn => {
     document.querySelectorAll('#originSeg button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     originPlatform = btn.dataset.plat;
-    if (originData) renderOrigin(originData);
+    // vale para o dash inteiro, nao so para o bloco de origem
+    if (dadosVisiveis) render(dadosVisiveis);
   });
 });
 
