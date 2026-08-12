@@ -306,6 +306,14 @@
     margin: -12px 0 24px;
   }
   /* ---- bloco de origem ---- */
+  .baixar {
+    background: none; border: 0; padding: 0; cursor: pointer;
+    font: inherit; font-size: 12px; color: #2a78d6; text-decoration: underline;
+  }
+  .baixar:hover { color: #1b5aa8; }
+  .panel > .baixar { position: absolute; top: 18px; right: 18px; }
+  .panel { position: relative; }
+  .rank-split .acoes { display: inline-flex; gap: 14px; }
   .filtros {
     display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px;
     margin-bottom: 18px;
@@ -495,6 +503,7 @@
 
   <div class="panel">
     <h2>Pedidos por dia</h2>
+    <button type="button" class="baixar" id="baixarSerie">baixar CSV</button>
     <p class="panel-sub">App = iOS + Android · Web = Mobile + DeskTop</p>
     <div class="legend legend-plataforma">
       <span data-plat="app"><span class="dot app"></span>App</span>
@@ -516,10 +525,14 @@
   <div class="panel" id="originPanel">
     <h2>Origem das vendas</h2>
     <p class="panel-sub" id="originSub">De onde vem a sessão que terminou em pedido</p>
+    <button type="button" class="baixar" id="baixarCanal">baixar CSV</button>
     <div class="rank" id="originRank"></div>
     <div class="rank-split">
       <span>Origem / mídia</span>
-      <button type="button" id="originSMToggle">ver tudo</button>
+      <span class="acoes">
+        <button type="button" id="originSMToggle">ver tudo</button>
+        <button type="button" class="baixar" id="baixarSM">baixar CSV</button>
+      </span>
     </div>
     <div class="tabela-wrap">
       <table class="tabela" id="originTableSM">
@@ -841,6 +854,36 @@ function render(data) {
   renderOrigin(data);
 }
 
+// ---------------- Download CSV ----------------
+// Separador ';' e decimal com virgula: e o que o Excel em pt-BR abre sem pedir
+// assistente de importacao. BOM na frente pra acentuacao nao sair quebrada.
+function baixaCSV(nomeBase, colunas, linhas) {
+  const num = v => typeof v !== 'number' ? v
+    : Number.isInteger(v) ? v.toLocaleString('pt-BR')
+    : v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const escapa = v => {
+    const t = String(v ?? '');
+    return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+  };
+  const corpo = [colunas.map(c => c.titulo).join(';')]
+    .concat(linhas.map(l => colunas.map(c => escapa(num(c.valor(l)))).join(';')))
+    .join('\r\n');
+  const url = URL.createObjectURL(new Blob(['\ufeff' + corpo], { type: 'text/csv;charset=utf-8;' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nomeBase.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// O nome do arquivo carrega o recorte: sem isso, dois CSVs baixados com filtros
+// diferentes viram o mesmo nome na pasta de downloads.
+function sufixoRecorte(data) {
+  const modelo = (data.origin.models || []).find(m => m.id === originModelo)?.label || 'ultimo clique';
+  return `${modelo} ${originPlatform} ${data.period.start} a ${data.period.end}`;
+}
+
 // ---------------- Origem ----------------
 // Ordem fixa: um canal tem sempre a mesma cor, mesmo que suma do recorte.
 // Tudo que não está nesta lista cai em "Outros"; "Sem origem" é o pedido que o
@@ -864,6 +907,8 @@ function normalizaCanal(canal) {
   return CONHECIDOS.has(canal) ? canal : 'Outros';
 }
 
+let exportaCanal = null;
+let exportaSM = null;
 let originPlatform = 'total';
 let originModelo = 'last';
 let originSMTudo = false;
@@ -896,6 +941,46 @@ const NOTA_MODELO = {
            'Ele só existe agregado (não vem no export do BigQuery, só na Data API), então aqui entra ' +
            'como proporção aplicada ao total do ERP — os outros dois são contagem exata por pedido.'
 };
+
+document.getElementById('baixarCanal').addEventListener('click', () => {
+  if (!exportaCanal) return;
+  const { itens, total, data } = exportaCanal;
+  baixaCSV(`123milhas canal ${sufixoRecorte(data)}`, [
+    { titulo: 'Canal',        valor: i => LABEL_CANAL[i.canal] || i.canal },
+    { titulo: 'Pedidos',      valor: i => Math.round(i.valor) },
+    { titulo: '% dos pedidos', valor: i => total ? +(i.valor / total * 100).toFixed(2) : 0 },
+    { titulo: 'Faturamento',  valor: i => +i.receita.toFixed(2) },
+    { titulo: 'Ticket medio', valor: i => i.valor ? +(i.receita / i.valor).toFixed(2) : 0 },
+  ], itens);
+});
+
+document.getElementById('baixarSM').addEventListener('click', () => {
+  if (!exportaSM) return;
+  const { itens, total, data } = exportaSM;
+  baixaCSV(`123milhas origem-midia ${sufixoRecorte(data)}`, [
+    { titulo: 'Origem',       valor: i => i.label.split(' / ')[0] },
+    { titulo: 'Midia',        valor: i => i.label.split(' / ')[1] },
+    { titulo: 'Canal',        valor: i => LABEL_CANAL[i.canal] || i.canal },
+    { titulo: 'Pedidos',      valor: i => Math.round(i.valor) },
+    { titulo: '% dos pedidos', valor: i => total ? +(i.valor / total * 100).toFixed(2) : 0 },
+    { titulo: 'Faturamento',  valor: i => +i.receita.toFixed(2) },
+    { titulo: 'Ticket medio', valor: i => i.valor ? +(i.receita / i.valor).toFixed(2) : 0 },
+  ], itens);
+});
+
+document.getElementById('baixarSerie').addEventListener('click', () => {
+  if (!dadosVisiveis) return;
+  const plat = originPlatform;
+  const cols = [{ titulo: 'Data', valor: d => d.date }];
+  if (plat !== 'web') cols.push(
+    { titulo: 'Pedidos app',     valor: d => d.app_orders },
+    { titulo: 'Faturamento app', valor: d => +d.app_revenue.toFixed(2) });
+  if (plat !== 'app') cols.push(
+    { titulo: 'Pedidos web',     valor: d => d.web_orders },
+    { titulo: 'Faturamento web', valor: d => +d.web_revenue.toFixed(2) });
+  baixaCSV(`123milhas pedidos por dia ${plat} ${dadosVisiveis.period.start} a ${dadosVisiveis.period.end}`,
+           cols, dadosVisiveis.series);
+});
 
 document.getElementById('originSMToggle').addEventListener('click', () => {
   originSMTudo = !originSMTudo;
@@ -958,6 +1043,7 @@ function renderOrigin(data) {
   const itens = Object.entries(porCanal)
     .map(([canal, v]) => ({ canal, valor: v.pedidos, receita: v.receita }))
     .sort((a, b) => b.valor - a.valor);
+  exportaCanal = { itens, total: itens.reduce((s, i) => s + i.valor, 0), data };
   const total = itens.reduce((s, i) => s + i.valor, 0);
 
   document.getElementById('originSub').textContent =
@@ -990,6 +1076,7 @@ function renderOrigin(data) {
       .map(([label, v]) => ({ label, canal: v.canal, valor: v.pedidos, receita: v.receita }))
       .sort((a, b) => b.valor - a.valor);
     const totalSM = todos.reduce((s, i) => s + i.valor, 0);
+    exportaSM = { itens: todos, total: totalSM, data };  // lista inteira, nao o top 10
 
     let mostra = todos;
     if (!originSMTudo && todos.length > ORIGIN_SM_TOPO) {
