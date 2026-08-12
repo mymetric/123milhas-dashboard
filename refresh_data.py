@@ -40,6 +40,8 @@ BRT = datetime.timezone(datetime.timedelta(hours=-3))
 
 GA4_DATASET = "grupo123-metrics.analytics_327722742"
 ORIGIN_TABLE = "grupo123-metrics.df_granular_us.order_origin_full"
+# credito do modelo data-driven do proprio GA4 (Data API -> tools/ga4_dda_to_bq.py)
+DDA_TABLE = "grupo123-metrics.df_granular_us.ga4_dda_canal"
 ERP_TABLE = "grupo123-metrics.df_granular.orders"
 
 # Quantos dias reprocessar de origem a cada rodada. O GA4 fecha a tabela do dia
@@ -108,118 +110,163 @@ def p_str(name, value):
 
 
 
+MODELOS = [
+    ("last",    "Último clique"),
+    ("first",   "Primeiro clique"),
+    ("ga4_dda", "Baseado em dados (GA4)"),
+]
+
+
+def _junta(linhas, chaves):
+    out = {}
+    for r in linhas:
+        k = tuple(r[c] for c in chaves)
+        if k in out:
+            out[k]["orders"] += r["orders"]
+            out[k]["revenue"] = round(out[k]["revenue"] + r["revenue"], 2)
+        else:
+            out[k] = r
+    return list(out.values())
+
+
 def gen_origin_block(creds, erp_series):
-    """Origem por dia/plataforma, contada pedido a pedido.
+    """Origem por dia/plataforma nos tres modelos de atribuicao.
 
-    `order_origin_full` (mantida pelo Dataform) tem 1 linha por pedido do ERP,
-    com a origem ja resolvida por 3 rotas (search_id / purchase / URL do
-    checkout) e cobertura de ~97% dos pedidos. Entao aqui nao ha mais rateio:
-    contamos pedido e receita de verdade por canal.
+    `last` e `first` sao EXATOS por pedido: saem de order_origin_full, que tem
+    1 linha por pedido do ERP. O que nenhuma rota resolveu vira "Sem origem", e
+    a diferenca contra o total do ERP (a replicacao anda 1x/dia, a serie do topo
+    de hora em hora) cai no mesmo balde -- o bloco fecha com o topo.
 
-    O que a pipeline nao resolveu vira "Sem origem" explicito. A diferenca entre
-    o total do ERP (serie do topo, atualizada de hora em hora) e o que existe na
-    tabela replicada (que anda 1x/dia) cai no mesmo balde, pro bloco continuar
-    fechando com os totais do topo.
+    `ga4_dda` e o modelo data-driven do proprio GA4, que **so existe agregado**:
+    o credito nao vem no export do BigQuery, so na Data API, por dia x
+    plataforma x source/medium e em valor fracionado. Entao aqui ele entra como
+    PROPORCAO aplicada ao total do ERP, nao como contagem de pedido.
     """
-    rows = bq_query(creds, f"""
-      SELECT CAST(order_date AS STRING) AS d, plataforma, canal,
-             COALESCE(source, "(not set)") AS source,
-             COALESCE(medium, "(not set)") AS medium,
+    por_pedido = bq_query(creds, f"""
+      SELECT CAST(order_date AS STRING) AS d, plataforma,
+             canal, COALESCE(source, "(not set)") AS source, COALESCE(medium, "(not set)") AS medium,
+             canal_first, COALESCE(source_first, "(not set)") AS source_first,
+             COALESCE(medium_first, "(not set)") AS medium_first,
              COUNT(*) AS pedidos, SUM(grand_total) AS receita
       FROM `{ORIGIN_TABLE}`
       WHERE order_date >= DATE_SUB(CURRENT_DATE("America/Sao_Paulo"), INTERVAL 120 DAY)
+      GROUP BY 1, 2, 3, 4, 5, 6, 7, 8
+    """)
+    dda = bq_query(creds, f"""
+      SELECT CAST(order_date AS STRING) AS d, plataforma, canal,
+             COALESCE(source, "(not set)") AS source, COALESCE(medium, "(not set)") AS medium,
+             SUM(credito) AS credito, SUM(receita_credito) AS receita_credito
+      FROM `{DDA_TABLE}`
+      WHERE order_date >= DATE_SUB(CURRENT_DATE("America/Sao_Paulo"), INTERVAL 120 DAY)
       GROUP BY 1, 2, 3, 4, 5
     """)
-    if not rows:
+    if not por_pedido:
         return None
 
-    # {(data, plataforma): {canal: (pedidos, receita)}} e o mesmo quebrado por
-    # source/medium, que alimenta o ranking detalhado do dashboard.
+    def rotula(canal):
+        return "Sem origem" if canal in ("Nao identificado", None) else canal
+
+    # {(modelo, data, plataforma): {(canal, source, medium): (pedidos, receita)}}
     tab = {}
-    tab_sm = {}
-    for r in rows:
-        canal = r["canal"] if r["canal"] != "Nao identificado" else "Sem origem"
-        chave = (r["d"], r["plataforma"])
+    for r in por_pedido:
         ped, rec = int(r["pedidos"]), float(r["receita"] or 0)
-        p0, r0 = tab.setdefault(chave, {}).get(canal, (0, 0.0))
-        tab[chave][canal] = (p0 + ped, r0 + rec)
-        # o "Sem origem" nao tem source/medium util: colapsa numa linha so
+        for modelo, c, sc, md in (("last",  r["canal"],       r["source"],       r["medium"]),
+                                  ("first", r["canal_first"], r["source_first"], r["medium_first"])):
+            canal = rotula(c)
+            sm = ("(sem origem)", "(sem origem)") if canal == "Sem origem" else (sc, md)
+            chave = (modelo, r["d"], r["plataforma"])
+            p0, r0 = tab.setdefault(chave, {}).get((canal,) + sm, (0, 0.0))
+            tab[chave][(canal,) + sm] = (p0 + ped, r0 + rec)
+
+    # o DDA vem em credito fracionado; guarda cru e rateia depois
+    credito = {}
+    for r in dda:
+        canal = rotula(r["canal"])
         sm = ("(sem origem)", "(sem origem)") if canal == "Sem origem" else (r["source"], r["medium"])
-        p1, r1 = tab_sm.setdefault(chave, {}).get((canal,) + sm, (0, 0.0))
-        tab_sm[chave][(canal,) + sm] = (p1 + ped, r1 + rec)
+        chave = ("ga4_dda", r["d"], r["plataforma"])
+        c0, rc0 = credito.setdefault(chave, {}).get((canal,) + sm, (0.0, 0.0))
+        credito[chave][(canal,) + sm] = (c0 + float(r["credito"] or 0),
+                                         rc0 + float(r["receita_credito"] or 0))
 
     erp = {d["date"]: d for d in erp_series}
+    COBERTURA_MINIMA = 0.5   # replicacao nao passou
+    ORIGEM_MINIMA = 0.2      # export do GA4 daquele dia ja foi apagado pela retencao
 
-    # Dia em que a tabela mal tem pedido nao entra: a replicacao nao passou.
-    COBERTURA_MINIMA = 0.5
-    # Dia em que quase nenhum pedido tem origem nao e um dia de atribuicao ruim:
-    # e um dia cujo export do GA4 ja foi apagado pela retencao (~36 dias). Mostrar
-    # esses dias como "100% sem origem" mentiria sobre a qualidade da atribuicao,
-    # entao eles ficam fora do bloco (o volume continua no topo do dashboard).
-    ORIGEM_MINIMA = 0.2
+    # O DDA vem da Data API, que guarda agregado por 14 meses -- ele cobre dias
+    # que o export do BigQuery ja apagou. Se cada modelo usasse a sua janela, o
+    # total mudaria ao trocar de modelo e pareceria bug. Entao a janela e a do
+    # `last` (a mais restrita) para os tres.
+    out, out_sm, resumo = [], [], {}
+    celulas_ok = None
+    for modelo, _ in MODELOS:
+        aceitas = set()
+        com_origem = total_erp = 0
+        for dia in sorted(d["date"] for d in erp_series):
+            dia_erp = erp[dia]
+            for plataforma in ("app", "web"):
+                erp_pedidos = dia_erp[f"{plataforma}_orders"]
+                erp_receita = dia_erp[f"{plataforma}_revenue"]
+                if not erp_pedidos:
+                    continue
 
-    out = []
-    out_sm = []
-    com_origem = 0
-    total_erp = 0
-    for dia in sorted(d["date"] for d in erp_series):
-        dia_erp = erp[dia]
-        for plataforma in ("app", "web"):
-            erp_pedidos = dia_erp[f"{plataforma}_orders"]
-            erp_receita = dia_erp[f"{plataforma}_revenue"]
-            if not erp_pedidos:
-                continue
-            canais = tab.get((dia, plataforma), {})
-            na_tabela = sum(p for p, _ in canais.values())
-            if na_tabela < erp_pedidos * COBERTURA_MINIMA:
-                continue
-            resolvidos = sum(p for c, (p, _) in canais.items() if c != "Sem origem")
-            if resolvidos < na_tabela * ORIGEM_MINIMA:
-                continue
+                if celulas_ok is not None and (dia, plataforma) not in celulas_ok:
+                    continue
 
-            total_erp += erp_pedidos
-            com_origem += resolvidos
+                if modelo == "ga4_dda":
+                    fatias = credito.get((modelo, dia, plataforma), {})
+                    total_credito = sum(v for v, _ in fatias.values())
+                    total_receita = sum(rc for _, rc in fatias.values())
+                    resolvido = sum(v for (c, _, _), (v, _) in fatias.items() if c != "Sem origem")
+                    if not total_credito or resolvido < total_credito * ORIGEM_MINIMA:
+                        continue
+                    # pedido rateado pelo credito de conversao; faturamento pelo
+                    # credito de RECEITA -- se usasse o mesmo, o ticket medio
+                    # sairia identico em toda linha, que e artefato do rateio.
+                    itens = {k: (erp_pedidos * v / total_credito,
+                                 erp_receita * rc / total_receita if total_receita else 0)
+                             for k, (v, rc) in fatias.items()}
+                    sobra = 0
+                    total_erp += erp_pedidos
+                    com_origem += erp_pedidos * resolvido / total_credito
+                    aceitas.add((dia, plataforma))
+                else:
+                    itens = tab.get((modelo, dia, plataforma), {})
+                    na_tabela = sum(p for p, _ in itens.values())
+                    if na_tabela < erp_pedidos * COBERTURA_MINIMA:
+                        continue
+                    resolvido = sum(p for (c, _, _), (p, _) in itens.items() if c != "Sem origem")
+                    if resolvido < na_tabela * ORIGEM_MINIMA:
+                        continue
+                    sobra = erp_pedidos - na_tabela
+                    sobra_receita = max(erp_receita - sum(r for _, r in itens.values()), 0)
+                    total_erp += erp_pedidos
+                    com_origem += resolvido
+                    aceitas.add((dia, plataforma))
 
-            for canal, (ped, rec) in canais.items():
-                out.append({"date": dia, "platform": plataforma, "canal": canal,
-                            "orders": float(ped), "revenue": round(rec, 2)})
-            for (canal, src, med), (ped, rec) in tab_sm.get((dia, plataforma), {}).items():
-                out_sm.append({"date": dia, "platform": plataforma, "canal": canal,
-                               "source": src, "medium": med,
-                               "orders": float(ped), "revenue": round(rec, 2)})
+                for (canal, src, med), (ped, rec) in itens.items():
+                    base = {"modelo": modelo, "date": dia, "platform": plataforma, "canal": canal,
+                            "orders": round(ped, 2), "revenue": round(rec, 2)}
+                    out.append(dict(base))
+                    out_sm.append({**base, "source": src, "medium": med})
+                if sobra > 0:
+                    base = {"modelo": modelo, "date": dia, "platform": plataforma,
+                            "canal": "Sem origem", "orders": float(sobra),
+                            "revenue": round(sobra_receita, 2)}
+                    out.append(dict(base))
+                    out_sm.append({**base, "source": "(sem origem)", "medium": "(sem origem)"})
 
-            # pedido que o ERP ja tem e a replicacao ainda nao trouxe
-            sobra = erp_pedidos - na_tabela
-            if sobra > 0:
-                sobra_receita = max(erp_receita - sum(r for _, r in canais.values()), 0)
-                out.append({"date": dia, "platform": plataforma, "canal": "Sem origem",
-                            "orders": float(sobra), "revenue": round(sobra_receita, 2)})
-                out_sm.append({"date": dia, "platform": plataforma, "canal": "Sem origem",
-                               "source": "(sem origem)", "medium": "(sem origem)",
-                               "orders": float(sobra), "revenue": round(sobra_receita, 2)})
+        resumo[modelo] = round(com_origem / total_erp * 100, 1) if total_erp else 0
+        if celulas_ok is None:
+            celulas_ok = aceitas
 
-    # junta os dois caminhos que viram "Sem origem" numa linha so por dia/plataforma
-    def junta(linhas, chaves):
-        juntado = {}
-        for r in linhas:
-            k = tuple(r[c] for c in chaves)
-            if k in juntado:
-                juntado[k]["orders"] += r["orders"]
-                juntado[k]["revenue"] = round(juntado[k]["revenue"] + r["revenue"], 2)
-            else:
-                juntado[k] = r
-        return list(juntado.values())
-
-    out = junta(out, ("date", "platform", "canal"))
-    out_sm = junta(out_sm, ("date", "platform", "canal", "source", "medium"))
-
+    out = _junta(out, ("modelo", "date", "platform", "canal"))
+    out_sm = _junta(out_sm, ("modelo", "date", "platform", "canal", "source", "medium"))
     dias = sorted({r["date"] for r in out})
     return {
-        "source": "df_granular_us.order_origin_full (Dataform): search_id do GA4, "
-                  "purchase (transaction_id) e deeplink da URL do checkout",
+        "models": [{"id": m, "label": lbl, "match_pct": resumo.get(m, 0)} for m, lbl in MODELOS],
         "start": dias[0] if dias else None,
         "end": dias[-1] if dias else None,
-        "match_pct": round(com_origem / total_erp * 100, 1) if total_erp else 0,
+        "match_pct": resumo.get("last", 0),
         "rows": out,
         "rows_sm": out_sm,
     }

@@ -373,6 +373,21 @@
     color: var(--text-primary);
     font-weight: 600;
   }
+  .seg-modelo { margin-bottom: 8px; }
+  .tabela-wrap { overflow-x: auto; margin: 0 0 4px; }
+  .tabela { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tabela th, .tabela td { padding: 7px 10px; text-align: left; white-space: nowrap; }
+  .tabela th {
+    font-size: 11px; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--fraco, #898781); font-weight: 600;
+    border-bottom: 1px solid var(--linha, #e8e7e0);
+  }
+  .tabela td { border-bottom: 1px solid #f2f1ec; font-variant-numeric: tabular-nums; }
+  .tabela tbody tr:last-child td { border-bottom: 0; }
+  .tabela tbody tr:hover td { background: #f7f6f1; }
+  .tabela .num { text-align: right; }
+  .tabela .canal-cel { display: flex; align-items: center; gap: 6px; }
+  .tabela .linha-resto td { color: var(--fraco, #898781); font-style: italic; }
   .rank-split {
     display: flex; align-items: baseline; justify-content: space-between;
     margin: 18px 0 6px; padding-top: 14px;
@@ -473,6 +488,7 @@
   <div class="panel" id="originPanel">
     <h2>Origem das vendas</h2>
     <p class="panel-sub" id="originSub">De onde vem a sessão que terminou em pedido</p>
+    <div class="seg seg-modelo" id="originModelSeg"></div>
     <div class="seg" id="originSeg">
       <button type="button" data-plat="total" class="active">Total</button>
       <button type="button" data-plat="app">App</button>
@@ -483,7 +499,16 @@
       <span>Origem / mídia</span>
       <button type="button" id="originSMToggle">ver tudo</button>
     </div>
-    <div class="rank rank-sm" id="originRankSM"></div>
+    <div class="tabela-wrap">
+      <table class="tabela" id="originTableSM">
+        <thead><tr>
+          <th>Origem / mídia</th><th>Canal</th>
+          <th class="num">Pedidos</th><th class="num">%</th>
+          <th class="num">Faturamento</th><th class="num">Ticket médio</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
     <p class="origin-note" id="originNote"></p>
   </div>
 
@@ -784,10 +809,37 @@ function normalizaCanal(canal) {
 }
 
 let originPlatform = 'total';
+let originModelo = 'last';
 let originSMTudo = false;
 const ORIGIN_SM_TOPO = 10;
 let originChart = null;
 let originData = null;
+
+function montaSeletorModelo(modelos) {
+  const el = document.getElementById('originModelSeg');
+  if (el.dataset.pronto) return;
+  el.innerHTML = modelos.map(m =>
+    `<button type="button" data-modelo="${m.id}"${m.id === originModelo ? ' class="active"' : ''}>${m.label}</button>`
+  ).join('');
+  el.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      el.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      originModelo = btn.dataset.modelo;
+      if (originData) renderOrigin(originData);
+    });
+  });
+  el.dataset.pronto = '1';
+}
+
+// Explica o que muda entre os modelos — sem isso o seletor vira caixa-preta.
+const NOTA_MODELO = {
+  last: 'Crédito inteiro para a origem da sessão que fechou o pedido.',
+  first: 'Crédito inteiro para a primeira origem que trouxe o usuário (primeiro toque, escopo de usuário).',
+  ga4_dda: 'Modelo data-driven do próprio GA4, que reparte o crédito entre os toques da jornada. ' +
+           'Ele só existe agregado (não vem no export do BigQuery, só na Data API), então aqui entra ' +
+           'como proporção aplicada ao total do ERP — os outros dois são contagem exata por pedido.'
+};
 
 document.getElementById('originSMToggle').addEventListener('click', () => {
   originSMTudo = !originSMTudo;
@@ -833,7 +885,10 @@ function renderOrigin(data) {
   painel.style.display = '';
   painelDiario.style.display = '';
 
-  const linhas = data.origin.rows.filter(r => originPlatform === 'total' || r.platform === originPlatform);
+  montaSeletorModelo(data.origin.models || [{ id: 'last', label: 'Último clique' }]);
+  const doModelo = r => (r.modelo || 'last') === originModelo;
+  const linhas = data.origin.rows.filter(doModelo)
+    .filter(r => originPlatform === 'total' || r.platform === originPlatform);
 
   const porCanal = {};
   linhas.forEach(r => {
@@ -855,16 +910,18 @@ function renderOrigin(data) {
   // ---- origem / mídia ----
   // Mesma cor do canal a que o par pertence, pra leitura cruzada com o ranking
   // de cima. "(sem origem)" é o pedido que nenhuma das rotas resolveu.
-  const linhasSM = (data.origin.rows_sm || [])
+  const linhasSM = (data.origin.rows_sm || []).filter(doModelo)
     .filter(r => originPlatform === 'total' || r.platform === originPlatform);
-  const painelSM = document.getElementById('originRankSM');
+  const corpo = document.querySelector('#originTableSM tbody');
   const toggleSM = document.getElementById('originSMToggle');
 
   if (!linhasSM.length) {
-    painelSM.innerHTML = '';
+    corpo.innerHTML = '';
     document.querySelector('.rank-split').style.display = 'none';
+    document.querySelector('.tabela-wrap').style.display = 'none';
   } else {
     document.querySelector('.rank-split').style.display = '';
+    document.querySelector('.tabela-wrap').style.display = '';
     const porSM = {};
     linhasSM.forEach(r => {
       const k = `${r.source} / ${r.medium}`;
@@ -881,19 +938,29 @@ function renderOrigin(data) {
     if (!originSMTudo && todos.length > ORIGIN_SM_TOPO) {
       const resto = todos.slice(ORIGIN_SM_TOPO);
       mostra = todos.slice(0, ORIGIN_SM_TOPO).concat([{
-        label: `outros (${resto.length})`, canal: 'Outros',
+        label: `outros (${resto.length})`, canal: 'Outros', resto: true,
         valor: resto.reduce((s, i) => s + i.valor, 0),
         receita: resto.reduce((s, i) => s + i.receita, 0)
       }]);
     }
-    renderRank(painelSM, mostra, totalSM, v => fmtInt(Math.round(v)));
+    corpo.innerHTML = mostra.map(i => `
+      <tr${i.resto ? ' class="linha-resto"' : ''}>
+        <td>${i.label}</td>
+        <td><span class="canal-cel"><span class="swatch" style="background:${COR_CANAL[i.canal] || '#898781'}"></span>${LABEL_CANAL[i.canal] || i.canal}</span></td>
+        <td class="num">${fmtInt(Math.round(i.valor))}</td>
+        <td class="num">${totalSM ? (i.valor / totalSM * 100).toFixed(1) : '0.0'}%</td>
+        <td class="num">${fmtBRLCompact(i.receita)}</td>
+        <td class="num">${i.valor ? fmtBRLCompact(i.receita / i.valor) : '—'}</td>
+      </tr>`).join('');
     toggleSM.style.display = todos.length > ORIGIN_SM_TOPO ? '' : 'none';
     toggleSM.textContent = originSMTudo ? 'ver top 10' : `ver todos (${todos.length})`;
   }
 
   document.getElementById('originNote').innerHTML =
-    `Origem resolvida pedido a pedido (não é rateio): <b>${data.origin.match_pct}%</b> dos pedidos do ERP ` +
-    `têm origem identificada, e o resto aparece como "Sem origem" — o bloco fecha com os números do topo. ` +
+    `<b>${(data.origin.models || []).find(m => m.id === originModelo)?.label || 'Último clique'}:</b> ` +
+    `${NOTA_MODELO[originModelo] || ''} ` +
+    `<b>${((data.origin.models || []).find(m => m.id === originModelo) || data.origin).match_pct}%</b> dos pedidos ` +
+    `do ERP têm origem identificada neste modelo; o resto aparece como "Sem origem" — o bloco fecha com os números do topo. ` +
     `Disponível a partir de ${data.origin.start} — o export do GA4 só guarda ~36 dias. ` +
     `Faturamento por canal: ${itens.map(i => `${LABEL_CANAL[i.canal] || i.canal} ${fmtBRLCompact(i.receita)}`).join(' · ')}.`;
 
