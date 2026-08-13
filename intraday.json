@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-12T23:00:03.109710-03:00",
+  "generated_at": "2026-08-12T23:07:05.339127-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-12",
@@ -59,7 +59,7 @@
           87,
           67,
           59,
-          2
+          11
         ],
         "revenue": [
           48387.46,
@@ -85,7 +85,7 @@
           126475.46,
           101672.65,
           83228.99,
-          3180.11
+          24207.02
         ],
         "orders_cum": [
           30,
@@ -111,7 +111,7 @@
           786,
           853,
           912,
-          914
+          923
         ],
         "revenue_cum": [
           48387.46,
@@ -137,7 +137,7 @@
           1245619.69,
           1347292.34,
           1430521.33,
-          1433701.44
+          1454728.35
         ]
       },
       "web": {
@@ -165,7 +165,7 @@
           138,
           142,
           127,
-          0
+          11
         ],
         "revenue": [
           136749.13,
@@ -191,7 +191,7 @@
           207878.74,
           216804.0,
           186126.33,
-          0.0
+          20288.42
         ],
         "orders_cum": [
           85,
@@ -217,7 +217,7 @@
           1864,
           2006,
           2133,
-          2133
+          2144
         ],
         "revenue_cum": [
           136749.13,
@@ -243,7 +243,7 @@
           3180363.85,
           3397167.85,
           3583294.18,
-          3583294.18
+          3603582.6
         ]
       },
       "total": {
@@ -271,7 +271,7 @@
           225,
           209,
           186,
-          2
+          22
         ],
         "revenue": [
           185136.59,
@@ -297,7 +297,7 @@
           334354.2,
           318476.65,
           269355.32,
-          3180.11
+          44495.44
         ],
         "orders_cum": [
           115,
@@ -323,7 +323,7 @@
           2650,
           2859,
           3045,
-          3047
+          3067
         ],
         "revenue_cum": [
           185136.59,
@@ -349,7 +349,7 @@
           4425983.54,
           4744460.19,
           5013815.51,
-          5016995.62
+          5058310.95
         ]
       }
     },
@@ -997,38 +997,43 @@
   "origin": [
     {
       "platform": "web",
-      "canal": "Metasearch",
-      "orders": 833
-    },
-    {
-      "platform": "web",
       "canal": "Organico",
-      "orders": 418
-    },
-    {
-      "platform": "web",
-      "canal": "Nao identificado",
-      "orders": 435
+      "orders": 422
     },
     {
       "platform": "app",
       "canal": "Direto",
-      "orders": 331
+      "orders": 335
     },
     {
       "platform": "web",
       "canal": "Midia paga",
-      "orders": 334
-    },
-    {
-      "platform": "app",
-      "canal": "Nao identificado",
-      "orders": 219
+      "orders": 335
     },
     {
       "platform": "app",
       "canal": "Organico",
-      "orders": 272
+      "orders": 275
+    },
+    {
+      "platform": "app",
+      "canal": "Nao identificado",
+      "orders": 221
+    },
+    {
+      "platform": "web",
+      "canal": "Nao identificado",
+      "orders": 436
+    },
+    {
+      "platform": "web",
+      "canal": "Metasearch",
+      "orders": 837
+    },
+    {
+      "platform": "web",
+      "canal": "Direto",
+      "orders": 95
     },
     {
       "platform": "app",
@@ -1036,19 +1041,14 @@
       "orders": 68
     },
     {
-      "platform": "web",
-      "canal": "CRM",
-      "orders": 13
-    },
-    {
-      "platform": "web",
-      "canal": "Direto",
-      "orders": 94
-    },
-    {
       "platform": "app",
       "canal": "Metasearch",
       "orders": 7
+    },
+    {
+      "platform": "app",
+      "canal": "CRM",
+      "orders": 6
     },
     {
       "platform": "app",
@@ -1062,12 +1062,12 @@
     },
     {
       "platform": "web",
-      "canal": "Outros",
-      "orders": 6
+      "canal": "CRM",
+      "orders": 13
     },
     {
-      "platform": "app",
-      "canal": "CRM",
+      "platform": "web",
+      "canal": "Outros",
       "orders": 6
     }
   ],
