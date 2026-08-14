@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T21:00:03.037031-03:00",
+  "generated_at": "2026-08-13T21:07:06.361317-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-13",
@@ -57,7 +57,7 @@
           64,
           65,
           78,
-          0,
+          10,
           null,
           null
         ],
@@ -83,7 +83,7 @@
           94868.92,
           100097.84,
           134621.09,
-          0.0,
+          12283.42,
           null,
           null
         ],
@@ -109,7 +109,7 @@
           722,
           787,
           865,
-          865,
+          875,
           null,
           null
         ],
@@ -135,7 +135,7 @@
           1193660.04,
           1293757.88,
           1428378.97,
-          1428378.97,
+          1440662.39,
           null,
           null
         ]
@@ -163,7 +163,7 @@
           144,
           132,
           130,
-          0,
+          21,
           null,
           null
         ],
@@ -189,7 +189,7 @@
           221643.42,
           198410.07,
           192770.06,
-          0.0,
+          37189.28,
           null,
           null
         ],
@@ -215,7 +215,7 @@
           1520,
           1652,
           1782,
-          1782,
+          1803,
           null,
           null
         ],
@@ -241,7 +241,7 @@
           2541384.98,
           2739795.05,
           2932565.11,
-          2932565.11,
+          2969754.39,
           null,
           null
         ]
@@ -269,7 +269,7 @@
           208,
           197,
           208,
-          0,
+          31,
           null,
           null
         ],
@@ -295,7 +295,7 @@
           316512.34,
           298507.91,
           327391.15,
-          0.0,
+          49472.7,
           null,
           null
         ],
@@ -321,7 +321,7 @@
           2242,
           2439,
           2647,
-          2647,
+          2678,
           null,
           null
         ],
@@ -347,7 +347,7 @@
           3735045.02,
           4033552.93,
           4360944.08,
-          4360944.08,
+          4410416.78,
           null,
           null
         ]
@@ -997,18 +997,28 @@
   "origin": [
     {
       "platform": "web",
+      "canal": "Organico",
+      "orders": 394
+    },
+    {
+      "platform": "app",
+      "canal": "Direto",
+      "orders": 333
+    },
+    {
+      "platform": "web",
       "canal": "Midia paga",
-      "orders": 264
+      "orders": 268
+    },
+    {
+      "platform": "web",
+      "canal": "Nao identificado",
+      "orders": 365
     },
     {
       "platform": "web",
       "canal": "Metasearch",
-      "orders": 672
-    },
-    {
-      "platform": "web",
-      "canal": "Organico",
-      "orders": 390
+      "orders": 678
     },
     {
       "platform": "app",
@@ -1017,18 +1027,8 @@
     },
     {
       "platform": "app",
-      "canal": "Midia paga",
-      "orders": 55
-    },
-    {
-      "platform": "web",
-      "canal": "Nao identificado",
-      "orders": 360
-    },
-    {
-      "platform": "app",
       "canal": "Organico",
-      "orders": 250
+      "orders": 256
     },
     {
       "platform": "web",
@@ -1036,19 +1036,24 @@
       "orders": 12
     },
     {
-      "platform": "app",
-      "canal": "Direto",
-      "orders": 330
-    },
-    {
       "platform": "web",
       "canal": "Direto",
-      "orders": 77
+      "orders": 79
+    },
+    {
+      "platform": "app",
+      "canal": "Midia paga",
+      "orders": 56
     },
     {
       "platform": "app",
       "canal": "Push",
       "orders": 9
+    },
+    {
+      "platform": "app",
+      "canal": "Metasearch",
+      "orders": 6
     },
     {
       "platform": "web",
@@ -1057,18 +1062,13 @@
     },
     {
       "platform": "app",
-      "canal": "Outros",
-      "orders": 2
-    },
-    {
-      "platform": "app",
       "canal": "CRM",
       "orders": 7
     },
     {
       "platform": "app",
-      "canal": "Metasearch",
-      "orders": 6
+      "canal": "Outros",
+      "orders": 2
     }
   ],
   "erp": {
