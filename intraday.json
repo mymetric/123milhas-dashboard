@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-14T18:50:02.554400-03:00",
+  "generated_at": "2026-08-14T19:00:02.426933-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-14",
   "yesterday": "2026-08-13",
   "last_week": "2026-08-07",
-  "current_hour": 18,
+  "current_hour": 19,
   "hours": [
     0,
     1,
@@ -52,10 +52,10 @@
           79,
           80,
           59,
-          60,
           61,
-          70,
-          null,
+          61,
+          84,
+          1,
           null,
           null,
           null,
@@ -78,10 +78,10 @@
           105038.59,
           138496.3,
           98265.71,
-          99443.49,
+          101272.06,
           109170.41,
-          117202.04,
-          null,
+          138628.1,
+          613.38,
           null,
           null,
           null,
@@ -104,10 +104,10 @@
           444,
           524,
           583,
-          643,
-          704,
-          774,
-          null,
+          644,
+          705,
+          789,
+          790,
           null,
           null,
           null,
@@ -130,10 +130,10 @@
           685722.65,
           824218.95,
           922484.66,
-          1021928.15,
-          1131098.56,
-          1248300.6,
-          null,
+          1023756.72,
+          1132927.13,
+          1271555.23,
+          1272168.61,
           null,
           null,
           null,
@@ -159,9 +159,9 @@
           173,
           152,
           179,
-          185,
-          97,
-          null,
+          186,
+          119,
+          0,
           null,
           null,
           null,
@@ -185,9 +185,9 @@
           305787.66,
           250088.04,
           319421.59,
-          279907.2,
-          158006.33,
-          null,
+          281960.2,
+          194337.86,
+          0.0,
           null,
           null,
           null,
@@ -211,9 +211,9 @@
           1093,
           1245,
           1424,
-          1609,
-          1706,
-          null,
+          1610,
+          1729,
+          1729,
           null,
           null,
           null,
@@ -237,9 +237,9 @@
           1786096.71,
           2036184.75,
           2355606.34,
-          2635513.54,
-          2793519.87,
-          null,
+          2637566.54,
+          2831904.4,
+          2831904.4,
           null,
           null,
           null,
@@ -264,10 +264,10 @@
           257,
           253,
           211,
-          239,
-          246,
-          167,
-          null,
+          240,
+          247,
+          203,
+          1,
           null,
           null,
           null,
@@ -290,10 +290,10 @@
           414642.78,
           444283.96,
           348353.75,
-          418865.08,
-          389077.61,
-          275208.37,
-          null,
+          420693.65,
+          391130.61,
+          332965.96,
+          613.38,
           null,
           null,
           null,
@@ -316,10 +316,10 @@
           1364,
           1617,
           1828,
-          2067,
-          2313,
-          2480,
-          null,
+          2068,
+          2315,
+          2518,
+          2519,
           null,
           null,
           null,
@@ -342,10 +342,10 @@
           2166031.7,
           2610315.66,
           2958669.41,
-          3377534.49,
-          3766612.1,
-          4041820.47,
-          null,
+          3379363.06,
+          3770493.67,
+          4103459.63,
+          4104073.01,
           null,
           null,
           null,
@@ -996,14 +996,24 @@
   },
   "origin": [
     {
-      "platform": "web",
-      "canal": "Midia paga",
-      "orders": 258
+      "platform": "app",
+      "canal": "Direto",
+      "orders": 302
+    },
+    {
+      "platform": "app",
+      "canal": "Organico",
+      "orders": 251
     },
     {
       "platform": "web",
-      "canal": "Nao identificado",
-      "orders": 347
+      "canal": "Organico",
+      "orders": 327
+    },
+    {
+      "platform": "web",
+      "canal": "Metasearch",
+      "orders": 698
     },
     {
       "platform": "web",
@@ -1011,39 +1021,39 @@
       "orders": 75
     },
     {
-      "platform": "app",
-      "canal": "Organico",
-      "orders": 246
-    },
-    {
       "platform": "web",
-      "canal": "Organico",
-      "orders": 320
-    },
-    {
-      "platform": "web",
-      "canal": "Metasearch",
-      "orders": 690
-    },
-    {
-      "platform": "app",
-      "canal": "Direto",
-      "orders": 297
-    },
-    {
-      "platform": "web",
-      "canal": "CRM",
-      "orders": 8
-    },
-    {
-      "platform": "app",
       "canal": "Nao identificado",
-      "orders": 154
+      "orders": 350
     },
     {
       "platform": "app",
       "canal": "Midia paga",
       "orders": 53
+    },
+    {
+      "platform": "web",
+      "canal": "Midia paga",
+      "orders": 263
+    },
+    {
+      "platform": "app",
+      "canal": "Nao identificado",
+      "orders": 158
+    },
+    {
+      "platform": "app",
+      "canal": "Metasearch",
+      "orders": 11
+    },
+    {
+      "platform": "app",
+      "canal": "Outros",
+      "orders": 3
+    },
+    {
+      "platform": "web",
+      "canal": "Outros",
+      "orders": 8
     },
     {
       "platform": "app",
@@ -1052,23 +1062,13 @@
     },
     {
       "platform": "app",
-      "canal": "Metasearch",
-      "orders": 10
+      "canal": "CRM",
+      "orders": 4
     },
     {
       "platform": "web",
-      "canal": "Outros",
-      "orders": 8
-    },
-    {
-      "platform": "app",
-      "canal": "Outros",
-      "orders": 3
-    },
-    {
-      "platform": "app",
       "canal": "CRM",
-      "orders": 4
+      "orders": 8
     }
   ],
   "erp": {
