@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-16T04:07:06.613282-03:00",
+  "generated_at": "2026-08-16T04:10:02.479533-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-16",
@@ -996,9 +996,19 @@
   },
   "origin": [
     {
-      "platform": "app",
-      "canal": "Direto",
-      "orders": 22
+      "platform": "web",
+      "canal": "Midia paga",
+      "orders": 13
+    },
+    {
+      "platform": "web",
+      "canal": "Metasearch",
+      "orders": 35
+    },
+    {
+      "platform": "web",
+      "canal": "Nao identificado",
+      "orders": 29
     },
     {
       "platform": "web",
@@ -1006,9 +1016,9 @@
       "orders": 17
     },
     {
-      "platform": "web",
+      "platform": "app",
       "canal": "Nao identificado",
-      "orders": 29
+      "orders": 40
     },
     {
       "platform": "app",
@@ -1017,27 +1027,17 @@
     },
     {
       "platform": "app",
-      "canal": "Midia paga",
-      "orders": 4
-    },
-    {
-      "platform": "web",
-      "canal": "Metasearch",
-      "orders": 35
-    },
-    {
-      "platform": "app",
-      "canal": "Nao identificado",
-      "orders": 40
-    },
-    {
-      "platform": "web",
-      "canal": "Midia paga",
-      "orders": 13
+      "canal": "Direto",
+      "orders": 22
     },
     {
       "platform": "web",
       "canal": "Direto",
+      "orders": 4
+    },
+    {
+      "platform": "app",
+      "canal": "Midia paga",
       "orders": 4
     }
   ],
