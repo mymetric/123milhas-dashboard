@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-16T16:50:03.287276-03:00",
+  "generated_at": "2026-08-16T17:00:02.834032-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-16",
   "yesterday": "2026-08-15",
   "last_week": "2026-08-09",
-  "current_hour": 16,
+  "current_hour": 17,
   "hours": [
     0,
     1,
@@ -52,8 +52,8 @@
           54,
           69,
           61,
-          40,
-          null,
+          49,
+          0,
           null,
           null,
           null,
@@ -78,8 +78,8 @@
           82894.98,
           135441.42,
           100374.97,
-          67641.29,
-          null,
+          81263.07,
+          0.0,
           null,
           null,
           null,
@@ -104,8 +104,8 @@
           432,
           501,
           562,
-          602,
-          null,
+          611,
+          611,
           null,
           null,
           null,
@@ -130,8 +130,8 @@
           630794.19,
           766235.61,
           866610.58,
-          934251.87,
-          null,
+          947873.65,
+          947873.65,
           null,
           null,
           null,
@@ -158,8 +158,8 @@
           84,
           78,
           112,
-          97,
-          null,
+          112,
+          0,
           null,
           null,
           null,
@@ -184,8 +184,8 @@
           119739.73,
           121214.05,
           193031.56,
-          165667.15,
-          null,
+          192127.12,
+          0.0,
           null,
           null,
           null,
@@ -210,8 +210,8 @@
           622,
           700,
           812,
-          909,
-          null,
+          924,
+          924,
           null,
           null,
           null,
@@ -236,8 +236,8 @@
           951084.28,
           1072298.33,
           1265329.89,
-          1430997.04,
-          null,
+          1457457.01,
+          1457457.01,
           null,
           null,
           null,
@@ -264,8 +264,8 @@
           138,
           147,
           173,
-          137,
-          null,
+          161,
+          0,
           null,
           null,
           null,
@@ -290,8 +290,8 @@
           202634.71,
           256655.47,
           293406.53,
-          233308.44,
-          null,
+          273390.19,
+          0.0,
           null,
           null,
           null,
@@ -316,8 +316,8 @@
           1054,
           1201,
           1374,
-          1511,
-          null,
+          1535,
+          1535,
           null,
           null,
           null,
@@ -342,8 +342,8 @@
           1581878.47,
           1838533.94,
           2131940.47,
-          2365248.91,
-          null,
+          2405330.66,
+          2405330.66,
           null,
           null,
           null,
@@ -996,59 +996,39 @@
   },
   "origin": [
     {
+      "platform": "app",
+      "canal": "Direto",
+      "orders": 246
+    },
+    {
+      "platform": "web",
+      "canal": "Organico",
+      "orders": 186
+    },
+    {
       "platform": "web",
       "canal": "Midia paga",
       "orders": 127
     },
     {
-      "platform": "web",
-      "canal": "Nao identificado",
-      "orders": 163
+      "platform": "app",
+      "canal": "Organico",
+      "orders": 173
     },
     {
       "platform": "web",
-      "canal": "Organico",
-      "orders": 184
+      "canal": "Nao identificado",
+      "orders": 165
     },
     {
       "platform": "web",
       "canal": "Metasearch",
-      "orders": 395
-    },
-    {
-      "platform": "app",
-      "canal": "Organico",
-      "orders": 169
-    },
-    {
-      "platform": "app",
-      "canal": "Direto",
-      "orders": 243
-    },
-    {
-      "platform": "app",
-      "canal": "Midia paga",
-      "orders": 46
-    },
-    {
-      "platform": "web",
-      "canal": "Direto",
-      "orders": 33
+      "orders": 406
     },
     {
       "platform": "app",
       "canal": "Nao identificado",
       "orders": 131
-    },
-    {
-      "platform": "web",
-      "canal": "CRM",
-      "orders": 4
-    },
-    {
-      "platform": "app",
-      "canal": "Push",
-      "orders": 6
     },
     {
       "platform": "app",
@@ -1062,8 +1042,28 @@
     },
     {
       "platform": "web",
+      "canal": "Direto",
+      "orders": 33
+    },
+    {
+      "platform": "app",
+      "canal": "Midia paga",
+      "orders": 47
+    },
+    {
+      "platform": "web",
       "canal": "Outros",
       "orders": 3
+    },
+    {
+      "platform": "app",
+      "canal": "Push",
+      "orders": 7
+    },
+    {
+      "platform": "web",
+      "canal": "CRM",
+      "orders": 4
     }
   ],
   "erp": {
