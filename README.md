@@ -100,6 +100,42 @@ dia e plataforma. Assim ele fecha exatamente com os totais do topo. Dia sem
 base suficiente no GA4 (menos de 20 pedidos) aparece como "Sem origem" em vez
 de ser rateado em cima de ruído.
 
+## Como o faturamento é calculado (e por que não é o `grand_total`)
+
+```
+faturamento = sub_total + (tax + discount) − desconto
+desconto    = sub_total + tax + discount − grand_total   (0 se grand_total for NULL)
+```
+
+Dois motivos para não somar `grand_total` direto:
+
+**1. O campo `discount` da tabela é acréscimo, não desconto.** Medido em 60
+dias / 168 mil pedidos com `grand_total` preenchido:
+
+- 123.364 (73%): `grand_total = sub_total + tax + discount`, exato
+- 44.409 (26%): `discount = 0` e o `grand_total` fica **abaixo** de
+  `sub_total + tax` — R$ 6,28 mi de desconto que não está em coluna nenhuma
+- **zero** pedidos em que `grand_total = sub_total + tax − discount`
+
+Ou seja: a 123 não expõe o desconto, ela expõe o resultado. O desconto real só
+existe como sobra, e é assim que o `refresh_data.py` o deriva. O painel
+"Composição do faturamento" mostra as três parcelas separadas.
+
+**2. `grand_total` é NULL em 98.770 pedidos** de 30/06 a 06/07/2026 (o pico de
+promoção, `last_status = 5`), com `sub_total`, `tax` e `discount` preenchidos
+normalmente. Somando `grand_total`, esses dias apareciam com 19-32 mil pedidos e
+ticket médio de R$ 190 — R$ 219 milhões de faturamento sumindo do gráfico.
+Partindo do `sub_total`, eles voltam.
+
+Onde o `grand_total` existe a fórmula o reproduz exatamente (ela é a inversa
+dele), então nada muda de 07/07 em diante. Onde ele é NULL, o desconto entra
+como 0 e sobra `sub_total + taxas` — a melhor estimativa disponível, e o
+dashboard avisa em nota quais dias do recorte estão nessa situação.
+
+O bloco de origem continua vindo do `grand_total` (é o que a tabela
+`order_origin_full` replica), mas cada célula dia × plataforma é reescalada
+para o total do topo, então os dois seguem fechando.
+
 ## Definição de "app" x "web"
 
 Campo `device` na tabela `grupo123-metrics.df_granular.orders`:

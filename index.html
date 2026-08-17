@@ -443,6 +443,47 @@
     flex: none;
   }
   .erp-tile { border-style: dashed; }
+  /* composicao do faturamento: subtotal + taxas - descontos = total */
+  .composicao {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  .composicao .parcela {
+    flex: 1 1 150px;
+    padding: 4px 0 10px;
+  }
+  .composicao .parcela .label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  .composicao .parcela .value {
+    font-size: 22px;
+    font-weight: 600;
+    font-variant-numeric: proportional-nums;
+  }
+  .composicao .parcela .sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .composicao .op {
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+    color: var(--text-muted);
+    padding: 0 10px;
+    flex: none;
+  }
+  .composicao .parcela.total .value { color: var(--text-primary); }
+  .composicao .parcela.total {
+    border-left: 1px solid var(--border);
+    padding-left: 18px;
+  }
+  .composicao .parcela.desconto .value { color: #e34948; }
   @media (max-width: 720px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
     .intraday-stats { grid-template-columns: repeat(1, 1fr); }
@@ -509,6 +550,13 @@
 
   <div class="stats" id="stats"></div>
 
+  <div class="panel" id="composicaoPanel">
+    <h2>Composição do faturamento</h2>
+    <p class="panel-sub" id="composicaoSub">Do valor das passagens ao total cobrado</p>
+    <div class="composicao" id="composicao"></div>
+    <p class="origin-note" id="composicaoNota"></p>
+  </div>
+
   <div class="panel">
     <h2>Pedidos por dia</h2>
     <button type="button" class="baixar" id="baixarSerie">baixar CSV</button>
@@ -528,8 +576,8 @@
   </div>
 
   <div class="panel">
-    <h2>Faturamento por dia (grand_total)</h2>
-    <p class="panel-sub">Valores em R$</p>
+    <h2>Faturamento por dia</h2>
+    <p class="panel-sub">Valores em R$ — subtotal + taxas e acréscimos − descontos</p>
     <div class="serie-topo">
       <div class="seg seg-serie" data-serie="revenue">
         <button type="button" data-modo="split" class="active">App × Web</button>
@@ -688,15 +736,12 @@ document.getElementById('resetFilter').addEventListener('click', () => {
 
 function filterData(data, from, to) {
   const series = data.series.filter(d => (!from || d.date >= from) && (!to || d.date <= to));
+  const CAMPOS = ['orders', 'revenue', 'subtotal', 'taxas', 'descontos', 'revenue_grand'];
   const summary = series.reduce((acc, d) => {
-    acc.app_orders += d.app_orders;
-    acc.web_orders += d.web_orders;
-    acc.app_revenue += d.app_revenue;
-    acc.web_revenue += d.web_revenue;
+    for (const p of ['app', 'web']) for (const c of CAMPOS) acc[p + '_' + c] += (d[p + '_' + c] || 0);
     return acc;
-  }, { app_orders: 0, web_orders: 0, app_revenue: 0, web_revenue: 0 });
-  summary.total_orders = summary.app_orders + summary.web_orders;
-  summary.total_revenue = summary.app_revenue + summary.web_revenue;
+  }, Object.fromEntries(['app', 'web'].flatMap(p => CAMPOS.map(c => [p + '_' + c, 0]))));
+  for (const c of CAMPOS) summary['total_' + c] = summary['app_' + c] + summary['web_' + c];
   summary.app_orders_pct = summary.total_orders ? +(summary.app_orders / summary.total_orders * 100).toFixed(2) : 0;
   summary.web_orders_pct = summary.total_orders ? +(100 - summary.app_orders_pct).toFixed(2) : 0;
   summary.app_revenue_pct = summary.total_revenue ? +(summary.app_revenue / summary.total_revenue * 100).toFixed(2) : 0;
@@ -722,6 +767,67 @@ let dadosVisiveis = null;
 // numa linha so. Quando o filtro global de plataforma esta em App ou Web nao ha
 // o que somar, entao o toggle some.
 const modoSerie = { orders: 'split', revenue: 'split' };
+
+// Composicao do faturamento. O ERP nao tem coluna de desconto: o campo
+// `discount` da tabela e acrescimo (grand_total = sub_total + tax + discount em
+// 73% dos pedidos, e em nenhum ele subtrai). O desconto real e a sobra entre
+// sub_total + tax + discount e o grand_total, e e assim que o refresh_data.py
+// calcula. Onde o grand_total e NULL (98,8 mil pedidos de 30/06 a 06/07, o pico
+// de promocao) sobra subtotal + taxas -- por isso o faturamento sai do
+// sub_total, e nao do grand_total, que zerava aqueles dias.
+function renderComposicao(summary, series, plat) {
+  const el = document.getElementById('composicao');
+  if (!el) return;
+  const campo = (c) => plat === 'total' ? summary['total_' + c] : summary[plat + '_' + c];
+  const subtotal = campo('subtotal'), taxas = campo('taxas');
+  const descontos = campo('descontos'), total = campo('revenue');
+  const pct = (v) => subtotal ? (v / subtotal * 100).toFixed(1).replace('.', ',') + '% do subtotal' : '—';
+
+  el.innerHTML = `
+    <div class="parcela">
+      <div class="label">Subtotal (passagens)</div>
+      <div class="value">${fmtBRLCompact(subtotal)}</div>
+      <div class="sub">valor dos itens do pedido</div>
+    </div>
+    <div class="op">+</div>
+    <div class="parcela">
+      <div class="label">Taxas e acréscimos</div>
+      <div class="value">${fmtBRLCompact(taxas)}</div>
+      <div class="sub">${pct(taxas)}</div>
+    </div>
+    <div class="op">−</div>
+    <div class="parcela desconto">
+      <div class="label">Descontos</div>
+      <div class="value">${fmtBRLCompact(descontos)}</div>
+      <div class="sub">${pct(descontos)}</div>
+    </div>
+    <div class="op">=</div>
+    <div class="parcela total">
+      <div class="label">Faturamento</div>
+      <div class="value">${fmtBRLCompact(total)}</div>
+      <div class="sub">${fmtBRL(total)}</div>
+    </div>`;
+
+  // dias em que o ERP nao fechou o grand_total: ali o desconto real e
+  // desconhecido e o faturamento fica sendo subtotal + taxas
+  const semGrand = series.filter(d => {
+    const ped = (plat === 'total' ? d.app_orders + d.web_orders
+                                  : d[plat + '_orders']);
+    const gt = (plat === 'total' ? d.app_revenue_grand + d.web_revenue_grand
+                                 : d[plat + '_revenue_grand']);
+    const rev = (plat === 'total' ? d.app_revenue + d.web_revenue : d[plat + '_revenue']);
+    return ped > 0 && rev > 0 && gt < rev * 0.5;
+  }).map(d => d.date);
+
+  const nota = document.getElementById('composicaoNota');
+  const base = 'O ERP não tem coluna de desconto: o campo <code>discount</code> dele é acréscimo. ' +
+    'O desconto aqui é o que sobra entre subtotal + taxas e o total cobrado no pedido.';
+  nota.innerHTML = semGrand.length
+    ? base + ` Em ${semGrand.length} dia${semGrand.length > 1 ? 's' : ''} do recorte ` +
+      `(${semGrand[0]} a ${semGrand[semGrand.length - 1]}) o ERP não fechou o total do pedido — ` +
+      'nesses dias o desconto é desconhecido e o faturamento é subtotal + taxas.'
+    : base;
+}
 
 function render(data) {
   dadosVisiveis = data;
@@ -777,6 +883,8 @@ function render(data) {
       <div class="sub">${fmtBRLCompact(summary.web_revenue)} em faturamento</div>
     </div>
   `;
+
+  renderComposicao(summary, series, plat);
 
   const labels = series.map(d => d.date.slice(5)); // MM-DD
   const seriesApp = (key) => series.map(d => d[key]);
@@ -991,12 +1099,15 @@ document.getElementById('baixarSerie').addEventListener('click', () => {
   if (!dadosVisiveis) return;
   const plat = originPlatform;
   const cols = [{ titulo: 'Data', valor: d => d.date }];
-  if (plat !== 'web') cols.push(
-    { titulo: 'Pedidos app',     valor: d => d.app_orders },
-    { titulo: 'Faturamento app', valor: d => +d.app_revenue.toFixed(2) });
-  if (plat !== 'app') cols.push(
-    { titulo: 'Pedidos web',     valor: d => d.web_orders },
-    { titulo: 'Faturamento web', valor: d => +d.web_revenue.toFixed(2) });
+  const colsPlat = (p, rot) => [
+    { titulo: `Pedidos ${rot}`,      valor: d => d[p + '_orders'] },
+    { titulo: `Subtotal ${rot}`,     valor: d => +(d[p + '_subtotal'] || 0).toFixed(2) },
+    { titulo: `Taxas ${rot}`,        valor: d => +(d[p + '_taxas'] || 0).toFixed(2) },
+    { titulo: `Descontos ${rot}`,    valor: d => +(d[p + '_descontos'] || 0).toFixed(2) },
+    { titulo: `Faturamento ${rot}`,  valor: d => +d[p + '_revenue'].toFixed(2) },
+  ];
+  if (plat !== 'web') cols.push(...colsPlat('app', 'app'));
+  if (plat !== 'app') cols.push(...colsPlat('web', 'web'));
   baixaCSV(`123milhas pedidos por dia ${plat} ${dadosVisiveis.period.start} a ${dadosVisiveis.period.end}`,
            cols, dadosVisiveis.series);
 });

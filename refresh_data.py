@@ -44,6 +44,47 @@ ORIGIN_TABLE = "grupo123-metrics.df_granular_us.order_origin_full"
 DDA_TABLE = "grupo123-metrics.df_granular_us.ga4_dda_canal"
 ERP_TABLE = "grupo123-metrics.df_granular.orders"
 
+# --------------------------------------------------------------------------
+# Composicao do faturamento
+#
+# O ERP nao tem uma coluna de desconto utilizavel: o campo `discount` da tabela
+# e ACRESCIMO. Medido em 60 dias / 168 mil pedidos com grand_total preenchido:
+#   - 123.364 (73%): grand_total = sub_total + tax + discount, exato
+#   -  44.409 (26%): discount = 0 e o grand_total fica ABAIXO de sub_total+tax
+#                    (R$ 6,28 mi de desconto que nao esta em coluna nenhuma)
+#   -       0      : nenhum pedido em que grand_total = sub_total + tax - discount
+# Logo o desconto real e implicito, e sai da sobra:
+#   desconto = sub_total + tax + discount - grand_total
+#
+# E o `grand_total` sozinho NAO serve de faturamento: 98.770 pedidos de
+# 30/06 a 06/07/2026 (o pico de promocao, last_status=5) tem grand_total NULL
+# com sub_total/tax/discount preenchidos. Somar grand_total joga fora ~R$ 219 mi
+# e desenha aqueles dias como 19-32 mil pedidos com ticket de R$ 190. Por isso o
+# faturamento do dashboard e montado a partir do sub_total:
+#
+#   faturamento = sub_total + (tax + discount) - desconto
+#
+# Onde o grand_total existe isso reproduz o grand_total exatamente (a formula e
+# a inversa dele); onde ele e NULL, o desconto entra como 0 e sobra
+# sub_total + taxas, que e a melhor estimativa disponivel.
+RECEITA_SQL = """
+      SUM(sub_total) AS subtotal,
+      SUM(tax + discount) AS taxas,
+      SUM(IF(grand_total IS NULL, 0, sub_total + tax + discount - grand_total)) AS descontos,
+      SUM(grand_total) AS grand_total
+"""
+
+
+def _receita(row):
+    """Componentes de faturamento de uma linha do RECEITA_SQL -> dict de floats."""
+    f = lambda c: round(float(row[c] or 0), 2)
+    sub, tax, desc = f("subtotal"), f("taxas"), f("descontos")
+    return {"subtotal": sub, "taxas": tax, "descontos": desc,
+            "revenue": round(sub + tax - desc, 2),
+            # so como referencia do bloco de origem, que ainda vem do grand_total
+            "revenue_grand": f("grand_total")}
+
+
 # Quantos dias reprocessar de origem a cada rodada. O GA4 fecha a tabela do dia
 # so na madrugada seguinte, e ainda corrige numeros por ~2 dias.
 
@@ -237,6 +278,13 @@ def gen_origin_block(creds, erp_series):
                     resolvido = sum(p for (c, _, _), (p, _) in itens.items() if c != "Sem origem")
                     if resolvido < na_tabela * ORIGEM_MINIMA:
                         continue
+                    # a tabela de origem so replica o grand_total, e o topo do
+                    # dashboard passou a somar sub_total + taxas - descontos.
+                    # Converte a receita por canal na mesma escala do topo, senao
+                    # o bloco para de fechar com ele.
+                    base = dia_erp[f"{plataforma}_revenue_grand"]
+                    fator = erp_receita / base if base else 0
+                    itens = {k: (p, r * fator) for k, (p, r) in itens.items()}
                     sobra = erp_pedidos - na_tabela
                     sobra_receita = max(erp_receita - sum(r for _, r in itens.values()), 0)
                     total_erp += erp_pedidos
@@ -286,21 +334,25 @@ def gen_daily(creds):
         ELSE 'other'
       END AS platform,
       COUNT(*) AS orders,
-      SUM(grand_total) AS revenue
+      {RECEITA_SQL}
     FROM `{ERP_TABLE}`
     WHERE order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 90 DAY)
     GROUP BY order_date, platform
     ORDER BY order_date, platform
     """)
+    VAZIO = {"orders": 0, "subtotal": 0.0, "taxas": 0.0, "descontos": 0.0,
+             "revenue": 0.0, "revenue_grand": 0.0}
     by_date = {}
     for row in rows:
         if row["platform"] == "other":
             continue
         d = row["order_date"]
-        by_date.setdefault(d, {"date": d, "app_orders": 0, "app_revenue": 0.0,
-                               "web_orders": 0, "web_revenue": 0.0})
+        by_date.setdefault(d, {"date": d,
+                               **{f"app_{k}": v for k, v in VAZIO.items()},
+                               **{f"web_{k}": v for k, v in VAZIO.items()}})
         by_date[d][f"{row['platform']}_orders"] = int(row["orders"])
-        by_date[d][f"{row['platform']}_revenue"] = round(float(row["revenue"]), 2)
+        for k, v in _receita(row).items():
+            by_date[d][f"{row['platform']}_{k}"] = v
     series = [by_date[d] for d in sorted(by_date)]
 
     # A tabela do ERP so passa a ter volume de verdade a partir de 30/06/2026 (a
@@ -322,6 +374,13 @@ def gen_daily(creds):
     web_revenue = round(sum(r["web_revenue"] for r in series), 2)
     total_orders = app_orders + web_orders
     total_revenue = round(app_revenue + web_revenue, 2)
+    # os mesmos componentes por plataforma: o filtro App/Web do dashboard lê
+    # direto daqui na primeira carga, antes de qualquer recorte de data
+    composicao = {}
+    for k in ("subtotal", "taxas", "descontos", "revenue_grand"):
+        for p in ("app", "web"):
+            composicao[f"{p}_{k}"] = round(sum(r[f"{p}_{k}"] for r in series), 2)
+        composicao[f"total_{k}"] = round(composicao[f"app_{k}"] + composicao[f"web_{k}"], 2)
 
     return {
         "generated_at": datetime.datetime.now(BRT).isoformat(),
@@ -338,6 +397,7 @@ def gen_daily(creds):
             "web_revenue": web_revenue,
             "total_orders": total_orders,
             "total_revenue": total_revenue,
+            **composicao,
             "app_orders_pct": round(app_orders / total_orders * 100, 2) if total_orders else 0,
             "web_orders_pct": round(web_orders / total_orders * 100, 2) if total_orders else 0,
             "app_revenue_pct": round(app_revenue / total_revenue * 100, 2) if total_revenue else 0,
@@ -475,7 +535,7 @@ def gen_intraday(creds, anterior=None):
     erp = bq_query(creds, f"""
       SELECT
         COUNT(*) AS pedidos,
-        SUM(grand_total) AS receita,
+        {RECEITA_SQL},
         FORMAT_TIMESTAMP("%Y-%m-%dT%H:%M:%S", MAX(created_at), "America/Sao_Paulo") AS ultimo_pedido,
         FORMAT_TIMESTAMP("%Y-%m-%dT%H:%M:%S", MAX(received_at), "America/Sao_Paulo") AS ultima_carga
       FROM `{ERP_TABLE}`
@@ -543,7 +603,9 @@ def gen_intraday(creds, anterior=None):
                    for r in origem],
         "erp": {
             "orders": int(erp["pedidos"]) if erp.get("pedidos") else 0,
-            "revenue": round(float(erp["receita"]), 2) if erp.get("receita") else 0.0,
+            **(_receita(erp) if erp.get("pedidos") else
+               {"subtotal": 0.0, "taxas": 0.0, "descontos": 0.0,
+                "revenue": 0.0, "revenue_grand": 0.0}),
             "last_order_at": erp.get("ultimo_pedido"),
             "last_load_at": erp.get("ultima_carga"),
         },
