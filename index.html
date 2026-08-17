@@ -699,7 +699,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-fetch('data.json')
+// no-store nos dois snapshots: o cron reescreve data.json/intraday.json de 10 em
+// 10 minutos, e o browser servindo uma copia velha nao so mostra numero
+// desatualizado como pode misturar um JSON antigo com um index.html novo.
+fetch('data.json', { cache: 'no-store' })
   .then(r => r.json())
   .then(data => {
     fullData = data;
@@ -781,6 +784,12 @@ function renderComposicao(summary, series, plat) {
   const campo = (c) => plat === 'total' ? summary['total_' + c] : summary[plat + '_' + c];
   const subtotal = campo('subtotal'), taxas = campo('taxas');
   const descontos = campo('descontos'), total = campo('revenue');
+
+  // snapshot antigo (sem as parcelas) renderizaria "R$ 0 + R$ 0 - R$ 0 = total",
+  // que parece dado zerado e nao falta de dado. Melhor esconder o painel.
+  const painel = document.getElementById('composicaoPanel');
+  if (!subtotal && total) { painel.style.display = 'none'; return; }
+  painel.style.display = '';
   const pct = (v) => subtotal ? (v / subtotal * 100).toFixed(1).replace('.', ',') + '% do subtotal' : '—';
 
   el.innerHTML = `
@@ -1298,7 +1307,7 @@ function compareBadge(now, before) {
   return `<span class="compare-badge ${up ? 'up' : 'down'}">${up ? '▲' : '▼'} ${Math.abs(pct).toFixed(1)}%</span>`;
 }
 
-fetch('intraday.json')
+fetch('intraday.json', { cache: 'no-store' })
   .then(r => r.json())
   .then(renderIntraday)
   .catch(err => {
