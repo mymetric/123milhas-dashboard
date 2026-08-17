@@ -188,7 +188,9 @@ def gen_origin_block(creds, erp_series):
              canal, COALESCE(source, "(not set)") AS source, COALESCE(medium, "(not set)") AS medium,
              canal_first, COALESCE(source_first, "(not set)") AS source_first,
              COALESCE(medium_first, "(not set)") AS medium_first,
-             COUNT(*) AS pedidos, SUM(grand_total) AS receita
+             -- `receita` (nao grand_total): a coluna vem do sub_total pela mesma
+             -- formula do topo, carimbada la no orders_keys e replicada pro US.
+             COUNT(*) AS pedidos, SUM(receita) AS receita
       FROM `{ORIGIN_TABLE}`
       WHERE order_date >= DATE_SUB(CURRENT_DATE("America/Sao_Paulo"), INTERVAL 120 DAY)
       GROUP BY 1, 2, 3, 4, 5, 6, 7, 8
@@ -278,13 +280,6 @@ def gen_origin_block(creds, erp_series):
                     resolvido = sum(p for (c, _, _), (p, _) in itens.items() if c != "Sem origem")
                     if resolvido < na_tabela * ORIGEM_MINIMA:
                         continue
-                    # a tabela de origem so replica o grand_total, e o topo do
-                    # dashboard passou a somar sub_total + taxas - descontos.
-                    # Converte a receita por canal na mesma escala do topo, senao
-                    # o bloco para de fechar com ele.
-                    base = dia_erp[f"{plataforma}_revenue_grand"]
-                    fator = erp_receita / base if base else 0
-                    itens = {k: (p, r * fator) for k, (p, r) in itens.items()}
                     sobra = erp_pedidos - na_tabela
                     sobra_receita = max(erp_receita - sum(r for _, r in itens.values()), 0)
                     total_erp += erp_pedidos
