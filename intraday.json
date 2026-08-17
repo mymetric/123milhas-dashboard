@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-17T02:07:06.655950-03:00",
+  "generated_at": "2026-08-17T02:10:03.241223-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-17",
@@ -144,7 +144,7 @@
         "orders": [
           33,
           18,
-          3,
+          7,
           null,
           null,
           null,
@@ -170,7 +170,7 @@
         "revenue": [
           49163.13,
           20732.11,
-          3603.75,
+          7649.13,
           null,
           null,
           null,
@@ -196,7 +196,7 @@
         "orders_cum": [
           33,
           51,
-          54,
+          58,
           null,
           null,
           null,
@@ -222,7 +222,7 @@
         "revenue_cum": [
           49163.13,
           69895.24,
-          73498.99,
+          77544.37,
           null,
           null,
           null,
@@ -250,7 +250,7 @@
         "orders": [
           50,
           33,
-          3,
+          7,
           null,
           null,
           null,
@@ -276,7 +276,7 @@
         "revenue": [
           74517.53,
           46226.05,
-          3603.75,
+          7649.13,
           null,
           null,
           null,
@@ -302,7 +302,7 @@
         "orders_cum": [
           50,
           83,
-          86,
+          90,
           null,
           null,
           null,
@@ -328,7 +328,7 @@
         "revenue_cum": [
           74517.53,
           120743.58,
-          124347.33,
+          128392.71,
           null,
           null,
           null,
@@ -997,23 +997,18 @@
   "origin": [
     {
       "platform": "app",
-      "canal": "Nao identificado",
-      "orders": 13
-    },
-    {
-      "platform": "app",
-      "canal": "Outros",
+      "canal": "Midia paga",
       "orders": 1
     },
     {
       "platform": "web",
-      "canal": "Metasearch",
-      "orders": 15
+      "canal": "Organico",
+      "orders": 8
     },
     {
-      "platform": "web",
-      "canal": "Nao identificado",
-      "orders": 23
+      "platform": "app",
+      "canal": "Direto",
+      "orders": 5
     },
     {
       "platform": "app",
@@ -1022,22 +1017,27 @@
     },
     {
       "platform": "web",
+      "canal": "Metasearch",
+      "orders": 18
+    },
+    {
+      "platform": "app",
+      "canal": "Nao identificado",
+      "orders": 13
+    },
+    {
+      "platform": "web",
+      "canal": "Nao identificado",
+      "orders": 23
+    },
+    {
+      "platform": "web",
       "canal": "Midia paga",
       "orders": 9
     },
     {
       "platform": "app",
-      "canal": "Direto",
-      "orders": 5
-    },
-    {
-      "platform": "web",
-      "canal": "Organico",
-      "orders": 7
-    },
-    {
-      "platform": "app",
-      "canal": "Midia paga",
+      "canal": "Outros",
       "orders": 1
     }
   ],
