@@ -699,6 +699,28 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
+// O recorte de datas sobrevive ao F5: sem isso, quem estava olhando uma semana
+// especifica volta pros 90 dias inteiros a cada atualizacao da pagina.
+const RECORTE_KEY = 'dash123_recorte';
+
+function guardaRecorte(from, to) {
+  try {
+    localStorage.setItem(RECORTE_KEY, JSON.stringify({ from, to }));
+  } catch (e) { /* modo anonimo / storage bloqueado: segue sem persistir */ }
+}
+
+// So aceita o recorte salvo se ele ainda existir na janela do snapshot atual --
+// a serie anda todo dia, e uma data fora do intervalo deixaria o dash vazio.
+function recorteSalvo(period) {
+  try {
+    const r = JSON.parse(localStorage.getItem(RECORTE_KEY) || 'null');
+    if (!r || !r.from || !r.to || r.from > r.to) return null;
+    const from = r.from < period.start ? period.start : r.from;
+    const to = r.to > period.end ? period.end : r.to;
+    return from <= to ? { from, to } : null;
+  } catch (e) { return null; }
+}
+
 // no-store nos dois snapshots: o cron reescreve data.json/intraday.json de 10 em
 // 10 minutos, e o browser servindo uma copia velha nao so mostra numero
 // desatualizado como pode misturar um JSON antigo com um index.html novo.
@@ -710,10 +732,14 @@ fetch('data.json', { cache: 'no-store' })
     document.getElementById('dateFrom').max = data.period.end;
     document.getElementById('dateTo').min = data.period.start;
     document.getElementById('dateTo').max = data.period.end;
-    document.getElementById('dateFrom').value = data.period.start;
-    document.getElementById('dateTo').value = data.period.end;
-    updateFilterLabel(data.period.start, data.period.end);
-    render(data);
+
+    const salvo = recorteSalvo(data.period);
+    const from = salvo ? salvo.from : data.period.start;
+    const to = salvo ? salvo.to : data.period.end;
+    document.getElementById('dateFrom').value = from;
+    document.getElementById('dateTo').value = to;
+    updateFilterLabel(from, to);
+    render(salvo ? filterData(data, from, to) : data);
   })
   .catch(err => {
     document.getElementById('stats').innerHTML = '<p style="color:#e34948">Falha ao carregar data.json: ' + err + '</p>';
@@ -724,6 +750,7 @@ document.getElementById('applyFilter').addEventListener('click', () => {
   const from = document.getElementById('dateFrom').value;
   const to = document.getElementById('dateTo').value;
   updateFilterLabel(from, to);
+  guardaRecorte(from, to);
   panel.classList.remove('open');
   render(filterData(fullData, from, to));
 });
@@ -733,6 +760,7 @@ document.getElementById('resetFilter').addEventListener('click', () => {
   document.getElementById('dateFrom').value = fullData.period.start;
   document.getElementById('dateTo').value = fullData.period.end;
   updateFilterLabel(fullData.period.start, fullData.period.end);
+  try { localStorage.removeItem(RECORTE_KEY); } catch (e) { /* ignora */ }
   panel.classList.remove('open');
   render(fullData);
 });
