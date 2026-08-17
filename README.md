@@ -9,11 +9,14 @@ Deploy simples via Vercel (import do repo, sem build step / sem configuração).
 
 ## Estrutura
 
-- `index.html` — dashboard com 2 abas: "Visão geral" (stat tiles, série
-  diária, origem das vendas) e "Intraday" (hoje x ontem x mesmo dia da semana
-  passada, acumulado por hora, em tempo real)
+- `index.html` — dashboard com 3 abas: "Visão geral" (stat tiles, composição do
+  faturamento, série diária, origem das vendas), "Intraday" (hoje x ontem x
+  mesmo dia da semana passada, acumulado por hora, em tempo real) e "Pedidos"
+  (uma linha por pedido, para export)
 - `data.json` — série diária por plataforma (ERP) + bloco de origem
 - `intraday.json` — por hora de hoje/ontem/semana passada + origem do dia
+- `pedidos.csv` — 1 linha por pedido, 30 dias, com valor decomposto e atribuição
+- `cron/` — cópia versionada do script que roda no droplet
 - `query.sql` — query de referência usada para gerar a série diária
 - `refresh_data.py` — gera os dois arquivos a partir do BigQuery
 
@@ -135,6 +138,29 @@ dashboard avisa em nota quais dias do recorte estão nessa situação.
 O bloco de origem continua vindo do `grand_total` (é o que a tabela
 `order_origin_full` replica), mas cada célula dia × plataforma é reescalada
 para o total do topo, então os dois seguem fechando.
+
+## Aba "Pedidos" (export)
+
+`pedidos.csv` tem uma linha por pedido dos últimos 30 dias (sem o dia corrente,
+mesma regra da série diária), com o valor decomposto — subtotal, taxas,
+descontos, faturamento — e a atribuição de **último** e de **primeiro clique**
+lado a lado, cada uma com canal, origem, mídia e campanha, mais o `metodo_match`
+(qual rota casou o pedido com a sessão do GA4).
+
+O modelo **data-driven do GA4 não entra**: ele não existe por pedido. O crédito
+vem fracionado da Data API e só agregado por dia × plataforma × origem/mídia.
+
+Sai de `df_granular_us.order_origin_full` numa query só — a tabela já é uma
+linha por `order_id` e, desde 17/08/2026, carrega também `sub_total`, `tax`,
+`discount` e `receita`, replicados do ERP via `df_granular.orders_keys`.
+
+São ~110 mil linhas / ~17 MB (2 MB comprimido, que é como a Vercel serve). O
+`index.html` só baixa o arquivo quando a aba é aberta; a tabela mostra os 200
+pedidos mais recentes do recorte e o botão "baixar CSV" leva o recorte inteiro.
+
+O arquivo é regenerado na rodada completa (de hora em hora), mas fica **byte a
+byte igual dentro do mesmo dia** — o ERP só é reconstruído 1x/dia e o dia
+corrente fica de fora. Na prática o cron só gera commit dele uma vez por dia.
 
 ## Definição de "app" x "web"
 

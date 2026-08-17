@@ -443,6 +443,16 @@
     flex: none;
   }
   .erp-tile { border-style: dashed; }
+  #pedCanalWrap { padding: 0; }
+  #pedCanal {
+    font: inherit;
+    font-size: 13px;
+    color: var(--text-primary);
+    background: transparent;
+    border: none;
+    padding: 6px 10px;
+    max-width: 200px;
+  }
   /* composicao do faturamento: subtotal + taxas - descontos = total */
   .composicao {
     display: flex;
@@ -514,6 +524,7 @@
   <div class="tabs">
     <button class="tab-btn active" data-tab="geral" type="button">Visão geral</button>
     <button class="tab-btn" data-tab="intraday" type="button">Intraday</button>
+    <button class="tab-btn" data-tab="pedidos" type="button">Pedidos</button>
   </div>
 
   <div class="view active" id="viewGeral">
@@ -660,6 +671,60 @@
     <p class="intraday-note" id="intradayGenerated"></p>
   </div>
 
+  <div class="view" id="viewPedidos">
+    <div class="filtros">
+      <div class="filtro">
+        <span class="filtro-label">Período</span>
+        <div class="date-filter">
+          <button class="date-filter-toggle" id="pedFilterToggle" type="button">
+            <span id="pedFilterLabel">Período</span><span class="caret">▾</span>
+          </button>
+          <div class="date-filter-panel" id="pedFilterPanel">
+            <label>Data início <input type="date" id="pedFrom"></label>
+            <label>Data fim <input type="date" id="pedTo"></label>
+            <div class="actions">
+              <button class="reset" id="pedReset" type="button">Limpar</button>
+              <button id="pedApply" type="button">Aplicar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="filtro">
+        <span class="filtro-label">Plataforma</span>
+        <div class="seg" id="pedSeg">
+          <button type="button" data-plat="total" class="active">Total</button>
+          <button type="button" data-plat="app">App</button>
+          <button type="button" data-plat="web">Web</button>
+        </div>
+      </div>
+      <div class="filtro">
+        <span class="filtro-label">Canal (último clique)</span>
+        <div class="seg" id="pedCanalWrap"><select id="pedCanal"></select></div>
+      </div>
+    </div>
+
+    <div class="stats" id="pedidosStats"></div>
+
+    <div class="panel">
+      <h2>Pedidos</h2>
+      <p class="panel-sub" id="pedidosSub">Uma linha por pedido, com a atribuição de último e de primeiro clique lado a lado</p>
+      <button type="button" class="baixar" id="baixarPedidos">baixar CSV</button>
+      <div class="tabela-wrap">
+        <table class="tabela" id="pedidosTabela">
+          <thead><tr>
+            <th>Pedido</th><th>Data</th><th>Plat.</th>
+            <th class="num">Subtotal</th><th class="num">Taxas</th>
+            <th class="num">Descontos</th><th class="num">Faturamento</th>
+            <th>Canal último</th><th>Origem / mídia último</th>
+            <th>Canal primeiro</th><th>Origem / mídia primeiro</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="origin-note" id="pedidosNota"></p>
+    </div>
+  </div>
+
   <footer>Gerado a partir de dados reais do BigQuery. Veja o README para instruções de atualização do data.json.</footer>
 </div>
 
@@ -696,6 +761,8 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     const tab = btn.dataset.tab;
     document.getElementById('viewGeral').classList.toggle('active', tab === 'geral');
     document.getElementById('viewIntraday').classList.toggle('active', tab === 'intraday');
+    document.getElementById('viewPedidos').classList.toggle('active', tab === 'pedidos');
+    if (tab === 'pedidos') carregaPedidos();
   });
 });
 
@@ -1010,6 +1077,201 @@ function render(data) {
 // ---------------- Download CSV ----------------
 // Separador ';' e decimal com virgula: e o que o Excel em pt-BR abre sem pedir
 // assistente de importacao. BOM na frente pra acentuacao nao sair quebrada.
+// --------------------------------------------------------------------------
+// Aba Pedidos: 1 linha por pedido, com a atribuicao dos dois modelos ao lado.
+//
+// O pedidos.csv tem ~110 mil linhas / 17 MB, entao so e buscado quando a aba e
+// aberta de fato -- carregar junto com o resto atrasaria a Visao geral a toa.
+// O modelo data-driven do GA4 nao aparece aqui: ele nao existe por pedido, so
+// agregado por dia x plataforma x origem/midia, com credito fracionado.
+// --------------------------------------------------------------------------
+const PEDIDOS_PREVIEW = 200;
+
+// mesma regra de nome do bloco de origem: "Nao identificado" vira "Sem origem",
+// canal fora da lista vira "Outros"
+const rotulaCanal = (c) => c ? (LABEL_CANAL[normalizaCanal(c)] || normalizaCanal(c)) : 'Sem origem';
+let pedidosTodos = null, pedidosCarregando = false, pedidosRecorte = null;
+
+function parseCSV(texto) {
+  // O arquivo e gerado pelo refresh_data.py: separador virgula, aspas so quando
+  // o valor tem virgula/aspas/quebra. Parser pequeno, mas que respeita aspas.
+  const linhas = texto.trim().split('\n');
+  const cols = linhas[0].split(',');
+  const out = [];
+  for (let i = 1; i < linhas.length; i++) {
+    const l = linhas[i];
+    const campos = [];
+    let atual = '', dentro = false;
+    for (let j = 0; j < l.length; j++) {
+      const c = l[j];
+      if (dentro) {
+        if (c === '"' && l[j + 1] === '"') { atual += '"'; j++; }
+        else if (c === '"') dentro = false;
+        else atual += c;
+      } else if (c === '"') dentro = true;
+      else if (c === ',') { campos.push(atual); atual = ''; }
+      else atual += c;
+    }
+    campos.push(atual);
+    const o = {};
+    cols.forEach((c, k) => o[c] = campos[k]);
+    for (const n of ['subtotal', 'taxas', 'descontos', 'faturamento']) o[n] = +o[n] || 0;
+    out.push(o);
+  }
+  return out;
+}
+
+function carregaPedidos() {
+  if (pedidosTodos || pedidosCarregando) return;
+  pedidosCarregando = true;
+  document.getElementById('pedidosNota').textContent = 'Carregando os pedidos…';
+  fetch('pedidos.csv', { cache: 'no-store' })
+    .then(r => r.text())
+    .then(t => {
+      pedidosTodos = parseCSV(t);
+      pedidosCarregando = false;
+      const datas = pedidosTodos.map(p => p.data);
+      const min = datas[datas.length - 1], max = datas[0];
+      for (const id of ['pedFrom', 'pedTo']) {
+        const el = document.getElementById(id);
+        el.min = min; el.max = max;
+      }
+      document.getElementById('pedFrom').value = min;
+      document.getElementById('pedTo').value = max;
+      document.getElementById('pedFilterLabel').textContent = `${min} a ${max}`;
+
+      const canais = [...new Set(pedidosTodos.map(p => p.canal_ultimo || '(sem canal)'))].sort();
+      document.getElementById('pedCanal').innerHTML =
+        '<option value="">Todos</option>' +
+        canais.map(c => `<option value="${c}">${rotulaCanal(c)}</option>`).join('');
+      renderPedidos();
+    })
+    .catch(err => {
+      pedidosCarregando = false;
+      document.getElementById('pedidosNota').textContent = 'Falha ao carregar pedidos.csv: ' + err;
+    });
+}
+
+function pedidosFiltrados() {
+  const de = document.getElementById('pedFrom').value;
+  const ate = document.getElementById('pedTo').value;
+  const plat = document.querySelector('#pedSeg button.active').dataset.plat;
+  const canal = document.getElementById('pedCanal').value;
+  return pedidosTodos.filter(p =>
+    (!de || p.data >= de) && (!ate || p.data <= ate) &&
+    (plat === 'total' || p.plataforma === plat) &&
+    (!canal || (p.canal_ultimo || '(sem canal)') === canal));
+}
+
+function renderPedidos() {
+  if (!pedidosTodos) return;
+  const itens = pedidosFiltrados();
+  pedidosRecorte = itens;
+
+  const soma = (c) => itens.reduce((a, p) => a + p[c], 0);
+  const fat = soma('faturamento');
+  const trocam = itens.filter(p => p.canal_ultimo !== p.canal_primeiro).length;
+  document.getElementById('pedidosStats').innerHTML = `
+    <div class="stat-tile">
+      <div class="label">Pedidos no recorte</div>
+      <div class="value">${fmtInt(itens.length)}</div>
+      <div class="sub">de ${fmtInt(pedidosTodos.length)} no arquivo</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Faturamento</div>
+      <div class="value">${fmtBRLCompact(fat)}</div>
+      <div class="sub">subtotal ${fmtBRLCompact(soma('subtotal'))} · taxas ${fmtBRLCompact(soma('taxas'))} · descontos ${fmtBRLCompact(soma('descontos'))}</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Ticket médio</div>
+      <div class="value">${itens.length ? fmtBRLCompact(fat / itens.length) : '—'}</div>
+      <div class="sub">no recorte</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Trocam de canal</div>
+      <div class="value">${itens.length ? (trocam / itens.length * 100).toFixed(1).replace('.', ',') + '%' : '—'}</div>
+      <div class="sub">último clique ≠ primeiro clique</div>
+    </div>`;
+
+  const sm = (s, m) => [s, m].filter(v => v && v !== '(not set)').join(' / ') || '—';
+  const tbody = document.querySelector('#pedidosTabela tbody');
+  tbody.innerHTML = itens.slice(0, PEDIDOS_PREVIEW).map(p => `
+    <tr>
+      <td>${p.pedido}</td><td>${p.data}</td><td>${p.plataforma}</td>
+      <td class="num">${fmtBRL(p.subtotal)}</td>
+      <td class="num">${fmtBRL(p.taxas)}</td>
+      <td class="num">${fmtBRL(p.descontos)}</td>
+      <td class="num">${fmtBRL(p.faturamento)}</td>
+      <td>${rotulaCanal(p.canal_ultimo)}</td>
+      <td>${sm(p.origem_ultimo, p.midia_ultimo)}</td>
+      <td>${rotulaCanal(p.canal_primeiro)}</td>
+      <td>${sm(p.origem_primeiro, p.midia_primeiro)}</td>
+    </tr>`).join('');
+
+  document.getElementById('pedidosNota').textContent =
+    `A tabela mostra os ${fmtInt(Math.min(itens.length, PEDIDOS_PREVIEW))} pedidos mais recentes do recorte; ` +
+    `o botão "baixar CSV" leva os ${fmtInt(itens.length)}. ` +
+    'O modelo "Baseado em dados (GA4)" não aparece aqui porque ele não existe por pedido — ' +
+    'o crédito do GA4 vem fracionado e só agregado por dia, plataforma e origem/mídia.';
+}
+
+document.getElementById('pedApply').addEventListener('click', () => {
+  document.getElementById('pedFilterLabel').textContent =
+    `${document.getElementById('pedFrom').value} a ${document.getElementById('pedTo').value}`;
+  document.getElementById('pedFilterPanel').classList.remove('open');
+  renderPedidos();
+});
+document.getElementById('pedReset').addEventListener('click', () => {
+  if (!pedidosTodos) return;
+  const de = document.getElementById('pedFrom').min, ate = document.getElementById('pedTo').max;
+  document.getElementById('pedFrom').value = de;
+  document.getElementById('pedTo').value = ate;
+  document.getElementById('pedFilterLabel').textContent = `${de} a ${ate}`;
+  document.getElementById('pedCanal').value = '';
+  document.querySelectorAll('#pedSeg button').forEach(b => b.classList.toggle('active', b.dataset.plat === 'total'));
+  document.getElementById('pedFilterPanel').classList.remove('open');
+  renderPedidos();
+});
+document.getElementById('pedFilterToggle').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('pedFilterPanel').classList.toggle('open');
+});
+document.addEventListener('click', (e) => {
+  const p = document.getElementById('pedFilterPanel');
+  if (!p.contains(e.target) && e.target !== document.getElementById('pedFilterToggle')) p.classList.remove('open');
+});
+document.querySelectorAll('#pedSeg button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#pedSeg button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderPedidos();
+  });
+});
+document.getElementById('pedCanal').addEventListener('change', renderPedidos);
+
+document.getElementById('baixarPedidos').addEventListener('click', () => {
+  if (!pedidosRecorte) return;
+  const de = document.getElementById('pedFrom').value, ate = document.getElementById('pedTo').value;
+  baixaCSV(`123milhas pedidos ${de} a ${ate}`, [
+    { titulo: 'Pedido',            valor: p => p.pedido },
+    { titulo: 'Data',              valor: p => p.data },
+    { titulo: 'Plataforma',        valor: p => p.plataforma },
+    { titulo: 'Subtotal',          valor: p => p.subtotal },
+    { titulo: 'Taxas',             valor: p => p.taxas },
+    { titulo: 'Descontos',         valor: p => p.descontos },
+    { titulo: 'Faturamento',       valor: p => p.faturamento },
+    { titulo: 'Canal ultimo',      valor: p => rotulaCanal(p.canal_ultimo) },
+    { titulo: 'Origem ultimo',     valor: p => p.origem_ultimo },
+    { titulo: 'Midia ultimo',      valor: p => p.midia_ultimo },
+    { titulo: 'Campanha ultimo',   valor: p => p.campanha_ultimo },
+    { titulo: 'Canal primeiro',    valor: p => rotulaCanal(p.canal_primeiro) },
+    { titulo: 'Origem primeiro',   valor: p => p.origem_primeiro },
+    { titulo: 'Midia primeiro',    valor: p => p.midia_primeiro },
+    { titulo: 'Campanha primeiro', valor: p => p.campanha_primeiro },
+    { titulo: 'Metodo de match',   valor: p => p.metodo_match },
+  ], pedidosRecorte);
+});
+
 function baixaCSV(nomeBase, colunas, linhas) {
   const num = v => typeof v !== 'number' ? v
     : Number.isInteger(v) ? v.toLocaleString('pt-BR')

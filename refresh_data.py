@@ -5,6 +5,8 @@
                  + bloco de origem de sessao (GA4 last click)
   intraday.json  hoje x ontem x mesmo dia da semana passada, por hora, em tempo
                  real (GA4), com a origem do dia e o numero oficial do ERP
+  pedidos.csv    1 linha por pedido (30 dias), com o valor decomposto e a
+                 atribuicao de ultimo e de primeiro clique -- a aba "Pedidos"
 
 Fontes e por que sao duas:
   - `grupo123-metrics.df_granular.orders` (southamerica-east1) e a verdade de
@@ -19,6 +21,7 @@ Fontes e por que sao duas:
 Uso:
   python3 refresh_data.py --sa-key /path/sa_123.json            # tudo
   python3 refresh_data.py --sa-key ... --only intraday          # so o intraday
+  python3 refresh_data.py --sa-key ... --only pedidos           # so o CSV de pedidos
 
 Sem --sa-key, tenta $SA_123_KEY ou ../sa_123.json.
 """
@@ -403,6 +406,71 @@ def gen_daily(creds):
 
 
 # --------------------------------------------------------------------------
+# export pedido a pedido (aba "Pedidos")
+# --------------------------------------------------------------------------
+
+# Quantos dias de pedido vao pro CSV. A atribuicao so existe a partir de 08/07
+# (retencao do export do GA4), entao ir muito alem disso so engorda o arquivo com
+# linha sem origem. 30 dias ~ 110 mil linhas, ~12 MB (a Vercel serve comprimido).
+PEDIDOS_DIAS = 30
+
+COLUNAS_PEDIDOS = [
+    ("pedido",            "order_id"),
+    ("data",              "d"),
+    ("plataforma",        "plataforma"),
+    ("subtotal",          "sub_total"),
+    ("taxas",             "taxas"),
+    ("descontos",         "descontos"),
+    ("faturamento",       "receita"),
+    ("canal_ultimo",      "canal"),
+    ("origem_ultimo",     "source"),
+    ("midia_ultimo",      "medium"),
+    ("campanha_ultimo",   "campaign"),
+    ("canal_primeiro",    "canal_first"),
+    ("origem_primeiro",   "source_first"),
+    ("midia_primeiro",    "medium_first"),
+    ("campanha_primeiro", "campaign_first"),
+    ("metodo_match",      "metodo"),
+]
+
+
+def gen_pedidos(creds):
+    """CSV com 1 linha por pedido: valor decomposto + atribuicao dos dois modelos.
+
+    Sai de order_origin_full, que ja e 1 linha por order_id e carrega tanto as
+    parcelas do valor quanto a origem de ultimo e de primeiro clique. O modelo
+    data-driven do GA4 NAO entra: ele nao existe por pedido, so agregado por dia
+    x plataforma x source/medium (o credito e fracionado).
+
+    O dia corrente fica de fora, igual a serie diaria: o ERP so e reconstruido
+    1x/dia as 08:00, entao o dia de hoje sempre chegaria pela metade. Como efeito
+    colateral util, o arquivo fica byte a byte igual entre as rodadas do mesmo
+    dia -- o cron so gera commit quando o ERP de fato mudou.
+    """
+    rows = bq_query(creds, f"""
+      SELECT CAST(order_date AS STRING) AS d, order_id, plataforma,
+             sub_total, tax + discount AS taxas,
+             IF(grand_total IS NULL, 0, sub_total + tax + discount - grand_total) AS descontos,
+             receita, canal, source, medium, campaign,
+             canal_first, source_first, medium_first, campaign_first, metodo
+      FROM `{ORIGIN_TABLE}`
+      WHERE order_date >= DATE_SUB(CURRENT_DATE("America/Sao_Paulo"), INTERVAL {PEDIDOS_DIAS} DAY)
+        AND order_date < CURRENT_DATE("America/Sao_Paulo")
+      ORDER BY order_date DESC, order_id
+    """)
+
+    def csv_campo(v):
+        if v is None:
+            return ""
+        v = str(v)
+        return '"' + v.replace('"', '""') + '"' if any(c in v for c in ',"\n') else v
+
+    linhas = [",".join(rot for rot, _ in COLUNAS_PEDIDOS)]
+    linhas += [",".join(csv_campo(r.get(col)) for _, col in COLUNAS_PEDIDOS) for r in rows]
+    return "\n".join(linhas) + "\n", len(rows), (rows[-1]["d"] if rows else None), (rows[0]["d"] if rows else None)
+
+
+# --------------------------------------------------------------------------
 # intraday (GA4 em tempo real)
 # --------------------------------------------------------------------------
 
@@ -611,7 +679,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sa-key", default=os.environ.get(
         "SA_123_KEY", os.path.join(os.path.dirname(__file__), "..", "sa_123.json")))
-    ap.add_argument("--only", choices=["all", "daily", "intraday"], default="all",
+    ap.add_argument("--only", choices=["all", "daily", "intraday", "pedidos"], default="all",
                     help="'intraday' e a rodada barata, pra rodar de poucos em poucos minutos")
     args = ap.parse_args()
 
@@ -636,6 +704,12 @@ def main():
         with open(caminho("data.json"), "w") as f:
             json.dump(daily, f, ensure_ascii=False, indent=2)
         print("data.json atualizado:", daily["period"])
+
+    if args.only in ("all", "daily", "pedidos"):
+        csv, n, de, ate = gen_pedidos(creds)
+        with open(caminho("pedidos.csv"), "w") as f:
+            f.write(csv)
+        print(f"pedidos.csv atualizado: {n} pedidos de {de} a {ate} ({len(csv)/1e6:.1f} MB)")
 
     if args.only in ("all", "intraday"):
         anterior = None
