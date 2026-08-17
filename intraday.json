@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-17T09:00:03.407452-03:00",
+  "generated_at": "2026-08-17T09:07:07.840654-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-17",
@@ -45,7 +45,7 @@
           8,
           17,
           41,
-          0,
+          5,
           null,
           null,
           null,
@@ -71,7 +71,7 @@
           10364.07,
           28865.35,
           62812.02,
-          0.0,
+          7310.99,
           null,
           null,
           null,
@@ -97,7 +97,7 @@
           54,
           71,
           112,
-          112,
+          117,
           null,
           null,
           null,
@@ -123,7 +123,7 @@
           83621.47,
           112486.82,
           175298.84,
-          175298.84,
+          182609.83,
           null,
           null,
           null,
@@ -151,7 +151,7 @@
           8,
           28,
           71,
-          0,
+          10,
           null,
           null,
           null,
@@ -177,7 +177,7 @@
           14841.19,
           45426.39,
           110643.04,
-          0.0,
+          8862.23,
           null,
           null,
           null,
@@ -203,7 +203,7 @@
           91,
           119,
           190,
-          190,
+          200,
           null,
           null,
           null,
@@ -229,7 +229,7 @@
           136305.25,
           181731.64,
           292374.68,
-          292374.68,
+          301236.91,
           null,
           null,
           null,
@@ -257,7 +257,7 @@
           16,
           45,
           112,
-          0,
+          15,
           null,
           null,
           null,
@@ -283,7 +283,7 @@
           25205.26,
           74291.74,
           173455.06,
-          0.0,
+          16173.22,
           null,
           null,
           null,
@@ -309,7 +309,7 @@
           145,
           190,
           302,
-          302,
+          317,
           null,
           null,
           null,
@@ -335,7 +335,7 @@
           219926.72,
           294218.46,
           467673.52,
-          467673.52,
+          483846.74,
           null,
           null,
           null,
@@ -996,24 +996,29 @@
   },
   "origin": [
     {
+      "platform": "app",
+      "canal": "Direto",
+      "orders": 44
+    },
+    {
       "platform": "web",
-      "canal": "Midia paga",
-      "orders": 35
+      "canal": "Organico",
+      "orders": 36
     },
     {
       "platform": "web",
       "canal": "Metasearch",
-      "orders": 71
+      "orders": 73
     },
     {
-      "platform": "app",
-      "canal": "Direto",
-      "orders": 42
+      "platform": "web",
+      "canal": "Midia paga",
+      "orders": 37
     },
     {
-      "platform": "app",
-      "canal": "Organico",
-      "orders": 29
+      "platform": "web",
+      "canal": "Nao identificado",
+      "orders": 45
     },
     {
       "platform": "app",
@@ -1022,13 +1027,13 @@
     },
     {
       "platform": "web",
-      "canal": "Organico",
-      "orders": 32
+      "canal": "Direto",
+      "orders": 6
     },
     {
-      "platform": "web",
-      "canal": "Nao identificado",
-      "orders": 43
+      "platform": "app",
+      "canal": "Organico",
+      "orders": 31
     },
     {
       "platform": "app",
@@ -1037,18 +1042,23 @@
     },
     {
       "platform": "app",
-      "canal": "Outros",
-      "orders": 2
-    },
-    {
-      "platform": "web",
-      "canal": "Direto",
-      "orders": 6
+      "canal": "CRM",
+      "orders": 1
     },
     {
       "platform": "web",
       "canal": "Outros",
       "orders": 2
+    },
+    {
+      "platform": "app",
+      "canal": "Outros",
+      "orders": 2
+    },
+    {
+      "platform": "web",
+      "canal": "CRM",
+      "orders": 1
     },
     {
       "platform": "app",
@@ -1056,13 +1066,8 @@
       "orders": 1
     },
     {
-      "platform": "web",
-      "canal": "CRM",
-      "orders": 1
-    },
-    {
       "platform": "app",
-      "canal": "CRM",
+      "canal": "Metasearch",
       "orders": 1
     }
   ],
