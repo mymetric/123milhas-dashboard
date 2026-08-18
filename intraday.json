@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-18T02:40:02.358927-03:00",
+  "generated_at": "2026-08-18T02:50:02.657062-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-18",
@@ -144,7 +144,7 @@
         "orders": [
           31,
           18,
-          8,
+          10,
           null,
           null,
           null,
@@ -170,7 +170,7 @@
         "revenue": [
           49742.98,
           30007.3,
-          14078.21,
+          15424.18,
           null,
           null,
           null,
@@ -196,7 +196,7 @@
         "orders_cum": [
           31,
           49,
-          57,
+          59,
           null,
           null,
           null,
@@ -222,7 +222,7 @@
         "revenue_cum": [
           49742.98,
           79750.28,
-          93828.49,
+          95174.46,
           null,
           null,
           null,
@@ -250,7 +250,7 @@
         "orders": [
           50,
           31,
-          11,
+          13,
           null,
           null,
           null,
@@ -276,7 +276,7 @@
         "revenue": [
           74364.61,
           54484.25,
-          20727.39,
+          22073.36,
           null,
           null,
           null,
@@ -302,7 +302,7 @@
         "orders_cum": [
           50,
           81,
-          92,
+          94,
           null,
           null,
           null,
@@ -328,7 +328,7 @@
         "revenue_cum": [
           74364.61,
           128848.86,
-          149576.25,
+          150922.22,
           null,
           null,
           null,
@@ -998,10 +998,15 @@
     {
       "platform": "web",
       "canal": "Metasearch",
-      "orders": 11
+      "orders": 13
     },
     {
-      "platform": "app",
+      "platform": "web",
+      "canal": "Nao identificado",
+      "orders": 25
+    },
+    {
+      "platform": "web",
       "canal": "Organico",
       "orders": 9
     },
@@ -1011,14 +1016,14 @@
       "orders": 17
     },
     {
-      "platform": "web",
-      "canal": "Nao identificado",
-      "orders": 25
+      "platform": "app",
+      "canal": "Direto",
+      "orders": 8
     },
     {
-      "platform": "web",
-      "canal": "Direto",
-      "orders": 1
+      "platform": "app",
+      "canal": "Organico",
+      "orders": 9
     },
     {
       "platform": "web",
@@ -1027,13 +1032,8 @@
     },
     {
       "platform": "web",
-      "canal": "Organico",
-      "orders": 9
-    },
-    {
-      "platform": "app",
-      "canal": "Direto",
-      "orders": 8
+      "canal": "CRM",
+      "orders": 1
     },
     {
       "platform": "app",
@@ -1042,7 +1042,7 @@
     },
     {
       "platform": "web",
-      "canal": "CRM",
+      "canal": "Direto",
       "orders": 1
     }
   ],
