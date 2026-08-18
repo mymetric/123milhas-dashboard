@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-17T21:07:26.420899-03:00",
+  "generated_at": "2026-08-17T21:10:03.149987-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-17",
@@ -57,7 +57,7 @@
           52,
           73,
           77,
-          13,
+          15,
           null,
           null
         ],
@@ -83,7 +83,7 @@
           74283.15,
           108402.43,
           123067.84,
-          10859.79,
+          13874.76,
           null,
           null
         ],
@@ -109,7 +109,7 @@
           644,
           717,
           794,
-          807,
+          809,
           null,
           null
         ],
@@ -135,7 +135,7 @@
           994482.34,
           1102884.77,
           1225952.61,
-          1236812.4,
+          1239827.37,
           null,
           null
         ]
@@ -163,7 +163,7 @@
           122,
           100,
           119,
-          13,
+          20,
           null,
           null
         ],
@@ -189,7 +189,7 @@
           218850.09,
           145059.95,
           172127.96,
-          27463.83,
+          39684.37,
           null,
           null
         ],
@@ -215,7 +215,7 @@
           1488,
           1588,
           1707,
-          1720,
+          1727,
           null,
           null
         ],
@@ -241,7 +241,7 @@
           2490776.62,
           2635836.57,
           2807964.53,
-          2835428.36,
+          2847648.9,
           null,
           null
         ]
@@ -269,7 +269,7 @@
           174,
           173,
           196,
-          26,
+          35,
           null,
           null
         ],
@@ -295,7 +295,7 @@
           293133.24,
           253462.38,
           295195.8,
-          38323.62,
+          53559.13,
           null,
           null
         ],
@@ -321,7 +321,7 @@
           2132,
           2305,
           2501,
-          2527,
+          2536,
           null,
           null
         ],
@@ -347,7 +347,7 @@
           3485258.96,
           3738721.34,
           4033917.14,
-          4072240.76,
+          4087476.27,
           null,
           null
         ]
@@ -996,9 +996,14 @@
   },
   "origin": [
     {
+      "platform": "app",
+      "canal": "Direto",
+      "orders": 311
+    },
+    {
       "platform": "web",
-      "canal": "Nao identificado",
-      "orders": 336
+      "canal": "Metasearch",
+      "orders": 635
     },
     {
       "platform": "app",
@@ -1006,19 +1011,9 @@
       "orders": 237
     },
     {
-      "platform": "web",
-      "canal": "Metasearch",
-      "orders": 634
-    },
-    {
       "platform": "app",
-      "canal": "Direto",
-      "orders": 310
-    },
-    {
-      "platform": "web",
-      "canal": "Midia paga",
-      "orders": 264
+      "canal": "Nao identificado",
+      "orders": 175
     },
     {
       "platform": "web",
@@ -1027,33 +1022,33 @@
     },
     {
       "platform": "web",
-      "canal": "Organico",
-      "orders": 384
-    },
-    {
-      "platform": "app",
       "canal": "Nao identificado",
-      "orders": 175
-    },
-    {
-      "platform": "app",
-      "canal": "Midia paga",
-      "orders": 66
-    },
-    {
-      "platform": "web",
-      "canal": "CRM",
-      "orders": 10
-    },
-    {
-      "platform": "app",
-      "canal": "Outros",
-      "orders": 3
+      "orders": 340
     },
     {
       "platform": "app",
       "canal": "Push",
       "orders": 7
+    },
+    {
+      "platform": "web",
+      "canal": "Midia paga",
+      "orders": 265
+    },
+    {
+      "platform": "web",
+      "canal": "Organico",
+      "orders": 384
+    },
+    {
+      "platform": "app",
+      "canal": "Midia paga",
+      "orders": 67
+    },
+    {
+      "platform": "web",
+      "canal": "CRM",
+      "orders": 11
     },
     {
       "platform": "app",
@@ -1069,6 +1064,11 @@
       "platform": "web",
       "canal": "Outros",
       "orders": 2
+    },
+    {
+      "platform": "app",
+      "canal": "Outros",
+      "orders": 3
     }
   ],
   "erp": {
