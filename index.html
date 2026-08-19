@@ -646,6 +646,7 @@
       </div>
     </div>
     <canvas id="ordersChart"></canvas>
+    <p class="origin-note" id="ordersNota" hidden></p>
   </div>
 
   <div class="panel">
@@ -663,6 +664,7 @@
       </div>
     </div>
     <canvas id="revenueChart"></canvas>
+    <p class="origin-note" id="revenueNota" hidden></p>
   </div>
 
   <div class="panel" id="originPanel">
@@ -690,12 +692,6 @@
     <p class="origin-note" id="originNote"></p>
   </div>
 
-  <div class="panel" id="originDailyPanel">
-    <h2>Origem por dia</h2>
-    <p class="panel-sub" id="originDailySub">Pedidos por canal, empilhado</p>
-    <div class="legend" id="originLegend"></div>
-    <canvas id="originChart"></canvas>
-  </div>
   </div>
 
   <div class="view" id="viewIntraday">
@@ -999,11 +995,38 @@ function renderComposicao(summary, series, plat) {
     : base;
 }
 
+/** Serie diaria reconstruida a partir da atribuicao do GA4, no mesmo formato da
+ *  serie do ERP (app_orders / web_orders / app_revenue / web_revenue) pra
+ *  alimentar as mesmas timelines sem tocar no resto do desenho.
+ *  So faz sentido com filtro ligado: sem ele a serie do ERP e melhor, porque e
+ *  o total inteiro e comeca antes (o export do GA4 so guarda ~36 dias). */
+function serieDoFiltroOrigin(data) {
+  const doModelo = r => (r.modelo || 'last') === originModelo;
+  const porDia = {};
+  ((data.origin && data.origin.rows_sm) || [])
+    .filter(r => doModelo(r) && casaFiltroOrigin(r))
+    .forEach(r => {
+      const d = porDia[r.date] = porDia[r.date] ||
+        { date: r.date, app_orders: 0, web_orders: 0, app_revenue: 0, web_revenue: 0 };
+      d[r.platform + '_orders'] += r.orders;
+      d[r.platform + '_revenue'] += r.revenue;
+    });
+  return Object.values(porDia).sort((a, b) => a.date.localeCompare(b.date));
+}
+
+let serieVisivel = null;   // o que as timelines estao desenhando, pro export
+
 function render(data) {
   dadosVisiveis = data;
-  const { period, summary, series } = data;
+  const { period, summary } = data;
   const plat = originPlatform;                    // 'total' | 'app' | 'web'
   const soPlataforma = plat !== 'total';
+  // Com filtro de origem ligado a timeline troca de fonte: o ERP nao sabe de que
+  // canal veio o pedido, so a atribuicao do GA4 sabe. A nota embaixo do grafico
+  // avisa da troca -- os numeros ficam menores e a serie comeca depois.
+  const comFiltro = temFiltroOrigin() && data.origin && (data.origin.rows_sm || []).length;
+  const series = comFiltro ? serieDoFiltroOrigin(data) : data.series;
+  serieVisivel = series;
 
   document.getElementById('period-sub').textContent =
     `Pedidos e faturamento por plataforma — ${period.days} dias (${period.start} a ${period.end}) — fonte: ${data.source}`;
@@ -1054,7 +1077,7 @@ function render(data) {
     </div>
   `;
 
-  renderComposicao(summary, series, plat);
+  renderComposicao(summary, data.series, plat);
 
   const labels = series.map(d => d.date.slice(5)); // MM-DD
   const seriesApp = (key) => series.map(d => d[key]);
@@ -1136,6 +1159,21 @@ function render(data) {
     },
     options: baseOptions(fmtBRLCompact)
   });
+
+  // Fonte diferente pede aviso: com filtro estas linhas sao a fatia atribuida
+  // pelo GA4, nao o total do ERP dos cards de cima.
+  const modeloAtual = (data.origin && (data.origin.models || []).find(m => m.id === originModelo)) || null;
+  const notaSerie = comFiltro
+    ? `Filtrado por ${nomeDoFiltroOrigin()}: esta série vem da atribuição do GA4 ` +
+      `(${(modeloAtual || data.origin).match_pct}% dos pedidos do ERP têm origem identificada em ` +
+      `"${(modeloAtual || {}).label || 'último clique'}") e começa em ${data.origin.start} — ` +
+      'não é o total do ERP dos cards acima.'
+    : '';
+  for (const id of ['ordersNota', 'revenueNota']) {
+    const el = document.getElementById(id);
+    el.textContent = notaSerie;
+    el.hidden = !notaSerie;
+  }
 
   renderOrigin(data);
 }
@@ -1479,12 +1517,22 @@ function casaFiltroOrigin(r) {
   return true;
 }
 
+// O filtro mexe nas timelines do topo tambem, entao redesenha a Visao geral
+// inteira -- nao so o bloco de origem.
+function redesenhaOrigem() {
+  if (dadosVisiveis) render(dadosVisiveis);
+  else if (originData) renderOrigin(originData);
+}
+
 function setFiltroOrigin(patch) {
   originFiltro = { canal: null, source: null, medium: null, ...patch };
-  if (originData) renderOrigin(originData);
+  redesenhaOrigem();
 }
 
 const rotuloSM = (s, m) => `${s} / ${m}`;
+const nomeDoFiltroOrigin = () => originFiltro.source !== null
+  ? rotuloSM(originFiltro.source, originFiltro.medium)
+  : (LABEL_CANAL[originFiltro.canal] || originFiltro.canal);
 
 /** Chips na barra suspensa: sao o unico lugar que diz "tem filtro ligado" quando
  *  o usuario ja rolou pra longe da tabela onde clicou. */
@@ -1521,7 +1569,6 @@ let originPlatform = 'total';
 let originModelo = 'last';
 let originSMTudo = false;
 const ORIGIN_SM_TOPO = 10;
-let originChart = null;
 let originData = null;
 
 function montaSeletorModelo(modelos) {
@@ -1535,7 +1582,7 @@ function montaSeletorModelo(modelos) {
       el.querySelectorAll('button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       originModelo = btn.dataset.modelo;
-      if (originData) renderOrigin(originData);
+      redesenhaOrigem();
     });
   });
   el.dataset.pronto = '1';
@@ -1588,10 +1635,16 @@ document.getElementById('baixarSM').addEventListener('click', () => {
 });
 
 document.getElementById('baixarSerie').addEventListener('click', () => {
-  if (!dadosVisiveis) return;
+  if (!dadosVisiveis || !serieVisivel) return;
   const plat = originPlatform;
+  // Com filtro a serie vem do GA4, que so tem pedidos e faturamento: subtotal,
+  // taxas e descontos existem so no ERP e sairiam zerados.
+  const filtrada = temFiltroOrigin();
   const cols = [{ titulo: 'Data', valor: d => d.date }];
-  const colsPlat = (p, rot) => [
+  const colsPlat = (p, rot) => filtrada ? [
+    { titulo: `Pedidos ${rot}`,      valor: d => +d[p + '_orders'].toFixed(2) },
+    { titulo: `Faturamento ${rot}`,  valor: d => +d[p + '_revenue'].toFixed(2) },
+  ] : [
     { titulo: `Pedidos ${rot}`,      valor: d => d[p + '_orders'] },
     { titulo: `Subtotal ${rot}`,     valor: d => +(d[p + '_subtotal'] || 0).toFixed(2) },
     { titulo: `Taxas ${rot}`,        valor: d => +(d[p + '_taxas'] || 0).toFixed(2) },
@@ -1600,8 +1653,10 @@ document.getElementById('baixarSerie').addEventListener('click', () => {
   ];
   if (plat !== 'web') cols.push(...colsPlat('app', 'app'));
   if (plat !== 'app') cols.push(...colsPlat('web', 'web'));
-  baixaCSV(`123milhas pedidos por dia ${plat} ${dadosVisiveis.period.start} a ${dadosVisiveis.period.end}`,
-           cols, dadosVisiveis.series);
+  const nome = filtrada
+    ? `123milhas pedidos por dia ${plat} ${nomeDoFiltroOrigin()} ${dadosVisiveis.period.start} a ${dadosVisiveis.period.end}`
+    : `123milhas pedidos por dia ${plat} ${dadosVisiveis.period.start} a ${dadosVisiveis.period.end}`;
+  baixaCSV(nome, cols, serieVisivel);
 });
 
 document.getElementById('originSMToggle').addEventListener('click', () => {
@@ -1681,15 +1736,12 @@ document.querySelector('#originTableSM tbody').addEventListener('keydown', cliqu
 function renderOrigin(data) {
   originData = data;
   const painel = document.getElementById('originPanel');
-  const painelDiario = document.getElementById('originDailyPanel');
   if (!data.origin || !data.origin.rows.length) {
     painel.style.display = 'none';
-    painelDiario.style.display = 'none';
     renderChipsOrigin();
     return;
   }
   painel.style.display = '';
-  painelDiario.style.display = '';
 
   montaSeletorModelo(data.origin.models || [{ id: 'last', label: 'Último clique' }]);
   const doModelo = r => (r.modelo || 'last') === originModelo;
@@ -1797,15 +1849,13 @@ function renderOrigin(data) {
   const alvo = linhasSM.filter(casaFiltroOrigin);
   const alvoPedidos = alvo.reduce((a, r) => a + r.orders, 0);
   const alvoReceita = alvo.reduce((a, r) => a + r.revenue, 0);
-  const nomeFiltro = originFiltro.source !== null
-    ? rotuloSM(originFiltro.source, originFiltro.medium)
-    : (LABEL_CANAL[originFiltro.canal] || originFiltro.canal);
+  const nomeFiltro = nomeDoFiltroOrigin();
   const notaFiltro = temFiltroOrigin()
     ? `<b>Filtrado por ${esc(nomeFiltro)}:</b> ${fmtInt(Math.round(alvoPedidos))} pedidos ` +
       `(${total ? (alvoPedidos / total * 100).toFixed(1) : '0.0'}% dos atribuídos no recorte) e ` +
-      `${fmtBRLCompact(alvoReceita)} de faturamento. O filtro vale só para este bloco e para o de ` +
-      `origem por dia: os cards e as séries do topo vêm do ERP, que não traz canal — só a fatia que o ` +
-      `GA4 casou é atribuível. `
+      `${fmtBRLCompact(alvoReceita)} de faturamento. O filtro vale para as timelines do topo e para ` +
+      `este bloco. Os cards e a composição do faturamento seguem no total do ERP, que não traz canal ` +
+      `— só a fatia que o GA4 casou é atribuível. `
     : '';
 
   document.getElementById('originNote').innerHTML = notaFiltro +
@@ -1816,62 +1866,6 @@ function renderOrigin(data) {
     `Disponível a partir de ${data.origin.start} — o export do GA4 só guarda ~36 dias. ` +
     `Faturamento por canal: ${itens.map(i => `${LABEL_CANAL[i.canal] || i.canal} ${fmtBRLCompact(i.receita)}`).join(' · ')}.`;
 
-  // ---- empilhado por dia ----
-  // O eixo x sai do recorte inteiro (nao do filtrado) pra nao encolher quando o
-  // filtro deixa dias sem pedido — o buraco no meio da serie e informacao.
-  const dias = [...new Set(linhas.map(r => r.date))].sort();
-  let camadas;   // [{ nome, cor, porDia }] — uma so quando ha filtro
-  if (temFiltroOrigin()) {
-    const porDia = {};
-    alvo.forEach(r => { porDia[r.date] = (porDia[r.date] || 0) + r.orders; });
-    const canal = originFiltro.canal || 'Outros';
-    camadas = [{ nome: nomeFiltro, cor: COR_CANAL[canal] || '#898781', porDia }];
-  } else {
-    const porDiaCanal = {};
-    linhas.forEach(r => {
-      const c = normalizaCanal(r.canal);
-      porDiaCanal[c] = porDiaCanal[c] || {};
-      porDiaCanal[c][r.date] = (porDiaCanal[c][r.date] || 0) + r.orders;
-    });
-    camadas = CANAIS.filter(c => porDiaCanal[c.nome])
-      .map(c => ({ nome: c.label || c.nome, cor: c.cor, porDia: porDiaCanal[c.nome] }));
-  }
-
-  document.getElementById('originDailySub').textContent = temFiltroOrigin()
-    ? `Pedidos por dia — só ${nomeFiltro}`
-    : 'Pedidos por canal, empilhado';
-  document.getElementById('originLegend').innerHTML = camadas.map(c =>
-    `<span><span class="swatch" style="background:${c.cor}"></span> ${esc(c.nome)}</span>`).join('');
-
-  const datasets = camadas.map(c => ({
-    label: c.nome,
-    data: dias.map(d => Math.round(c.porDia[d] || 0)),
-    backgroundColor: c.cor,
-    borderColor: '#fcfcfb', // respiro de 2px entre as fatias empilhadas
-    borderWidth: { top: 2, right: 0, bottom: 0, left: 0 },
-    borderSkipped: false
-  }));
-
-  if (originChart) originChart.destroy();
-  originChart = new Chart(document.getElementById('originChart'), {
-    type: 'bar',
-    data: { labels: dias.map(d => d.slice(5)), datasets },
-    options: {
-      responsive: true,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#0b0b0b', titleColor: '#fff', bodyColor: '#fff', padding: 10,
-          callbacks: { label: (ctx) => `${ctx.dataset.label}: ${fmtInt(ctx.parsed.y)}` }
-        }
-      },
-      scales: {
-        x: { stacked: true, grid: { display: false }, ticks: { color: '#898781', maxTicksLimit: 12 } },
-        y: { stacked: true, grid: { color: '#e1e0d9' }, ticks: { color: '#898781', callback: (v) => fmtInt(v) }, beginAtZero: true }
-      }
-    }
-  });
 }
 
 // ---------------- Intraday ----------------
