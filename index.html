@@ -346,6 +346,8 @@
     box-shadow: 0 6px 16px rgba(11,11,11,0.06);
   }
   .filtro { display: flex; flex-direction: column; gap: 5px; }
+  /* o display:flex acima ganha do [hidden] da folha do navegador */
+  .filtro[hidden] { display: none; }
   .filtro-label {
     font-size: 11px; letter-spacing: .04em; text-transform: uppercase;
     color: var(--text-muted); font-weight: 600;
@@ -465,8 +467,8 @@
     flex: none;
   }
   .erp-tile { border-style: dashed; }
-  #pedCanalWrap { padding: 0; }
-  #pedCanal {
+  #pedCanalWrap, #pedSMWrap { padding: 0; }
+  #pedCanal, #pedSM {
     font: inherit;
     font-size: 13px;
     color: var(--text-primary);
@@ -475,6 +477,40 @@
     padding: 6px 10px;
     max-width: 200px;
   }
+  /* ---- clique pra filtrar ----
+     O rank de canal e a tabela origem/midia sao os proprios controles: a linha
+     clicada vira filtro. As listas continuam inteiras (so apagadas) pra dar
+     pra trocar de selecao sem ter que limpar antes. */
+  .rank-row.clicavel { cursor: pointer; border-radius: 6px; }
+  .rank-row.clicavel:hover { background: var(--page-plane); }
+  .rank-row.selecionado .rank-name { font-weight: 600; }
+  .rank-row.apagado { opacity: .45; }
+  .rank-row.apagado:hover { opacity: 1; }
+  .tabela tbody tr.clicavel { cursor: pointer; }
+  .tabela tbody tr.selecionado td { background: #eaf1fb; }
+  .tabela tbody tr.selecionado td:first-child { font-weight: 600; }
+  /* opacity em <td> nao e confiavel; apaga pela cor */
+  .tabela tbody tr.apagado td { color: var(--text-muted); }
+  .tabela tbody tr.apagado .swatch { opacity: .45; }
+  /* celula que vira filtro na aba Pedidos */
+  .tabela td.clicavel { cursor: pointer; }
+  .tabela td.clicavel > span { border-bottom: 1px dotted var(--baseline); }
+  .tabela td.clicavel:hover > span { border-bottom-color: #2a78d6; color: #2a78d6; }
+  /* chips do filtro de origem, na barra suspensa */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 13px; font-weight: 600; color: var(--text-primary);
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 8px 6px 10px;
+    max-width: 260px;
+  }
+  .chip .rotulo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chip button {
+    font: inherit; font-size: 15px; line-height: 1; color: var(--text-muted);
+    background: none; border: 0; padding: 0 2px; cursor: pointer; flex: none;
+  }
+  .chip button:hover { color: var(--down); }
   /* composicao do faturamento: subtotal + taxas - descontos = total */
   .composicao {
     display: flex;
@@ -579,6 +615,10 @@
       <span class="filtro-label">Atribuição</span>
       <div class="seg" id="originModelSeg"></div>
     </div>
+    <div class="filtro" id="originFiltroSlot" hidden>
+      <span class="filtro-label">Origem</span>
+      <div class="chips" id="originChips"></div>
+    </div>
   </div>
 
   <div class="stats" id="stats"></div>
@@ -652,7 +692,7 @@
 
   <div class="panel" id="originDailyPanel">
     <h2>Origem por dia</h2>
-    <p class="panel-sub">Pedidos por canal, empilhado</p>
+    <p class="panel-sub" id="originDailySub">Pedidos por canal, empilhado</p>
     <div class="legend" id="originLegend"></div>
     <canvas id="originChart"></canvas>
   </div>
@@ -722,6 +762,10 @@
       <div class="filtro">
         <span class="filtro-label">Canal (último clique)</span>
         <div class="seg" id="pedCanalWrap"><select id="pedCanal"></select></div>
+      </div>
+      <div class="filtro">
+        <span class="filtro-label">Origem / mídia (último clique)</span>
+        <div class="seg" id="pedSMWrap"><select id="pedSM"></select></div>
       </div>
     </div>
 
@@ -1112,6 +1156,14 @@ const PEDIDOS_PREVIEW = 200;
 // mesma regra de nome do bloco de origem: "Nao identificado" vira "Sem origem",
 // canal fora da lista vira "Outros"
 const rotulaCanal = (c) => c ? (LABEL_CANAL[normalizaCanal(c)] || normalizaCanal(c)) : 'Sem origem';
+const smPedido = (s, m) => [s, m].filter(v => v && v !== '(not set)').join(' / ') || '—';
+// '(not set)' e vazio sao coisas diferentes na origem, entao a chave usa os valores
+// crus: o rotulo colapsa os dois em '—', a chave nao.
+const chaveSM = (s, m) => `${s || ''}\u241f${m || ''}`;
+const canalDoPedido = (p) => p.canal_ultimo || '(sem canal)';
+// '(sem canal)' e sentinela do filtro, nao um canal: sem isto ele cairia em
+// "Outros" pelo normalizaCanal e o seletor discordaria da celula da tabela.
+const rotulaCanalFiltro = (c) => c === '(sem canal)' ? 'Sem origem' : rotulaCanal(c);
 let pedidosTodos = null, pedidosCarregando = false, pedidosRecorte = null;
 
 function parseCSV(texto) {
@@ -1162,10 +1214,13 @@ function carregaPedidos() {
       document.getElementById('pedTo').value = max;
       document.getElementById('pedFilterLabel').textContent = `${min} a ${max}`;
 
-      const canais = [...new Set(pedidosTodos.map(p => p.canal_ultimo || '(sem canal)'))].sort();
-      document.getElementById('pedCanal').innerHTML =
-        '<option value="">Todos</option>' +
-        canais.map(c => `<option value="${c}">${rotulaCanal(c)}</option>`).join('');
+      const canais = [...new Set(pedidosTodos.map(canalDoPedido))].sort();
+      const selCanal = document.getElementById('pedCanal');
+      selCanal.innerHTML = '';
+      selCanal.appendChild(new Option('Todos', ''));
+      // via DOM, nao innerHTML: canal/origem/midia sao texto livre do GA4
+      canais.forEach(c => selCanal.appendChild(new Option(rotulaCanalFiltro(c), c)));
+      montaSelectSM();
       renderPedidos();
     })
     .catch(err => {
@@ -1174,15 +1229,37 @@ function carregaPedidos() {
     });
 }
 
+/** As opcoes de origem/midia acompanham o canal selecionado: com um canal
+ *  escolhido, so os pares dele entram na lista. A selecao atual e mantida se
+ *  ainda existir no escopo novo; se nao, cai pra "Todas". */
+function montaSelectSM() {
+  const sel = document.getElementById('pedSM');
+  const canal = document.getElementById('pedCanal').value;
+  const anterior = sel.value;
+  const pares = new Map();
+  pedidosTodos.forEach(p => {
+    if (canal && canalDoPedido(p) !== canal) return;
+    const k = chaveSM(p.origem_ultimo, p.midia_ultimo);
+    if (!pares.has(k)) pares.set(k, smPedido(p.origem_ultimo, p.midia_ultimo));
+  });
+  const ordenado = [...pares.entries()].sort((a, b) => a[1].localeCompare(b[1], 'pt-BR'));
+  sel.innerHTML = '';
+  sel.appendChild(new Option('Todas', ''));
+  ordenado.forEach(([k, rot]) => sel.appendChild(new Option(rot === '—' ? '(sem origem)' : rot, k)));
+  sel.value = pares.has(anterior) ? anterior : '';
+}
+
 function pedidosFiltrados() {
   const de = document.getElementById('pedFrom').value;
   const ate = document.getElementById('pedTo').value;
   const plat = document.querySelector('#pedSeg button.active').dataset.plat;
   const canal = document.getElementById('pedCanal').value;
+  const par = document.getElementById('pedSM').value;
   return pedidosTodos.filter(p =>
     (!de || p.data >= de) && (!ate || p.data <= ate) &&
     (plat === 'total' || p.plataforma === plat) &&
-    (!canal || (p.canal_ultimo || '(sem canal)') === canal));
+    (!canal || canalDoPedido(p) === canal) &&
+    (!par || chaveSM(p.origem_ultimo, p.midia_ultimo) === par));
 }
 
 function renderPedidos() {
@@ -1215,22 +1292,26 @@ function renderPedidos() {
       <div class="sub">último clique ≠ primeiro clique</div>
     </div>`;
 
-  const sm = (s, m) => [s, m].filter(v => v && v !== '(not set)').join(' / ') || '—';
+  const sm = smPedido;
   const tbody = document.querySelector('#pedidosTabela tbody');
+  // So as colunas de ULTIMO clique sao clicaveis: sao as que os dois filtros da
+  // barra recortam. As de primeiro clique ficam como texto pra nao prometer um
+  // filtro que nao existe.
   tbody.innerHTML = itens.slice(0, PEDIDOS_PREVIEW).map(p => `
     <tr>
-      <td>${p.pedido}</td><td>${p.data}</td><td>${p.plataforma}</td>
+      <td>${esc(p.pedido)}</td><td>${esc(p.data)}</td><td>${esc(p.plataforma)}</td>
       <td class="num">${fmtBRL(p.subtotal)}</td>
       <td class="num">${fmtBRL(p.taxas)}</td>
       <td class="num">${fmtBRL(p.descontos)}</td>
       <td class="num">${fmtBRL(p.faturamento)}</td>
-      <td>${rotulaCanal(p.canal_ultimo)}</td>
-      <td>${sm(p.origem_ultimo, p.midia_ultimo)}</td>
-      <td>${rotulaCanal(p.canal_primeiro)}</td>
-      <td>${sm(p.origem_primeiro, p.midia_primeiro)}</td>
+      <td class="clicavel" data-canal="${esc(canalDoPedido(p))}" title="filtrar por este canal"><span>${esc(rotulaCanal(p.canal_ultimo))}</span></td>
+      <td class="clicavel" data-sm="${esc(chaveSM(p.origem_ultimo, p.midia_ultimo))}" title="filtrar por esta origem / mídia"><span>${esc(sm(p.origem_ultimo, p.midia_ultimo))}</span></td>
+      <td>${esc(rotulaCanal(p.canal_primeiro))}</td>
+      <td>${esc(sm(p.origem_primeiro, p.midia_primeiro))}</td>
     </tr>`).join('');
 
   document.getElementById('pedidosNota').textContent =
+    'Clique no canal ou na origem / mídia de uma linha (colunas de último clique) para filtrar por ele. ' +
     `A tabela mostra os ${fmtInt(Math.min(itens.length, PEDIDOS_PREVIEW))} pedidos mais recentes do recorte; ` +
     `o botão "baixar CSV" leva os ${fmtInt(itens.length)}. ` +
     'O modelo "Baseado em dados (GA4)" não aparece aqui porque ele não existe por pedido — ' +
@@ -1250,6 +1331,7 @@ document.getElementById('pedReset').addEventListener('click', () => {
   document.getElementById('pedTo').value = ate;
   document.getElementById('pedFilterLabel').textContent = `${de} a ${ate}`;
   document.getElementById('pedCanal').value = '';
+  montaSelectSM();
   document.querySelectorAll('#pedSeg button').forEach(b => b.classList.toggle('active', b.dataset.plat === 'total'));
   document.getElementById('pedFilterPanel').classList.remove('open');
   renderPedidos();
@@ -1269,7 +1351,36 @@ document.querySelectorAll('#pedSeg button').forEach(btn => {
     renderPedidos();
   });
 });
-document.getElementById('pedCanal').addEventListener('change', renderPedidos);
+document.getElementById('pedCanal').addEventListener('change', () => {
+  montaSelectSM();   // trocar de canal reescreve a lista de pares dele
+  renderPedidos();
+});
+document.getElementById('pedSM').addEventListener('change', renderPedidos);
+
+// clique na celula da tabela = escolher aquele valor no filtro da barra;
+// clicar de novo no que ja esta filtrado desliga
+document.querySelector('#pedidosTabela tbody').addEventListener('click', (e) => {
+  const td = e.target.closest('td.clicavel');
+  if (!td) return;
+  if (td.dataset.canal !== undefined) {
+    const sel = document.getElementById('pedCanal');
+    sel.value = sel.value === td.dataset.canal ? '' : td.dataset.canal;
+    montaSelectSM();
+  } else {
+    const sel = document.getElementById('pedSM');
+    const alvo = td.dataset.sm;
+    // o par pode estar fora do escopo do canal atual; a lista e remontada antes
+    if (sel.value === alvo) sel.value = '';
+    else {
+      if (![...sel.options].some(o => o.value === alvo)) {
+        document.getElementById('pedCanal').value = '';
+        montaSelectSM();
+      }
+      sel.value = alvo;
+    }
+  }
+  renderPedidos();
+});
 
 document.getElementById('baixarPedidos').addEventListener('click', () => {
   if (!pedidosRecorte) return;
@@ -1318,7 +1429,12 @@ function baixaCSV(nomeBase, colunas, linhas) {
 // diferentes viram o mesmo nome na pasta de downloads.
 function sufixoRecorte(data) {
   const modelo = (data.origin.models || []).find(m => m.id === originModelo)?.label || 'ultimo clique';
-  return `${modelo} ${originPlatform} ${data.period.start} a ${data.period.end}`;
+  const filtro = temFiltroOrigin()
+    ? ' ' + (originFiltro.source !== null
+        ? rotuloSM(originFiltro.source, originFiltro.medium)
+        : originFiltro.canal)
+    : '';
+  return `${modelo} ${originPlatform}${filtro} ${data.period.start} a ${data.period.end}`;
 }
 
 // ---------------- Origem ----------------
@@ -1343,6 +1459,61 @@ function normalizaCanal(canal) {
   if (canal === 'Nao identificado' || canal === 'Sem dado de origem') return 'Sem origem';
   return CONHECIDOS.has(canal) ? canal : 'Outros';
 }
+
+// Origem e midia vem do GA4 como texto livre: escapa antes de entrar em HTML,
+// senao um valor com aspas quebra o atributo data-* que carrega o filtro.
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g,
+  c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+// ---- filtro de origem: categoria de trafego (canal) + o par source/midia ----
+// Vale so para os blocos de origem. Os cards e as series do topo saem do ERP,
+// que nao tem canal nenhum: so a fatia que o GA4 casou (match_pct) e atribuivel,
+// entao filtrar o total por canal daria um numero que nao existe.
+let originFiltro = { canal: null, source: null, medium: null };
+const temFiltroOrigin = () => !!(originFiltro.canal || originFiltro.source !== null);
+
+function casaFiltroOrigin(r) {
+  if (originFiltro.canal && normalizaCanal(r.canal) !== originFiltro.canal) return false;
+  if (originFiltro.source !== null && r.source !== originFiltro.source) return false;
+  if (originFiltro.medium !== null && r.medium !== originFiltro.medium) return false;
+  return true;
+}
+
+function setFiltroOrigin(patch) {
+  originFiltro = { canal: null, source: null, medium: null, ...patch };
+  if (originData) renderOrigin(originData);
+}
+
+const rotuloSM = (s, m) => `${s} / ${m}`;
+
+/** Chips na barra suspensa: sao o unico lugar que diz "tem filtro ligado" quando
+ *  o usuario ja rolou pra longe da tabela onde clicou. */
+function renderChipsOrigin() {
+  const slot = document.getElementById('originFiltroSlot');
+  const chips = document.getElementById('originChips');
+  if (!temFiltroOrigin()) { slot.hidden = true; chips.innerHTML = ''; return; }
+  slot.hidden = false;
+  const partes = [];
+  if (originFiltro.canal) {
+    partes.push(`<span class="chip" data-limpa="tudo">
+      <span class="swatch" style="background:${COR_CANAL[originFiltro.canal] || '#898781'}"></span>
+      <span class="rotulo">${esc(LABEL_CANAL[originFiltro.canal] || originFiltro.canal)}</span>
+      <button type="button" title="remover filtro de canal">&times;</button></span>`);
+  }
+  if (originFiltro.source !== null) {
+    partes.push(`<span class="chip" data-limpa="par">
+      <span class="rotulo">${esc(rotuloSM(originFiltro.source, originFiltro.medium))}</span>
+      <button type="button" title="remover filtro de origem / midia">&times;</button></span>`);
+  }
+  chips.innerHTML = partes.join('');
+}
+
+document.getElementById('originChips').addEventListener('click', (e) => {
+  const chip = e.target.closest('.chip');
+  if (!chip || e.target.tagName !== 'BUTTON') return;
+  // o par implica o canal, entao tirar o canal tira tudo; tirar o par volta pro canal
+  setFiltroOrigin(chip.dataset.limpa === 'par' ? { canal: originFiltro.canal } : {});
+});
 
 let exportaCanal = null;
 let exportaSM = null;
@@ -1449,22 +1620,63 @@ document.querySelectorAll('#originSeg button').forEach(btn => {
 });
 
 /** Lista ranqueada com o nome do canal escrito em cada linha — a cor nunca é o
- *  único jeito de saber qual canal é qual. */
-function renderRank(el, itens, total, formata) {
+ *  único jeito de saber qual canal é qual.
+ *  opts.clicavel liga o clique-pra-filtrar; opts.selecionado marca qual canal
+ *  está filtrado (os outros ficam apagados, mas continuam clicáveis pra trocar). */
+function renderRank(el, itens, total, formata, opts) {
+  const { clicavel = false, selecionado = null } = opts || {};
   const max = itens.length ? itens[0].valor : 0;
-  el.innerHTML = itens.map(i => `
-    <div class="rank-row">
+  el.innerHTML = itens.map(i => {
+    const nome = i.label || LABEL_CANAL[i.canal] || i.canal;
+    const cls = ['rank-row'];
+    let attrs = '';
+    if (clicavel) {
+      cls.push('clicavel');
+      if (selecionado) cls.push(i.canal === selecionado ? 'selecionado' : 'apagado');
+      attrs = ` data-canal="${esc(i.canal)}" role="button" tabindex="0"` +
+              ` title="${i.canal === selecionado ? 'tirar o filtro de' : 'filtrar por'} ${esc(nome)}"`;
+    }
+    return `
+    <div class="${cls.join(' ')}"${attrs}>
       <div class="rank-name">
         <span class="swatch" style="background:${COR_CANAL[i.canal] || '#898781'}"></span>
-        <span>${i.label || LABEL_CANAL[i.canal] || i.canal}</span>
+        <span>${esc(nome)}</span>
       </div>
       <div class="rank-track">
         <div class="rank-bar" style="width:${max ? (i.valor / max * 100) : 0}%;background:${COR_CANAL[i.canal] || '#898781'}"></div>
       </div>
       <div class="rank-val"><b>${formata(i.valor)}</b> · ${total ? (i.valor / total * 100).toFixed(1) : '0.0'}%</div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
+
+// Delegado: o rank e a tabela sao redesenhados a cada render, entao o listener
+// mora no container, nao na linha.
+function cliqueCanal(e) {
+  const linha = e.target.closest('.rank-row[data-canal]');
+  if (!linha) return;
+  if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+  if (e.type === 'keydown') e.preventDefault();
+  const canal = linha.dataset.canal;
+  setFiltroOrigin(originFiltro.canal === canal ? {} : { canal });
+}
+document.getElementById('originRank').addEventListener('click', cliqueCanal);
+document.getElementById('originRank').addEventListener('keydown', cliqueCanal);
+
+function cliqueSM(e) {
+  const tr = e.target.closest('tr[data-source]');
+  if (!tr) return;
+  if (e.type === 'keydown') {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+  }
+  const { source, medium, canal } = tr.dataset;
+  const igual = originFiltro.source === source && originFiltro.medium === medium;
+  // o par implica o canal dele: sem isso o rank de cima ficaria sem marcacao
+  setFiltroOrigin(igual ? { canal: originFiltro.canal } : { canal, source, medium });
+}
+document.querySelector('#originTableSM tbody').addEventListener('click', cliqueSM);
+document.querySelector('#originTableSM tbody').addEventListener('keydown', cliqueSM);
 
 function renderOrigin(data) {
   originData = data;
@@ -1473,6 +1685,7 @@ function renderOrigin(data) {
   if (!data.origin || !data.origin.rows.length) {
     painel.style.display = 'none';
     painelDiario.style.display = 'none';
+    renderChipsOrigin();
     return;
   }
   painel.style.display = '';
@@ -1497,9 +1710,12 @@ function renderOrigin(data) {
   exportaCanal = { itens, total: itens.reduce((s, i) => s + i.valor, 0), data };
   const total = itens.reduce((s, i) => s + i.valor, 0);
 
+  renderChipsOrigin();
   document.getElementById('originSub').textContent =
-    `De onde vem a sessão que terminou em pedido — ${data.period.start} a ${data.period.end}`;
-  renderRank(document.getElementById('originRank'), itens, total, v => fmtInt(Math.round(v)));
+    `De onde vem a sessão que terminou em pedido — ${data.period.start} a ${data.period.end} · ` +
+    'clique num canal ou numa linha da tabela para filtrar';
+  renderRank(document.getElementById('originRank'), itens, total, v => fmtInt(Math.round(v)),
+             { clicavel: true, selecionado: originFiltro.canal });
 
   // ---- origem / mídia ----
   // Mesma cor do canal a que o par pertence, pra leitura cruzada com o ranking
@@ -1516,15 +1732,23 @@ function renderOrigin(data) {
   } else {
     document.querySelector('.rank-split').style.display = '';
     document.querySelector('.tabela-wrap').style.display = '';
+    // O canal selecionado define o ESCOPO da tabela; o par selecionado so marca a
+    // linha. Assim da pra trocar de par (ou de canal) sem ter que limpar antes.
+    const escopo = linhasSM.filter(r =>
+      !originFiltro.canal || normalizaCanal(r.canal) === originFiltro.canal);
     const porSM = {};
-    linhasSM.forEach(r => {
-      const k = `${r.source} / ${r.medium}`;
-      porSM[k] = porSM[k] || { canal: normalizaCanal(r.canal), pedidos: 0, receita: 0 };
+    escopo.forEach(r => {
+      const k = `${r.source}\u241f${r.medium}`;   // separador que nao aparece no dado
+      porSM[k] = porSM[k] || {
+        label: rotuloSM(r.source, r.medium), canal: normalizaCanal(r.canal),
+        source: r.source, medium: r.medium, pedidos: 0, receita: 0
+      };
       porSM[k].pedidos += r.orders;
       porSM[k].receita += r.revenue;
     });
-    const todos = Object.entries(porSM)
-      .map(([label, v]) => ({ label, canal: v.canal, valor: v.pedidos, receita: v.receita }))
+    const todos = Object.values(porSM)
+      .map(v => ({ label: v.label, canal: v.canal, source: v.source, medium: v.medium,
+                   valor: v.pedidos, receita: v.receita }))
       .sort((a, b) => b.valor - a.valor);
     const totalSM = todos.reduce((s, i) => s + i.valor, 0);
     exportaSM = { itens: todos, total: totalSM, data };  // lista inteira, nao o top 10
@@ -1538,20 +1762,53 @@ function renderOrigin(data) {
         receita: resto.reduce((s, i) => s + i.receita, 0)
       }]);
     }
-    corpo.innerHTML = mostra.map(i => `
-      <tr${i.resto ? ' class="linha-resto"' : ''}>
-        <td>${i.label}</td>
-        <td><span class="canal-cel"><span class="swatch" style="background:${COR_CANAL[i.canal] || '#898781'}"></span>${LABEL_CANAL[i.canal] || i.canal}</span></td>
+    corpo.innerHTML = mostra.map(i => {
+      const cls = [];
+      let attrs = '';
+      if (i.resto) {
+        cls.push('linha-resto');   // agregado: nao da pra filtrar por ele
+      } else {
+        const sel = originFiltro.source === i.source && originFiltro.medium === i.medium;
+        cls.push('clicavel');
+        if (originFiltro.source !== null) cls.push(sel ? 'selecionado' : 'apagado');
+        attrs = ` data-source="${esc(i.source)}" data-medium="${esc(i.medium)}"` +
+                ` data-canal="${esc(i.canal)}" role="button" tabindex="0"` +
+                ` title="${sel ? 'tirar o filtro de' : 'filtrar por'} ${esc(i.label)}"`;
+      }
+      return `
+      <tr class="${cls.join(' ')}"${attrs}>
+        <td>${esc(i.label)}</td>
+        <td><span class="canal-cel"><span class="swatch" style="background:${COR_CANAL[i.canal] || '#898781'}"></span>${esc(LABEL_CANAL[i.canal] || i.canal)}</span></td>
         <td class="num">${fmtInt(Math.round(i.valor))}</td>
         <td class="num">${totalSM ? (i.valor / totalSM * 100).toFixed(1) : '0.0'}%</td>
         <td class="num">${fmtBRLCompact(i.receita)}</td>
         <td class="num">${i.valor ? fmtBRLCompact(i.receita / i.valor) : '—'}</td>
-      </tr>`).join('');
+      </tr>`;
+    }).join('');
     toggleSM.style.display = todos.length > ORIGIN_SM_TOPO ? '' : 'none';
     toggleSM.textContent = originSMTudo ? 'ver top 10' : `ver todos (${todos.length})`;
+    // Com canal filtrado o % passa a ser dentro do canal — o cabecalho tem que dizer isso.
+    document.querySelector('.rank-split > span').textContent = originFiltro.canal
+      ? `Origem / mídia · ${LABEL_CANAL[originFiltro.canal] || originFiltro.canal} (% dentro do canal)`
+      : 'Origem / mídia';
   }
 
-  document.getElementById('originNote').innerHTML =
+  // ---- resumo do que o filtro esta segurando ----
+  const alvo = linhasSM.filter(casaFiltroOrigin);
+  const alvoPedidos = alvo.reduce((a, r) => a + r.orders, 0);
+  const alvoReceita = alvo.reduce((a, r) => a + r.revenue, 0);
+  const nomeFiltro = originFiltro.source !== null
+    ? rotuloSM(originFiltro.source, originFiltro.medium)
+    : (LABEL_CANAL[originFiltro.canal] || originFiltro.canal);
+  const notaFiltro = temFiltroOrigin()
+    ? `<b>Filtrado por ${esc(nomeFiltro)}:</b> ${fmtInt(Math.round(alvoPedidos))} pedidos ` +
+      `(${total ? (alvoPedidos / total * 100).toFixed(1) : '0.0'}% dos atribuídos no recorte) e ` +
+      `${fmtBRLCompact(alvoReceita)} de faturamento. O filtro vale só para este bloco e para o de ` +
+      `origem por dia: os cards e as séries do topo vêm do ERP, que não traz canal — só a fatia que o ` +
+      `GA4 casou é atribuível. `
+    : '';
+
+  document.getElementById('originNote').innerHTML = notaFiltro +
     `<b>${(data.origin.models || []).find(m => m.id === originModelo)?.label || 'Último clique'}:</b> ` +
     `${NOTA_MODELO[originModelo] || ''} ` +
     `<b>${((data.origin.models || []).find(m => m.id === originModelo) || data.origin).match_pct}%</b> dos pedidos ` +
@@ -1560,21 +1817,35 @@ function renderOrigin(data) {
     `Faturamento por canal: ${itens.map(i => `${LABEL_CANAL[i.canal] || i.canal} ${fmtBRLCompact(i.receita)}`).join(' · ')}.`;
 
   // ---- empilhado por dia ----
+  // O eixo x sai do recorte inteiro (nao do filtrado) pra nao encolher quando o
+  // filtro deixa dias sem pedido — o buraco no meio da serie e informacao.
   const dias = [...new Set(linhas.map(r => r.date))].sort();
-  const porDiaCanal = {};
-  linhas.forEach(r => {
-    const c = normalizaCanal(r.canal);
-    porDiaCanal[c] = porDiaCanal[c] || {};
-    porDiaCanal[c][r.date] = (porDiaCanal[c][r.date] || 0) + r.orders;
-  });
+  let camadas;   // [{ nome, cor, porDia }] — uma so quando ha filtro
+  if (temFiltroOrigin()) {
+    const porDia = {};
+    alvo.forEach(r => { porDia[r.date] = (porDia[r.date] || 0) + r.orders; });
+    const canal = originFiltro.canal || 'Outros';
+    camadas = [{ nome: nomeFiltro, cor: COR_CANAL[canal] || '#898781', porDia }];
+  } else {
+    const porDiaCanal = {};
+    linhas.forEach(r => {
+      const c = normalizaCanal(r.canal);
+      porDiaCanal[c] = porDiaCanal[c] || {};
+      porDiaCanal[c][r.date] = (porDiaCanal[c][r.date] || 0) + r.orders;
+    });
+    camadas = CANAIS.filter(c => porDiaCanal[c.nome])
+      .map(c => ({ nome: c.label || c.nome, cor: c.cor, porDia: porDiaCanal[c.nome] }));
+  }
 
-  const presentes = CANAIS.filter(c => porDiaCanal[c.nome]);
-  document.getElementById('originLegend').innerHTML = presentes.map(c =>
-    `<span><span class="swatch" style="background:${c.cor}"></span> ${c.label || c.nome}</span>`).join('');
+  document.getElementById('originDailySub').textContent = temFiltroOrigin()
+    ? `Pedidos por dia — só ${nomeFiltro}`
+    : 'Pedidos por canal, empilhado';
+  document.getElementById('originLegend').innerHTML = camadas.map(c =>
+    `<span><span class="swatch" style="background:${c.cor}"></span> ${esc(c.nome)}</span>`).join('');
 
-  const datasets = presentes.map(c => ({
-    label: c.label || c.nome,
-    data: dias.map(d => Math.round(porDiaCanal[c.nome][d] || 0)),
+  const datasets = camadas.map(c => ({
+    label: c.nome,
+    data: dias.map(d => Math.round(c.porDia[d] || 0)),
     backgroundColor: c.cor,
     borderColor: '#fcfcfb', // respiro de 2px entre as fatias empilhadas
     borderWidth: { top: 2, right: 0, bottom: 0, left: 0 },
