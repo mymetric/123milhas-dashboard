@@ -324,7 +324,26 @@
   .rank-split .acoes { display: inline-flex; gap: 14px; }
   .filtros {
     display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px;
-    margin-bottom: 18px;
+    /* barra suspensa: acompanha o scroll e fica sempre ao alcance */
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    /* sangra os 20px de padding do .wrap pra barra encostar nas bordas */
+    margin: 0 -20px 18px;
+    padding: 12px 20px;
+    background: color-mix(in srgb, var(--page-plane) 88%, transparent);
+    backdrop-filter: saturate(180%) blur(10px);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+    border-bottom: 1px solid transparent;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  @supports not (background: color-mix(in srgb, red 50%, transparent)) {
+    .filtros { background: var(--page-plane); }
+  }
+  /* só ganha borda/sombra depois de grudar no topo */
+  .filtros.grudado {
+    border-bottom-color: var(--border);
+    box-shadow: 0 6px 16px rgba(11,11,11,0.06);
   }
   .filtro { display: flex; flex-direction: column; gap: 5px; }
   .filtro-label {
@@ -332,7 +351,10 @@
     color: var(--text-muted); font-weight: 600;
   }
   .filtros .seg, .filtros .date-filter { margin-bottom: 0; }
-  @media (max-width: 620px) { .filtros { gap: 12px; } }
+  @media (max-width: 620px) {
+    .filtros { gap: 12px; padding: 10px 20px; }
+    .filtro-label { font-size: 10px; }
+  }
   .seg {
     display: inline-flex;
     gap: 2px;
@@ -1711,6 +1733,24 @@ function renderIntraday(data) {
     options: intradayBaseOptions(fmtBRLCompact)
   });
 }
+
+/* ---- barra de filtros suspensa ----
+   marca a barra visivel como .grudado quando ela encosta no topo, pra
+   ganhar borda e sombra so nesse momento (sem elas, solta, ela some no fundo). */
+(function () {
+  const barras = document.querySelectorAll('.filtros');
+  function atualiza() {
+    barras.forEach(b => {
+      // offsetParent null = esta na aba escondida; nao mexe
+      if (b.offsetParent === null) return;
+      b.classList.toggle('grudado', b.getBoundingClientRect().top <= 0.5);
+    });
+  }
+  window.addEventListener('scroll', atualiza, { passive: true });
+  window.addEventListener('resize', atualiza);
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', atualiza));
+  atualiza();
+})();
 </script>
 </body>
 </html>
