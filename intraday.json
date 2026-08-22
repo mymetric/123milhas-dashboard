@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-22T15:20:03.219501-03:00",
+  "generated_at": "2026-08-22T15:30:02.767443-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-22",
@@ -51,7 +51,7 @@
           49,
           51,
           47,
-          19,
+          26,
           null,
           null,
           null,
@@ -77,7 +77,7 @@
           64274.95,
           65797.44,
           83735.59,
-          30923.08,
+          43069.57,
           null,
           null,
           null,
@@ -103,7 +103,7 @@
           355,
           406,
           453,
-          472,
+          479,
           null,
           null,
           null,
@@ -129,7 +129,7 @@
           550935.32,
           616732.76,
           700468.35,
-          731391.43,
+          743537.92,
           null,
           null,
           null,
@@ -157,7 +157,7 @@
           118,
           82,
           86,
-          25,
+          40,
           null,
           null,
           null,
@@ -183,7 +183,7 @@
           198753.07,
           136311.65,
           148681.73,
-          45716.83,
+          68602.56,
           null,
           null,
           null,
@@ -209,7 +209,7 @@
           514,
           596,
           682,
-          707,
+          722,
           null,
           null,
           null,
@@ -235,7 +235,7 @@
           845436.6,
           981748.25,
           1130429.98,
-          1176146.81,
+          1199032.54,
           null,
           null,
           null,
@@ -263,7 +263,7 @@
           167,
           133,
           133,
-          44,
+          66,
           null,
           null,
           null,
@@ -289,7 +289,7 @@
           263028.02,
           202109.09,
           232417.32,
-          76639.91,
+          111672.13,
           null,
           null,
           null,
@@ -315,7 +315,7 @@
           869,
           1002,
           1135,
-          1179,
+          1201,
           null,
           null,
           null,
@@ -341,7 +341,7 @@
           1396371.92,
           1598481.01,
           1830898.33,
-          1907538.24,
+          1942570.46,
           null,
           null,
           null,
@@ -996,34 +996,39 @@
   },
   "origin": [
     {
-      "platform": "app",
-      "canal": "Midia paga",
-      "orders": 28
-    },
-    {
-      "platform": "app",
-      "canal": "Direto",
-      "orders": 183
-    },
-    {
       "platform": "web",
       "canal": "Midia paga",
-      "orders": 117
-    },
-    {
-      "platform": "app",
-      "canal": "Organico",
-      "orders": 158
+      "orders": 119
     },
     {
       "platform": "web",
       "canal": "Nao identificado",
-      "orders": 106
+      "orders": 110
+    },
+    {
+      "platform": "web",
+      "canal": "Direto",
+      "orders": 41
+    },
+    {
+      "platform": "app",
+      "canal": "Organico",
+      "orders": 162
     },
     {
       "platform": "web",
       "canal": "Metasearch",
-      "orders": 277
+      "orders": 283
+    },
+    {
+      "platform": "web",
+      "canal": "Organico",
+      "orders": 158
+    },
+    {
+      "platform": "app",
+      "canal": "Direto",
+      "orders": 186
     },
     {
       "platform": "app",
@@ -1032,28 +1037,13 @@
     },
     {
       "platform": "web",
-      "canal": "Organico",
-      "orders": 156
-    },
-    {
-      "platform": "app",
-      "canal": "CRM",
-      "orders": 1
-    },
-    {
-      "platform": "web",
-      "canal": "Direto",
-      "orders": 40
-    },
-    {
-      "platform": "web",
       "canal": "CRM",
       "orders": 8
     },
     {
       "platform": "app",
-      "canal": "Push",
-      "orders": 4
+      "canal": "Midia paga",
+      "orders": 28
     },
     {
       "platform": "app",
@@ -1064,6 +1054,16 @@
       "platform": "web",
       "canal": "Outros",
       "orders": 3
+    },
+    {
+      "platform": "app",
+      "canal": "Push",
+      "orders": 4
+    },
+    {
+      "platform": "app",
+      "canal": "CRM",
+      "orders": 1
     }
   ],
   "erp": {
