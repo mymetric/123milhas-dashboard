@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-22T08:50:02.609042-03:00",
+  "generated_at": "2026-08-22T09:00:02.495157-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-22",
   "yesterday": "2026-08-21",
   "last_week": "2026-08-15",
-  "current_hour": 8,
+  "current_hour": 9,
   "hours": [
     0,
     1,
@@ -44,8 +44,8 @@
           8,
           7,
           19,
-          25,
-          null,
+          28,
+          0,
           null,
           null,
           null,
@@ -70,8 +70,8 @@
           11774.32,
           8016.94,
           30627.72,
-          52342.04,
-          null,
+          54378.71,
+          0.0,
           null,
           null,
           null,
@@ -96,8 +96,8 @@
           92,
           99,
           118,
-          143,
-          null,
+          146,
+          146,
           null,
           null,
           null,
@@ -122,8 +122,8 @@
           118208.4,
           126225.34,
           156853.06,
-          209195.1,
-          null,
+          211231.77,
+          211231.77,
           null,
           null,
           null,
@@ -150,8 +150,8 @@
           2,
           11,
           22,
-          34,
-          null,
+          46,
+          0,
           null,
           null,
           null,
@@ -176,8 +176,8 @@
           4942.42,
           24183.12,
           40142.56,
-          50121.67,
-          null,
+          68747.78,
+          0.0,
           null,
           null,
           null,
@@ -202,8 +202,8 @@
           82,
           93,
           115,
-          149,
-          null,
+          161,
+          161,
           null,
           null,
           null,
@@ -228,8 +228,8 @@
           126216.67,
           150399.79,
           190542.35,
-          240664.02,
-          null,
+          259290.13,
+          259290.13,
           null,
           null,
           null,
@@ -256,8 +256,8 @@
           10,
           18,
           41,
-          59,
-          null,
+          74,
+          0,
           null,
           null,
           null,
@@ -282,8 +282,8 @@
           16716.74,
           32200.06,
           70770.28,
-          102463.71,
-          null,
+          123126.49,
+          0.0,
           null,
           null,
           null,
@@ -308,8 +308,8 @@
           174,
           192,
           233,
-          292,
-          null,
+          307,
+          307,
           null,
           null,
           null,
@@ -334,8 +334,8 @@
           244425.07,
           276625.13,
           347395.41,
-          449859.12,
-          null,
+          470521.9,
+          470521.9,
           null,
           null,
           null,
@@ -996,9 +996,19 @@
   },
   "origin": [
     {
+      "platform": "web",
+      "canal": "Organico",
+      "orders": 34
+    },
+    {
       "platform": "app",
-      "canal": "Nao identificado",
-      "orders": 43
+      "canal": "Direto",
+      "orders": 31
+    },
+    {
+      "platform": "web",
+      "canal": "Metasearch",
+      "orders": 55
     },
     {
       "platform": "app",
@@ -1007,33 +1017,18 @@
     },
     {
       "platform": "app",
-      "canal": "Direto",
-      "orders": 29
-    },
-    {
-      "platform": "app",
-      "canal": "Push",
-      "orders": 1
-    },
-    {
-      "platform": "web",
-      "canal": "Organico",
-      "orders": 31
+      "canal": "Nao identificado",
+      "orders": 44
     },
     {
       "platform": "web",
       "canal": "Nao identificado",
-      "orders": 34
-    },
-    {
-      "platform": "web",
-      "canal": "Metasearch",
-      "orders": 52
+      "orders": 36
     },
     {
       "platform": "web",
       "canal": "Midia paga",
-      "orders": 24
+      "orders": 25
     },
     {
       "platform": "app",
@@ -1043,7 +1038,12 @@
     {
       "platform": "web",
       "canal": "Direto",
-      "orders": 7
+      "orders": 10
+    },
+    {
+      "platform": "app",
+      "canal": "Push",
+      "orders": 1
     },
     {
       "platform": "web",
