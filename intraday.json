@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-22T02:07:23.948270-03:00",
+  "generated_at": "2026-08-22T02:10:02.720957-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-22",
@@ -144,7 +144,7 @@
         "orders": [
           28,
           28,
-          0,
+          1,
           null,
           null,
           null,
@@ -170,7 +170,7 @@
         "revenue": [
           37379.2,
           47780.93,
-          0.0,
+          1448.48,
           null,
           null,
           null,
@@ -196,7 +196,7 @@
         "orders_cum": [
           28,
           56,
-          56,
+          57,
           null,
           null,
           null,
@@ -222,7 +222,7 @@
         "revenue_cum": [
           37379.2,
           85160.13,
-          85160.13,
+          86608.61,
           null,
           null,
           null,
@@ -250,7 +250,7 @@
         "orders": [
           63,
           45,
-          3,
+          4,
           null,
           null,
           null,
@@ -276,7 +276,7 @@
         "revenue": [
           88371.79,
           66772.47,
-          3468.76,
+          4917.24,
           null,
           null,
           null,
@@ -302,7 +302,7 @@
         "orders_cum": [
           63,
           108,
-          111,
+          112,
           null,
           null,
           null,
@@ -328,7 +328,7 @@
         "revenue_cum": [
           88371.79,
           155144.26,
-          158613.02,
+          160061.5,
           null,
           null,
           null,
@@ -996,6 +996,21 @@
   },
   "origin": [
     {
+      "platform": "app",
+      "canal": "Nao identificado",
+      "orders": 29
+    },
+    {
+      "platform": "web",
+      "canal": "Midia paga",
+      "orders": 9
+    },
+    {
+      "platform": "app",
+      "canal": "Direto",
+      "orders": 7
+    },
+    {
       "platform": "web",
       "canal": "Nao identificado",
       "orders": 20
@@ -1012,26 +1027,6 @@
     },
     {
       "platform": "app",
-      "canal": "Direto",
-      "orders": 7
-    },
-    {
-      "platform": "app",
-      "canal": "Nao identificado",
-      "orders": 29
-    },
-    {
-      "platform": "app",
-      "canal": "Midia paga",
-      "orders": 4
-    },
-    {
-      "platform": "web",
-      "canal": "Midia paga",
-      "orders": 9
-    },
-    {
-      "platform": "app",
       "canal": "Organico",
       "orders": 14
     },
@@ -1044,6 +1039,11 @@
       "platform": "web",
       "canal": "Direto",
       "orders": 3
+    },
+    {
+      "platform": "app",
+      "canal": "Midia paga",
+      "orders": 4
     }
   ],
   "erp": {
