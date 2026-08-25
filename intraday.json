@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-24T23:20:03.280960-03:00",
+  "generated_at": "2026-08-24T23:30:02.881825-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-24",
@@ -59,7 +59,7 @@
           80,
           88,
           57,
-          17
+          26
         ],
         "revenue": [
           29402.36,
@@ -85,7 +85,7 @@
           114736.1,
           131015.12,
           78676.13,
-          27541.73
+          38227.16
         ],
         "orders_cum": [
           14,
@@ -111,7 +111,7 @@
           533,
           621,
           678,
-          695
+          704
         ],
         "revenue_cum": [
           29402.36,
@@ -137,7 +137,7 @@
           812359.33,
           943374.45,
           1022050.58,
-          1049592.31
+          1060277.74
         ]
       },
       "web": {
@@ -165,7 +165,7 @@
           150,
           148,
           124,
-          33
+          54
         ],
         "revenue": [
           23363.36,
@@ -191,7 +191,7 @@
           239961.95,
           197604.83,
           155309.27,
-          45938.47
+          74674.61
         ],
         "orders_cum": [
           19,
@@ -217,7 +217,7 @@
           1045,
           1193,
           1317,
-          1350
+          1371
         ],
         "revenue_cum": [
           23363.36,
@@ -243,7 +243,7 @@
           1658124.85,
           1855729.68,
           2011038.95,
-          2056977.42
+          2085713.56
         ]
       },
       "total": {
@@ -271,7 +271,7 @@
           230,
           236,
           181,
-          50
+          80
         ],
         "revenue": [
           52765.72,
@@ -297,7 +297,7 @@
           354698.05,
           328619.95,
           233985.4,
-          73480.2
+          112901.77
         ],
         "orders_cum": [
           33,
@@ -323,7 +323,7 @@
           1578,
           1814,
           1995,
-          2045
+          2075
         ],
         "revenue_cum": [
           52765.72,
@@ -349,7 +349,7 @@
           2470484.18,
           2799104.13,
           3033089.53,
-          3106569.73
+          3145991.3
         ]
       }
     },
@@ -997,38 +997,43 @@
   "origin": [
     {
       "platform": "web",
-      "canal": "Direto",
-      "orders": 65
+      "canal": "Metasearch",
+      "orders": 489
     },
     {
       "platform": "web",
       "canal": "Nao identificado",
-      "orders": 338
+      "orders": 340
+    },
+    {
+      "platform": "app",
+      "canal": "Direto",
+      "orders": 264
+    },
+    {
+      "platform": "web",
+      "canal": "Organico",
+      "orders": 265
     },
     {
       "platform": "app",
       "canal": "Organico",
-      "orders": 203
-    },
-    {
-      "platform": "web",
-      "canal": "Metasearch",
-      "orders": 477
-    },
-    {
-      "platform": "app",
-      "canal": "Nao identificado",
-      "orders": 166
-    },
-    {
-      "platform": "app",
-      "canal": "Direto",
-      "orders": 261
+      "orders": 206
     },
     {
       "platform": "web",
       "canal": "Midia paga",
-      "orders": 191
+      "orders": 193
+    },
+    {
+      "platform": "app",
+      "canal": "Nao identificado",
+      "orders": 169
+    },
+    {
+      "platform": "web",
+      "canal": "Direto",
+      "orders": 66
     },
     {
       "platform": "app",
@@ -1036,14 +1041,9 @@
       "orders": 52
     },
     {
-      "platform": "web",
-      "canal": "Organico",
-      "orders": 261
-    },
-    {
       "platform": "app",
-      "canal": "Push",
-      "orders": 4
+      "canal": "Metasearch",
+      "orders": 6
     },
     {
       "platform": "web",
@@ -1052,8 +1052,8 @@
     },
     {
       "platform": "app",
-      "canal": "CRM",
-      "orders": 2
+      "canal": "Push",
+      "orders": 4
     },
     {
       "platform": "web",
@@ -1062,8 +1062,8 @@
     },
     {
       "platform": "app",
-      "canal": "Metasearch",
-      "orders": 6
+      "canal": "CRM",
+      "orders": 2
     },
     {
       "platform": "app",
