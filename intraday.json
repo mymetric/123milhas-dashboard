@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-24T22:10:02.123852-03:00",
+  "generated_at": "2026-08-24T22:20:03.101422-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-24",
@@ -58,7 +58,7 @@
           86,
           80,
           88,
-          14,
+          24,
           null
         ],
         "revenue": [
@@ -84,7 +84,7 @@
           130821.42,
           114736.1,
           131015.12,
-          14279.81,
+          29077.2,
           null
         ],
         "orders_cum": [
@@ -110,7 +110,7 @@
           453,
           533,
           621,
-          635,
+          645,
           null
         ],
         "revenue_cum": [
@@ -136,7 +136,7 @@
           697623.23,
           812359.33,
           943374.45,
-          957654.26,
+          972451.65,
           null
         ]
       },
@@ -164,7 +164,7 @@
           124,
           150,
           148,
-          24,
+          42,
           null
         ],
         "revenue": [
@@ -190,7 +190,7 @@
           173543.66,
           239961.95,
           197604.83,
-          37435.97,
+          65484.38,
           null
         ],
         "orders_cum": [
@@ -216,7 +216,7 @@
           895,
           1045,
           1193,
-          1217,
+          1235,
           null
         ],
         "revenue_cum": [
@@ -242,7 +242,7 @@
           1418162.9,
           1658124.85,
           1855729.68,
-          1893165.65,
+          1921214.06,
           null
         ]
       },
@@ -270,7 +270,7 @@
           210,
           230,
           236,
-          38,
+          66,
           null
         ],
         "revenue": [
@@ -296,7 +296,7 @@
           304365.08,
           354698.05,
           328619.95,
-          51715.78,
+          94561.58,
           null
         ],
         "orders_cum": [
@@ -322,7 +322,7 @@
           1348,
           1578,
           1814,
-          1852,
+          1880,
           null
         ],
         "revenue_cum": [
@@ -348,7 +348,7 @@
           2115786.13,
           2470484.18,
           2799104.13,
-          2850819.91,
+          2893665.71,
           null
         ]
       }
@@ -997,23 +997,38 @@
   "origin": [
     {
       "platform": "web",
-      "canal": "Midia paga",
-      "orders": 169
-    },
-    {
-      "platform": "web",
-      "canal": "Nao identificado",
-      "orders": 311
+      "canal": "Organico",
+      "orders": 234
     },
     {
       "platform": "web",
       "canal": "Metasearch",
-      "orders": 432
+      "orders": 436
+    },
+    {
+      "platform": "app",
+      "canal": "Organico",
+      "orders": 190
     },
     {
       "platform": "app",
       "canal": "Midia paga",
-      "orders": 46
+      "orders": 48
+    },
+    {
+      "platform": "web",
+      "canal": "Nao identificado",
+      "orders": 316
+    },
+    {
+      "platform": "app",
+      "canal": "Direto",
+      "orders": 243
+    },
+    {
+      "platform": "web",
+      "canal": "Midia paga",
+      "orders": 170
     },
     {
       "platform": "app",
@@ -1022,28 +1037,13 @@
     },
     {
       "platform": "web",
-      "canal": "Organico",
-      "orders": 227
-    },
-    {
-      "platform": "app",
       "canal": "Direto",
-      "orders": 237
-    },
-    {
-      "platform": "app",
-      "canal": "Organico",
-      "orders": 189
-    },
-    {
-      "platform": "app",
-      "canal": "Metasearch",
-      "orders": 4
+      "orders": 61
     },
     {
       "platform": "web",
-      "canal": "Direto",
-      "orders": 60
+      "canal": "Outros",
+      "orders": 6
     },
     {
       "platform": "web",
@@ -1052,8 +1052,8 @@
     },
     {
       "platform": "app",
-      "canal": "CRM",
-      "orders": 2
+      "canal": "Metasearch",
+      "orders": 5
     },
     {
       "platform": "app",
@@ -1061,9 +1061,9 @@
       "orders": 4
     },
     {
-      "platform": "web",
-      "canal": "Outros",
-      "orders": 6
+      "platform": "app",
+      "canal": "CRM",
+      "orders": 2
     }
   ],
   "erp": {
