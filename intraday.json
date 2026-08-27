@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-27T07:07:31.953673-03:00",
+  "generated_at": "2026-08-27T07:10:03.856496-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-27",
@@ -997,6 +997,11 @@
   "origin": [
     {
       "platform": "web",
+      "canal": "Organico",
+      "orders": 25
+    },
+    {
+      "platform": "web",
       "canal": "Nao identificado",
       "orders": 39
     },
@@ -1006,14 +1011,9 @@
       "orders": 23
     },
     {
-      "platform": "app",
-      "canal": "Midia paga",
-      "orders": 9
-    },
-    {
-      "platform": "app",
-      "canal": "Direto",
-      "orders": 36
+      "platform": "web",
+      "canal": "Metasearch",
+      "orders": 50
     },
     {
       "platform": "web",
@@ -1021,19 +1021,14 @@
       "orders": 21
     },
     {
-      "platform": "web",
-      "canal": "Organico",
-      "orders": 25
-    },
-    {
-      "platform": "web",
-      "canal": "Metasearch",
-      "orders": 50
-    },
-    {
-      "platform": "web",
+      "platform": "app",
       "canal": "Direto",
-      "orders": 3
+      "orders": 36
+    },
+    {
+      "platform": "app",
+      "canal": "Midia paga",
+      "orders": 9
     },
     {
       "platform": "app",
@@ -1046,12 +1041,17 @@
       "orders": 1
     },
     {
-      "platform": "app",
+      "platform": "web",
+      "canal": "Direto",
+      "orders": 3
+    },
+    {
+      "platform": "web",
       "canal": "CRM",
       "orders": 1
     },
     {
-      "platform": "web",
+      "platform": "app",
       "canal": "CRM",
       "orders": 1
     }
