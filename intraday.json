@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-29T02:50:03.185942-03:00",
+  "generated_at": "2026-08-29T03:00:02.597851-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-29",
   "yesterday": "2026-08-28",
   "last_week": "2026-08-22",
-  "current_hour": 2,
+  "current_hour": 3,
   "hours": [
     0,
     1,
@@ -38,8 +38,8 @@
         "orders": [
           39,
           21,
-          8,
-          null,
+          10,
+          0,
           null,
           null,
           null,
@@ -64,8 +64,8 @@
         "revenue": [
           62995.84,
           24209.92,
-          7438.34,
-          null,
+          8757.99,
+          0.0,
           null,
           null,
           null,
@@ -90,8 +90,8 @@
         "orders_cum": [
           39,
           60,
-          68,
-          null,
+          70,
+          70,
           null,
           null,
           null,
@@ -116,8 +116,8 @@
         "revenue_cum": [
           62995.84,
           87205.76,
-          94644.1,
-          null,
+          95963.75,
+          95963.75,
           null,
           null,
           null,
@@ -144,8 +144,8 @@
         "orders": [
           31,
           13,
-          7,
-          null,
+          8,
+          0,
           null,
           null,
           null,
@@ -170,8 +170,8 @@
         "revenue": [
           53167.28,
           18146.98,
-          7945.55,
-          null,
+          8398.46,
+          0.0,
           null,
           null,
           null,
@@ -196,8 +196,8 @@
         "orders_cum": [
           31,
           44,
-          51,
-          null,
+          52,
+          52,
           null,
           null,
           null,
@@ -222,8 +222,8 @@
         "revenue_cum": [
           53167.28,
           71314.26,
-          79259.81,
-          null,
+          79712.72,
+          79712.72,
           null,
           null,
           null,
@@ -250,8 +250,8 @@
         "orders": [
           70,
           34,
-          15,
-          null,
+          18,
+          0,
           null,
           null,
           null,
@@ -276,8 +276,8 @@
         "revenue": [
           116163.12,
           42356.9,
-          15383.89,
-          null,
+          17156.45,
+          0.0,
           null,
           null,
           null,
@@ -302,8 +302,8 @@
         "orders_cum": [
           70,
           104,
-          119,
-          null,
+          122,
+          122,
           null,
           null,
           null,
@@ -328,8 +328,8 @@
         "revenue_cum": [
           116163.12,
           158520.02,
-          173903.91,
-          null,
+          175676.47,
+          175676.47,
           null,
           null,
           null,
@@ -997,13 +997,8 @@
   "origin": [
     {
       "platform": "web",
-      "canal": "Nao identificado",
-      "orders": 21
-    },
-    {
-      "platform": "app",
       "canal": "Organico",
-      "orders": 21
+      "orders": 12
     },
     {
       "platform": "web",
@@ -1011,34 +1006,34 @@
       "orders": 13
     },
     {
+      "platform": "web",
+      "canal": "Nao identificado",
+      "orders": 21
+    },
+    {
       "platform": "app",
       "canal": "Nao identificado",
       "orders": 32
     },
     {
-      "platform": "web",
-      "canal": "Organico",
+      "platform": "app",
+      "canal": "Direto",
       "orders": 12
     },
     {
       "platform": "app",
-      "canal": "Direto",
-      "orders": 11
+      "canal": "Organico",
+      "orders": 22
     },
     {
       "platform": "web",
       "canal": "Midia paga",
-      "orders": 3
+      "orders": 4
     },
     {
       "platform": "app",
       "canal": "Metasearch",
       "orders": 2
-    },
-    {
-      "platform": "web",
-      "canal": "Direto",
-      "orders": 1
     },
     {
       "platform": "app",
@@ -1053,6 +1048,11 @@
     {
       "platform": "web",
       "canal": "CRM",
+      "orders": 1
+    },
+    {
+      "platform": "web",
+      "canal": "Direto",
       "orders": 1
     }
   ],
