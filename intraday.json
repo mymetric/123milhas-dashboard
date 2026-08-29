@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-29T01:07:29.007537-03:00",
+  "generated_at": "2026-08-29T01:10:03.552577-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-29",
@@ -37,7 +37,7 @@
       "app": {
         "orders": [
           39,
-          3,
+          6,
           null,
           null,
           null,
@@ -63,7 +63,7 @@
         ],
         "revenue": [
           62995.84,
-          1349.72,
+          4358.44,
           null,
           null,
           null,
@@ -89,7 +89,7 @@
         ],
         "orders_cum": [
           39,
-          42,
+          45,
           null,
           null,
           null,
@@ -115,7 +115,7 @@
         ],
         "revenue_cum": [
           62995.84,
-          64345.56,
+          67354.28,
           null,
           null,
           null,
@@ -249,7 +249,7 @@
       "total": {
         "orders": [
           70,
-          7,
+          10,
           null,
           null,
           null,
@@ -275,7 +275,7 @@
         ],
         "revenue": [
           116163.12,
-          6698.53,
+          9707.25,
           null,
           null,
           null,
@@ -301,7 +301,7 @@
         ],
         "orders_cum": [
           70,
-          77,
+          80,
           null,
           null,
           null,
@@ -327,7 +327,7 @@
         ],
         "revenue_cum": [
           116163.12,
-          122861.65,
+          125870.37,
           null,
           null,
           null,
@@ -997,6 +997,16 @@
   "origin": [
     {
       "platform": "app",
+      "canal": "Organico",
+      "orders": 9
+    },
+    {
+      "platform": "app",
+      "canal": "Nao identificado",
+      "orders": 27
+    },
+    {
+      "platform": "app",
       "canal": "Midia paga",
       "orders": 2
     },
@@ -1012,28 +1022,18 @@
     },
     {
       "platform": "app",
-      "canal": "Nao identificado",
-      "orders": 26
-    },
-    {
-      "platform": "app",
-      "canal": "Organico",
-      "orders": 7
-    },
-    {
-      "platform": "app",
       "canal": "Outros",
       "orders": 1
-    },
-    {
-      "platform": "web",
-      "canal": "Organico",
-      "orders": 9
     },
     {
       "platform": "app",
       "canal": "Direto",
       "orders": 7
+    },
+    {
+      "platform": "web",
+      "canal": "Organico",
+      "orders": 9
     },
     {
       "platform": "web",
