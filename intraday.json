@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-30T02:40:03.389743-03:00",
+  "generated_at": "2026-08-30T02:50:03.083546-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-30",
@@ -38,7 +38,7 @@
         "orders": [
           25,
           14,
-          6,
+          8,
           null,
           null,
           null,
@@ -64,7 +64,7 @@
         "revenue": [
           41505.5,
           12505.11,
-          8274.64,
+          21407.06,
           null,
           null,
           null,
@@ -90,7 +90,7 @@
         "orders_cum": [
           25,
           39,
-          45,
+          47,
           null,
           null,
           null,
@@ -116,7 +116,7 @@
         "revenue_cum": [
           41505.5,
           54010.61,
-          62285.25,
+          75417.67,
           null,
           null,
           null,
@@ -144,7 +144,7 @@
         "orders": [
           33,
           12,
-          12,
+          13,
           null,
           null,
           null,
@@ -170,7 +170,7 @@
         "revenue": [
           53530.79,
           12323.58,
-          11081.09,
+          12246.61,
           null,
           null,
           null,
@@ -196,7 +196,7 @@
         "orders_cum": [
           33,
           45,
-          57,
+          58,
           null,
           null,
           null,
@@ -222,7 +222,7 @@
         "revenue_cum": [
           53530.79,
           65854.37,
-          76935.46,
+          78100.98,
           null,
           null,
           null,
@@ -250,7 +250,7 @@
         "orders": [
           58,
           26,
-          18,
+          21,
           null,
           null,
           null,
@@ -276,7 +276,7 @@
         "revenue": [
           95036.29,
           24828.69,
-          19355.73,
+          33653.67,
           null,
           null,
           null,
@@ -302,7 +302,7 @@
         "orders_cum": [
           58,
           84,
-          102,
+          105,
           null,
           null,
           null,
@@ -328,7 +328,7 @@
         "revenue_cum": [
           95036.29,
           119864.98,
-          139220.71,
+          153518.65,
           null,
           null,
           null,
@@ -997,12 +997,17 @@
   "origin": [
     {
       "platform": "app",
+      "canal": "Push",
+      "orders": 1
+    },
+    {
+      "platform": "app",
       "canal": "Nao identificado",
       "orders": 15
     },
     {
-      "platform": "app",
-      "canal": "Midia paga",
+      "platform": "web",
+      "canal": "Direto",
       "orders": 4
     },
     {
@@ -1011,9 +1016,9 @@
       "orders": 12
     },
     {
-      "platform": "web",
-      "canal": "CRM",
-      "orders": 1
+      "platform": "app",
+      "canal": "Midia paga",
+      "orders": 4
     },
     {
       "platform": "web",
@@ -1022,18 +1027,18 @@
     },
     {
       "platform": "web",
+      "canal": "Metasearch",
+      "orders": 13
+    },
+    {
+      "platform": "web",
       "canal": "Midia paga",
       "orders": 12
     },
     {
       "platform": "app",
       "canal": "Direto",
-      "orders": 12
-    },
-    {
-      "platform": "web",
-      "canal": "Metasearch",
-      "orders": 12
+      "orders": 14
     },
     {
       "platform": "web",
@@ -1042,17 +1047,12 @@
     },
     {
       "platform": "web",
-      "canal": "Direto",
-      "orders": 4
-    },
-    {
-      "platform": "app",
-      "canal": "Metasearch",
+      "canal": "CRM",
       "orders": 1
     },
     {
       "platform": "app",
-      "canal": "Push",
+      "canal": "Metasearch",
       "orders": 1
     }
   ],
