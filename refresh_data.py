@@ -683,11 +683,141 @@ def gen_intraday(creds, anterior=None):
     }
 
 
+# --------------------------------------------------------------------------
+# MaxMilhas (aba propria)
+#
+# A MaxMilhas NAO tem pedido nem faturamento em lugar nenhum que a gente
+# alcance: `df_granular.orders` nao tem coluna de marca e nenhum pedido dela
+# casa com os checkouts (73.830 dos pedidos de 30 dias casam com
+# site='123milhas.com', zero com 'maxmilhas'). O export do GA4
+# (analytics_327722742) tambem e so da 123 -- num dia inteiro, 15 eventos de
+# ~2,5 milhoes tinham page_location de maxmilhas.
+#
+# Entao esta aba mede CHECKOUT, nao venda: quantas vezes alguem chegou na tela
+# de pagamento, e de onde veio. O que NAO da pra fazer, e por que:
+#   - receita / ticket: `checkouts` nao tem nenhuma coluna de valor;
+#   - app x web: `user_agent` e nulo em 45% das linhas e nenhuma linha tem user
+#     agent de app nativo (okhttp/CFNetwork/Dart) -- so navegador;
+#   - visitantes unicos: `client_id` e nulo nas mesmas 45%;
+#   - intraday: `checkout_received_at` mostra que a tabela e reconstruida uma
+#     vez por dia as 08:00 (mesmo Dataform do ERP). Medido as 11:20 BRT, o
+#     ultimo checkout na tabela era das 08:09 -- 3h10 de atraso, e nao ia mudar
+#     ate a carga do dia seguinte. Uma curva "por hora" encheria ate as 8h e
+#     congelaria, entao esta aba nao tem intraday.
+#   - `search_id` e unico por linha (buscas == checkouts), entao nao vale card.
+#
+# Dia em BRT, a partir de `ts_epoch`: `checkout_date` e UTC (bate com o dia UTC
+# em 99,9% das linhas e com o dia BRT em so 84%). O filtro de particao usa
+# checkout_date com uma folga de um dia de cada lado, senao a conversao pra BRT
+# perde as pontas. A tabela e particionada por checkout_date e clusterizada por
+# site, entao a janela + o site saem baratos.
+# --------------------------------------------------------------------------
+MAX_TABLE = "grupo123-metrics.df_granular.checkouts"
+MAX_SITE = "maxmilhas"
+MAX_DIAS = 60
+# a ingestao da MaxMilhas so engata em 09/07/2026; antes disso a tabela tem 1 a
+# 4 checkouts por dia, que no grafico viram uma semana de linha rente ao zero
+MAX_MINIMO_DIA = 500
+
+_MAX_DIA_BRT = "DATE(TIMESTAMP_SECONDS(CAST(ts_epoch/1000 AS INT64)), 'America/Sao_Paulo')"
+_MAX_JANELA = (f"site = '{MAX_SITE}' AND checkout_date BETWEEN "
+               f"DATE_SUB(CURRENT_DATE('America/Sao_Paulo'), INTERVAL {MAX_DIAS + 1} DAY) "
+               f"AND DATE_ADD(CURRENT_DATE('America/Sao_Paulo'), INTERVAL 1 DAY)")
+
+
+def gen_maxmilhas(creds):
+    hoje = datetime.datetime.now(BRT).date().isoformat()
+
+    serie_rows = bq_query(creds, f"""
+    SELECT CAST({_MAX_DIA_BRT} AS STRING) AS date,
+           COUNT(*) AS checkouts,
+           COUNTIF(has_tracker) AS com_tracker
+    FROM `{MAX_TABLE}`
+    WHERE {_MAX_JANELA}
+    GROUP BY date
+    ORDER BY date
+    """)
+
+    origem_rows = bq_query(creds, f"""
+    SELECT CAST({_MAX_DIA_BRT} AS STRING) AS date,
+           COALESCE(NULLIF(canal_url, ''), 'Sem canal') AS canal,
+           COALESCE(NULLIF(url_source, ''), '(vazio)') AS source,
+           COALESCE(NULLIF(url_medium, ''), '(vazio)') AS medium,
+           COUNT(*) AS checkouts
+    FROM `{MAX_TABLE}`
+    WHERE {_MAX_JANELA}
+    GROUP BY date, canal, source, medium
+    """)
+
+    # so as duas ultimas particoes: na janela inteira essa query sozinha custava
+    # 74 dos 220 MB da rodada, pra devolver dois timestamps
+    frescor = bq_query(creds, f"""
+    SELECT FORMAT_TIMESTAMP('%Y-%m-%dT%H:%M:%S',
+             MAX(TIMESTAMP_SECONDS(CAST(ts_epoch/1000 AS INT64))), 'America/Sao_Paulo') AS ultimo_evento,
+           FORMAT_TIMESTAMP('%Y-%m-%dT%H:%M:%S', MAX(checkout_received_at), 'America/Sao_Paulo') AS ultima_carga
+    FROM `{MAX_TABLE}`
+    WHERE site = '{MAX_SITE}'
+      AND checkout_date >= DATE_SUB(CURRENT_DATE('America/Sao_Paulo'), INTERVAL 2 DAY)
+    """)
+
+    # o dia corrente sempre chega pela metade (carga as 08:00), entao fica fora
+    serie = [{"date": r["date"], "checkouts": int(r["checkouts"]),
+              "com_tracker": int(r["com_tracker"])}
+             for r in serie_rows if r["date"] < hoje]
+    primeiro = next((i for i, r in enumerate(serie)
+                     if r["checkouts"] >= MAX_MINIMO_DIA), len(serie))
+    serie = serie[primeiro:]
+    inicio = serie[0]["date"] if serie else hoje
+
+    total = sum(r["checkouts"] for r in serie)
+    tracker = sum(r["com_tracker"] for r in serie)
+
+    # ---- origem: ranking de canal, tabela source/midia e a serie por dia ----
+    no_periodo = [r for r in origem_rows if inicio <= r["date"] < hoje]
+    por_canal, por_sm, por_dia_canal = {}, {}, {}
+    for r in no_periodo:
+        n = int(r["checkouts"])
+        por_canal[r["canal"]] = por_canal.get(r["canal"], 0) + n
+        k = (r["source"], r["medium"], r["canal"])
+        por_sm[k] = por_sm.get(k, 0) + n
+        dk = (r["date"], r["canal"])
+        por_dia_canal[dk] = por_dia_canal.get(dk, 0) + n
+
+    canais = sorted(({"canal": c, "checkouts": n} for c, n in por_canal.items()),
+                    key=lambda x: -x["checkouts"])
+    sm = sorted(({"source": s, "medium": m, "canal": c, "checkouts": n}
+                 for (s, m, c), n in por_sm.items()), key=lambda x: -x["checkouts"])
+    por_dia = sorted(({"date": d, "canal": c, "checkouts": n}
+                      for (d, c), n in por_dia_canal.items()),
+                     key=lambda x: (x["date"], -x["checkouts"]))
+    sem_canal = por_canal.get("Sem canal", 0)
+
+    return {
+        "generated_at": datetime.datetime.now(BRT).isoformat(),
+        "source": f"{MAX_TABLE} (site='{MAX_SITE}')",
+        "metric": "checkouts",
+        "freshness": frescor[0] if frescor else {},
+        "period": {"start": inicio if serie else None,
+                   "end": serie[-1]["date"] if serie else None,
+                   "days": len(serie)},
+        "summary": {
+            "checkouts": total,
+            "media_dia": round(total / len(serie)) if serie else 0,
+            "com_tracker": tracker,
+            "tracker_pct": round(tracker / total * 100, 2) if total else 0,
+            "sem_canal": sem_canal,
+            "sem_canal_pct": round(sem_canal / total * 100, 2) if total else 0,
+        },
+        "series": serie,
+        "origin": {"canais": canais, "sm": sm, "por_dia": por_dia},
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sa-key", default=os.environ.get(
         "SA_123_KEY", os.path.join(os.path.dirname(__file__), "..", "sa_123.json")))
-    ap.add_argument("--only", choices=["all", "daily", "intraday", "pedidos"], default="all",
+    ap.add_argument("--only", choices=["all", "daily", "intraday", "pedidos", "max"], default="all",
                     help="'intraday' e a rodada barata, pra rodar de poucos em poucos minutos")
     args = ap.parse_args()
 
@@ -718,6 +848,14 @@ def main():
         with open(caminho("pedidos.csv"), "w") as f:
             f.write(csv)
         print(f"pedidos.csv atualizado: {n} pedidos de {de} a {ate} ({len(csv)/1e6:.1f} MB)")
+
+    if args.only in ("all", "max"):
+        mx = gen_maxmilhas(creds)
+        with open(caminho("max.json"), "w") as f:
+            json.dump(mx, f, ensure_ascii=False, indent=2)
+        print(f"max.json atualizado: {mx['summary']['checkouts']} checkouts em "
+              f"{mx['period']['days']} dias ({mx['period']['start']} a {mx['period']['end']}), "
+              f"{mx['summary']['sem_canal_pct']}% sem canal")
 
     if args.only in ("all", "intraday"):
         anterior = None

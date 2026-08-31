@@ -269,12 +269,25 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  /* seletor de marca: fica acima das abas porque troca o dashboard inteiro,
+     nao um recorte dentro dele */
+  .marca-seg { margin: 0 0 16px; }
+  .marca-seg button { padding: 6px 14px; font-size: 13px; }
+  /* a MaxMilhas mede outra coisa (checkout, nao pedido); o aviso e a unica
+     coisa que impede a leitura errada de comparar as duas marcas de cabeca */
+  .aviso-metrica {
+    background: #fbf7ea; border: 1px solid #ecdfb8; border-radius: 8px;
+    padding: 11px 13px; margin: 0 0 22px;
+    font-size: 12px; color: var(--text-secondary); line-height: 1.55;
+  }
+  .aviso-metrica b { color: var(--text-primary); }
   .tabs {
     display: flex;
     gap: 4px;
     margin-bottom: 24px;
     border-bottom: 1px solid var(--border);
   }
+  .tabs[hidden] { display: none; }   /* display:flex vence o [hidden] do UA */
   .tab-btn {
     font: inherit;
     font-weight: 600;
@@ -711,7 +724,12 @@
     <p id="period-sub">Pedidos e faturamento por plataforma — fonte: grupo123-metrics.df_granular.orders</p>
   </header>
 
-  <div class="tabs">
+  <div class="seg marca-seg" id="marcaSeg">
+    <button type="button" class="active" data-marca="123">123 Milhas</button>
+    <button type="button" data-marca="max">MaxMilhas</button>
+  </div>
+
+  <div class="tabs" id="tabs123">
     <button class="tab-btn active" data-tab="geral" type="button">Visão geral</button>
     <button class="tab-btn" data-tab="intraday" type="button">Intraday</button>
     <button class="tab-btn" data-tab="pedidos" type="button">Pedidos</button>
@@ -930,6 +948,44 @@
     </div>
   </div>
 
+  <div class="view" id="viewMax">
+    <div class="aviso-metrica" id="maxAviso"></div>
+    <div class="stats" id="maxStats"></div>
+
+    <div class="panel">
+      <h2>Checkouts por dia</h2>
+      <p class="panel-sub" id="maxSerieSub"></p>
+      <button type="button" class="baixar" id="baixarMaxSerie">baixar CSV</button>
+      <canvas id="maxChart"></canvas>
+      <div class="mini-serie" id="maxSemCanalWrap"
+           title="Fatia dos checkouts do dia que chegaram sem parâmetro de origem na URL. É o equivalente do &quot;Sem origem&quot; da 123, mas medido no checkout.">
+        <div class="mini-serie-topo">
+          <span>Sem canal por dia</span>
+          <span class="mini-serie-val" id="maxSemCanalVal"></span>
+        </div>
+        <div class="mini-serie-canvas"><canvas id="maxSemCanalChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Origem dos checkouts</h2>
+      <p class="panel-sub" id="maxOriginSub"></p>
+      <button type="button" class="baixar" id="baixarMaxSM">baixar CSV</button>
+      <div class="rank" id="maxOriginRank"></div>
+      <div class="rank-split"><span>Origem / mídia</span></div>
+      <div class="tabela-wrap">
+        <table class="tabela" id="maxTableSM">
+          <thead><tr>
+            <th>Origem / mídia</th><th>Canal</th>
+            <th class="num">Checkouts</th><th class="num">%</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="origin-note" id="maxNota"></p>
+    </div>
+  </div>
+
   <dialog class="cat-modal" id="catModal" aria-labelledby="catTitulo">
     <div class="cat-topo">
       <div>
@@ -989,6 +1045,269 @@ function updateFilterLabel(from, to) {
   filterLabel.textContent = `${from} a ${to}`;
 }
 
+// ---------------- MaxMilhas ----------------
+// Marca separada, dashboard separado. A MaxMilhas nao tem pedido nem
+// faturamento em nenhuma fonte que a gente alcance (ver o cabecalho de
+// gen_maxmilhas no refresh_data.py), entao esta aba mede CHECKOUT: quantas
+// vezes alguem chegou na tela de pagamento, e de onde veio. Nao da pra somar
+// nem comparar com os numeros da 123 -- dai o aviso no topo da view.
+let maxData = null;
+let maxChart = null;
+let maxSemCanalChart = null;
+let maxCarregando = false;
+
+// O canal aqui vem pronto do `canal_url` da tabela, nao do cadastro de
+// categorias: o cadastro e calibrado nos mediums da 123 ("metasearch", "email")
+// e os da MaxMilhas sao outros ("metasearch_api", "whatsapp"), entao passar por
+// ele jogaria quase tudo em "Outros". O alias so alinha o nome/cor aos da 123.
+// "Sem canal" nao vira "Sem origem": aqui o buraco e de parametro na URL do
+// checkout, nao de atribuicao de pedido. So a COR e emprestada do cadastro,
+// pra faixa cinza significar a mesma coisa nas duas marcas.
+const MAX_ALIAS = { 'Midia paga': 'Mídia paga' };
+const maxRotulo = (c) => MAX_ALIAS[c] || c;
+const maxCor = (c) => corCat(c === 'Sem canal' ? CATS.semOrigem.nome : maxRotulo(c));
+
+function carregaMax() {
+  if (maxData || maxCarregando) { if (maxData) renderMax(); return; }
+  maxCarregando = true;
+  document.getElementById('maxStats').innerHTML = '<p class="origin-note">Carregando…</p>';
+  fetch('max.json', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(d => { maxData = d; maxCarregando = false; renderMax(); })
+    .catch(err => {
+      maxCarregando = false;
+      document.getElementById('maxStats').innerHTML =
+        '<p style="color:#e34948">Falha ao carregar max.json: ' + err + '</p>';
+    });
+}
+
+function renderMax() {
+  const d = maxData;
+  if (!d) return;
+  const { summary: sm, series, origin, period } = d;
+  const fmtDT = (iso) => new Date(iso).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+
+  document.getElementById('maxAviso').innerHTML =
+    '<b>Isto não é venda.</b> A MaxMilhas não tem pedido nem faturamento em nenhuma tabela que ' +
+    'este dashboard alcança — a <code>df_granular.orders</code> não separa marca e nenhum pedido dela ' +
+    'casa com os checkouts da MaxMilhas, e o export do GA4 é só da 123. O que existe é o ' +
+    '<b>checkout</b>: quantas vezes alguém chegou na tela de pagamento, e de onde veio. ' +
+    'Sem receita, sem ticket e sem app × web — então estes números não se comparam com os da 123.';
+
+  document.getElementById('maxStats').innerHTML = `
+    <div class="stat-tile">
+      <div class="label">Checkouts no período</div>
+      <div class="value">${fmtInt(sm.checkouts)}</div>
+      <div class="sub">${period.days} dias · ${period.start} a ${period.end}</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Média por dia</div>
+      <div class="value">${fmtInt(sm.media_dia)}</div>
+      <div class="sub">pico ${fmtInt(Math.max(...series.map(r => r.checkouts)))}</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Com tracker</div>
+      <div class="value">${sm.tracker_pct.toFixed(1).replace('.', ',')}%</div>
+      <div class="sub">${fmtInt(sm.com_tracker)} checkouts rastreáveis</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Sem canal</div>
+      <div class="value">${sm.sem_canal_pct.toFixed(1).replace('.', ',')}%</div>
+      <div class="sub">${fmtInt(sm.sem_canal)} chegaram sem origem na URL</div>
+    </div>
+  `;
+
+  // ---- serie diaria ----
+  document.getElementById('maxSerieSub').textContent =
+    `Checkouts por dia — ${period.start} a ${period.end} · dia em BRT`;
+  const labels = series.map(r => r.date.slice(5));
+  if (maxChart) maxChart.destroy();
+  maxChart = new Chart(document.getElementById('maxChart'), {
+    type: 'line',
+    data: { labels, datasets: [{
+      label: 'Checkouts', data: series.map(r => r.checkouts),
+      borderColor: '#2a78d6', backgroundColor: 'rgba(42,120,214,0.10)',
+      borderWidth: 2, pointRadius: 0, fill: true, tension: 0.25 }] },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: '#0b0b0b', titleColor: '#fff', bodyColor: '#fff', padding: 10,
+                   callbacks: { label: (c) => `Checkouts: ${fmtInt(c.parsed.y)}` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#898781', maxTicksLimit: 12 } },
+        y: { grid: { color: '#e1e0d9' }, ticks: { color: '#898781', callback: fmtInt },
+             beginAtZero: true }
+      }
+    }
+  });
+
+  // ---- % sem canal por dia (mesma faixa discreta do bloco de origem da 123) ----
+  const porDia = {};
+  (origin.por_dia || []).forEach(r => {
+    const v = porDia[r.date] = porDia[r.date] || { total: 0, sem: 0 };
+    v.total += r.checkouts;
+    if (r.canal === 'Sem canal') v.sem += r.checkouts;
+  });
+  const dias = Object.keys(porDia).sort();
+  const pctDia = dias.map(k => porDia[k].total ? porDia[k].sem / porDia[k].total * 100 : 0);
+  const fmtPct1 = (v) => v.toFixed(1).replace('.', ',') + '%';
+  const wrap = document.getElementById('maxSemCanalWrap');
+  if (maxSemCanalChart) { maxSemCanalChart.destroy(); maxSemCanalChart = null; }
+  if (dias.length < 2) {
+    wrap.style.display = 'none';
+  } else {
+    wrap.style.display = '';
+    const teto = Math.min(100, Math.max(10, Math.ceil(Math.max(...pctDia, 0) / 5) * 5));
+    const ultimo = dias[dias.length - 1];
+    document.getElementById('maxSemCanalVal').innerHTML =
+      `média <b>${fmtPct1(sm.sem_canal_pct)}</b> · ` +
+      `${ultimo.slice(8) + '/' + ultimo.slice(5, 7)} <b>${fmtPct1(pctDia[pctDia.length - 1])}</b>`;
+    maxSemCanalChart = new Chart(document.getElementById('maxSemCanalChart'), {
+      type: 'line',
+      data: {
+        labels: dias.map(k => k.slice(5)),
+        datasets: [
+          { label: '% sem canal', data: pctDia,
+            borderColor: '#898781', backgroundColor: 'rgba(137,135,129,0.10)',
+            borderWidth: 1.5, fill: true, tension: 0.25,
+            pointRadius: 0, pointHoverRadius: 3, pointHoverBackgroundColor: '#898781' },
+          { label: 'média do período', data: dias.map(() => sm.sem_canal_pct),
+            borderColor: '#c3c2b7', borderWidth: 1, borderDash: [3, 3],
+            pointRadius: 0, pointHoverRadius: 0, fill: false }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0b0b0b', titleColor: '#fff', bodyColor: '#fff', padding: 8,
+            callbacks: {
+              label: (c) => `${c.dataset.label}: ${fmtPct1(c.parsed.y)}`,
+              afterBody: (its) => {
+                const v = porDia[dias[its[0].dataIndex]];
+                return `${fmtInt(v.sem)} de ${fmtInt(v.total)} checkouts`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, border: { display: false },
+               ticks: { color: '#898781', font: { size: 10 }, maxTicksLimit: 8, maxRotation: 0 } },
+          y: { grid: { color: '#f2f1ec' }, border: { display: false },
+               min: 0, max: teto,
+               ticks: { color: '#898781', font: { size: 10 }, stepSize: teto / 2,
+                        callback: (v) => v + '%' } }
+        }
+      }
+    });
+  }
+
+  // ---- origem ----
+  // renderRank colore por corCat(canal); "Sem canal" nao existe no cadastro,
+  // entao entra com o nome que tem cor e o rotulo real vem do label
+  const canais = (origin.canais || []).map(c => ({
+    canal: c.canal === 'Sem canal' ? CATS.semOrigem.nome : maxRotulo(c.canal),
+    label: maxRotulo(c.canal), valor: c.checkouts }));
+  const total = canais.reduce((a, c) => a + c.valor, 0);
+  document.getElementById('maxOriginSub').textContent =
+    `De onde veio o checkout — ${period.start} a ${period.end} · campo canal_url da tabela`;
+  renderRank(document.getElementById('maxOriginRank'), canais, total, fmtInt);
+
+  const sms = origin.sm || [];
+  document.querySelector('#maxTableSM tbody').innerHTML = sms.map(i => `
+    <tr>
+      <td>${esc(i.source)} / ${esc(i.medium)}</td>
+      <td><span class="canal-cel"><span class="swatch" style="background:${maxCor(i.canal)}"></span>${esc(maxRotulo(i.canal))}</span></td>
+      <td class="num">${fmtInt(i.checkouts)}</td>
+      <td class="num">${total ? (i.checkouts / total * 100).toFixed(1) : '0.0'}%</td>
+    </tr>`).join('');
+
+  const fr = d.freshness || {};
+  document.getElementById('maxNota').innerHTML =
+    `Fonte: <code>${esc(d.source)}</code>. O canal vem do campo <code>canal_url</code>, já resolvido ` +
+    'pela pipeline do Grupo 123 — não passa pelo cadastro de categorias desta tela, que é calibrado ' +
+    'nos mediums da 123 (<code>metasearch</code>, <code>email</code>) e não nos da MaxMilhas ' +
+    '(<code>metasearch_api</code>, <code>whatsapp</code>). ' +
+    (fr.ultima_carga
+      ? `A tabela é reconstruída uma vez por dia (última carga ${fmtDT(fr.ultima_carga)}, último ` +
+        `checkout ${fmtDT(fr.ultimo_evento)}), por isso não há aba intraday: a curva de hoje encheria ` +
+        'até a hora da carga e congelaria. '
+      : '') +
+    `Série a partir de ${period.start}, quando a ingestão da MaxMilhas engata — antes disso a tabela ` +
+    'tem 1 a 4 checkouts por dia. ' +
+    `Atualizado em ${fmtDT(d.generated_at)} (BRT).`;
+}
+
+document.getElementById('baixarMaxSerie').addEventListener('click', () => {
+  if (!maxData) return;
+  baixaCSV('maxmilhas-checkouts-por-dia', [
+    { titulo: 'Data', valor: r => r.date },
+    { titulo: 'Checkouts', valor: r => r.checkouts },
+    { titulo: 'Com tracker', valor: r => r.com_tracker },
+  ], maxData.series);
+});
+
+document.getElementById('baixarMaxSM').addEventListener('click', () => {
+  if (!maxData) return;
+  baixaCSV('maxmilhas-origem-midia', [
+    { titulo: 'Origem', valor: r => r.source },
+    { titulo: 'Mídia', valor: r => r.medium },
+    { titulo: 'Canal', valor: r => maxRotulo(r.canal) },
+    { titulo: 'Checkouts', valor: r => r.checkouts },
+  ], maxData.origin.sm || []);
+});
+
+// ---- troca de marca ----
+// Troca o dashboard inteiro, entao mexe no titulo, nas abas e nas views. As
+// views da 123 continuam montadas: voltar pra ela nao refaz fetch nem render.
+const TITULO_MARCA = {
+  '123': ['123 Milhas — Vendas App x Web',
+          'Pedidos e faturamento por plataforma — fonte: grupo123-metrics.df_granular.orders'],
+  max: ['MaxMilhas — Checkouts',
+        'Checkouts e origem — fonte: grupo123-metrics.df_granular.checkouts (site=maxmilhas)'],
+};
+
+function trocaMarca(marca) {
+  document.querySelectorAll('#marcaSeg button').forEach(b =>
+    b.classList.toggle('active', b.dataset.marca === marca));
+  const [titulo, sub] = TITULO_MARCA[marca];
+  document.querySelector('header h1').textContent = titulo;
+  const subEl = document.getElementById('period-sub');
+  if (subEl) subEl.textContent = sub;
+  const nomeEl = document.querySelector('.client-lockup .client-name');
+  if (nomeEl) nomeEl.textContent = marca === 'max' ? 'MaxMilhas' : '123 Milhas';
+  // o chip do header e o logo da 123; nao temos asset da MaxMilhas, e deixar o
+  // da 123 ao lado do nome "MaxMilhas" le como marca errada
+  const logoEl = document.querySelector('.client-lockup img.client-logo');
+  if (logoEl) logoEl.style.display = marca === 'max' ? 'none' : '';
+
+  const ehMax = marca === 'max';
+  document.getElementById('tabs123').hidden = ehMax;
+  document.getElementById('viewMax').classList.toggle('active', ehMax);
+  if (ehMax) {
+    ['viewGeral', 'viewIntraday', 'viewPedidos'].forEach(id =>
+      document.getElementById(id).classList.remove('active'));
+    carregaMax();
+  } else {
+    // volta pra aba que estava marcada nas abas da 123
+    const ativa = document.querySelector('.tab-btn.active');
+    const tab = ativa ? ativa.dataset.tab : 'geral';
+    document.getElementById('viewGeral').classList.toggle('active', tab === 'geral');
+    document.getElementById('viewIntraday').classList.toggle('active', tab === 'intraday');
+    document.getElementById('viewPedidos').classList.toggle('active', tab === 'pedidos');
+  }
+}
+
+document.getElementById('marcaSeg').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-marca]');
+  if (btn) trocaMarca(btn.dataset.marca);
+});
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -997,6 +1316,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     document.getElementById('viewGeral').classList.toggle('active', tab === 'geral');
     document.getElementById('viewIntraday').classList.toggle('active', tab === 'intraday');
     document.getElementById('viewPedidos').classList.toggle('active', tab === 'pedidos');
+    document.getElementById('viewMax').classList.remove('active');
     if (tab === 'pedidos') carregaPedidos();
   });
 });

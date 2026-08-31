@@ -9,11 +9,13 @@ Deploy simples via Vercel (import do repo, sem build step / sem configuração).
 
 ## Estrutura
 
-- `index.html` — dashboard com 3 abas: "Visão geral" (stat tiles, composição do
-  faturamento, série diária, origem das vendas), "Intraday" (hoje x ontem x
-  mesmo dia da semana passada, acumulado por hora, em tempo real) e "Pedidos"
-  (uma linha por pedido, para export)
+- `index.html` — dashboard com um seletor de marca (123 Milhas / MaxMilhas). Na
+  123, 3 abas: "Visão geral" (stat tiles, composição do faturamento, série
+  diária, origem das vendas), "Intraday" (hoje x ontem x mesmo dia da semana
+  passada, acumulado por hora, em tempo real) e "Pedidos" (uma linha por
+  pedido, para export). Na MaxMilhas, uma tela só, de checkouts
 - `data.json` — série diária por plataforma (ERP) + bloco de origem
+- `max.json` — aba MaxMilhas: checkouts por dia e origem (ver "MaxMilhas" abaixo)
 - `intraday.json` — por hora de hoje/ontem/semana passada + origem do dia
 - `pedidos.csv` — 1 linha por pedido, 30 dias, com valor decomposto e atribuição
 - `categorias.json` — cadastro de categorias de tráfego (origem × mídia)
@@ -216,6 +218,48 @@ Campo `device` na tabela `grupo123-metrics.df_granular.orders`:
 
 (Existem raríssimos registros com `device` nulo — não entram em nenhuma das
 duas séries.)
+
+## MaxMilhas
+
+O seletor de marca no topo troca o dashboard inteiro. A aba da MaxMilhas mede
+**checkout, não venda** — e isso não é escolha de recorte, é o que existe:
+
+- **Não há pedido nem faturamento da MaxMilhas em nenhuma fonte alcançável.**
+  `df_granular.orders` não tem coluna de marca, e nenhum pedido dela casa com um
+  checkout da MaxMilhas: dos pedidos de 30 dias, 73.830 casam com
+  `site='123milhas.com'` e **zero** com `site='maxmilhas'` (o resto, 39.877, tem
+  `search_id` mas não casa com checkout nenhum).
+- **O export do GA4 (`analytics_327722742`) é só da 123.** Num dia inteiro, de
+  ~2,5 milhões de eventos em 3 streams, 15 tinham `page_location` de maxmilhas.
+- A service account só enxerga o projeto `grupo123-metrics`, que tem 7 datasets
+  e nenhum de maxmilhas. No HUB da MyMetric também não há cliente MaxMilhas.
+
+O que existe é `df_granular.checkouts` com `site='maxmilhas'`: ~587 mil
+checkouts desde 09/07/2026, com origem na URL. Daí sai o `max.json`.
+
+O que a tela **não** mostra, e por quê:
+
+| Falta | Motivo |
+|---|---|
+| receita / ticket | `checkouts` não tem nenhuma coluna de valor |
+| app × web | `user_agent` é nulo em 45% das linhas, e nenhuma linha tem user agent de app nativo (okhttp/CFNetwork/Dart) — só navegador |
+| visitantes únicos | `client_id` é nulo nas mesmas 45% |
+| intraday | a tabela é reconstruída 1x/dia às 08:00 (mesmo Dataform do ERP). Medido às 11:20 BRT, o último checkout era das 08:09 — 3h10 de atraso, e não mudaria até a carga seguinte. Uma curva "por hora" encheria até as 8h e congelaria |
+
+**Canal:** vem do campo `canal_url`, já resolvido pela pipeline do Grupo 123 —
+não passa pelo cadastro de categorias da tela, que é calibrado nos mediums da
+123 (`metasearch`, `email`) e não nos da MaxMilhas (`metasearch_api`,
+`whatsapp`); passar por ele jogaria quase tudo em "Outros".
+
+**Dia em BRT**, derivado de `ts_epoch`: `checkout_date` é UTC (bate com o dia
+UTC em 99,9% das linhas e com o dia BRT em só 84%). A tabela é particionada por
+`checkout_date` e clusterizada por `site`, então a janela + o site saem baratos.
+
+**Série a partir de 09/07/2026**, quando a ingestão engata — antes disso a
+tabela tem 1 a 4 checkouts por dia, que no gráfico virariam uma semana de linha
+rente ao zero.
+
+Para gerar só esse arquivo: `python3 refresh_data.py --sa-key ... --only max`.
 
 ## Deploy na Vercel
 

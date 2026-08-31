@@ -5,7 +5,10 @@
 #   intraday  -> so a aba Intraday, do evento purchase do GA4 em tempo real.
 #                Roda de 10 em 10 min (~0,5 GB por rodada).
 #   (vazio)   -> rodada completa: le a origem de order_origin_full (mantida pelo Dataform), a serie
-#                diaria do ERP e o intraday. Roda de hora em hora.
+#                diaria do ERP, os checkouts da MaxMilhas e o intraday. Roda de hora em hora.
+#
+# O max.json (aba MaxMilhas) so sai na rodada completa: a tabela de checkouts e
+# reconstruida uma vez por dia as 08:00, entao nao ha o que buscar de 10 em 10 min.
 set -uo pipefail
 
 REPO="/home/loop/loop/123milhas-dashboard"
@@ -24,8 +27,8 @@ if [ $RC -ne 0 ]; then
   exit $RC
 fi
 
-if ! git diff --quiet -- data.json intraday.json pedidos.csv; then
-  git add data.json intraday.json pedidos.csv
+if ! git diff --quiet -- data.json intraday.json pedidos.csv max.json; then
+  git add data.json intraday.json pedidos.csv max.json
   git commit -m "Atualiza snapshot de dados ($MODO)" -q
   git push -q origin main >>/tmp/123milhas_refresh.log 2>&1
 fi
