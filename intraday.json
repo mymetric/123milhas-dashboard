@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-31T08:00:04.249590-03:00",
+  "generated_at": "2026-08-31T08:07:30.110118-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-31",
@@ -44,7 +44,7 @@
           12,
           4,
           43,
-          0,
+          5,
           null,
           null,
           null,
@@ -70,7 +70,7 @@
           10836.52,
           4950.0,
           46064.57,
-          0.0,
+          6552.96,
           null,
           null,
           null,
@@ -96,7 +96,7 @@
           64,
           68,
           111,
-          111,
+          116,
           null,
           null,
           null,
@@ -122,7 +122,7 @@
           82814.92,
           87764.92,
           133829.49,
-          133829.49,
+          140382.45,
           null,
           null,
           null,
@@ -150,7 +150,7 @@
           6,
           7,
           38,
-          0,
+          4,
           null,
           null,
           null,
@@ -176,7 +176,7 @@
           5847.17,
           6281.66,
           59778.99,
-          0.0,
+          8037.53,
           null,
           null,
           null,
@@ -202,7 +202,7 @@
           73,
           80,
           118,
-          118,
+          122,
           null,
           null,
           null,
@@ -228,7 +228,7 @@
           80731.32,
           87012.98,
           146791.97,
-          146791.97,
+          154829.5,
           null,
           null,
           null,
@@ -256,7 +256,7 @@
           18,
           11,
           81,
-          0,
+          9,
           null,
           null,
           null,
@@ -282,7 +282,7 @@
           16683.69,
           11231.66,
           105843.56,
-          0.0,
+          14590.49,
           null,
           null,
           null,
@@ -308,7 +308,7 @@
           137,
           148,
           229,
-          229,
+          238,
           null,
           null,
           null,
@@ -334,7 +334,7 @@
           163546.24,
           174777.9,
           280621.46,
-          280621.46,
+          295211.95,
           null,
           null,
           null,
@@ -998,27 +998,37 @@
     {
       "platform": "app",
       "canal": "Direto",
+      "orders": 42
+    },
+    {
+      "platform": "web",
+      "canal": "Organico",
+      "orders": 22
+    },
+    {
+      "platform": "web",
+      "canal": "Midia paga",
+      "orders": 27
+    },
+    {
+      "platform": "app",
+      "canal": "Organico",
       "orders": 41
     },
     {
       "platform": "web",
       "canal": "Metasearch",
-      "orders": 42
+      "orders": 43
     },
     {
       "platform": "web",
-      "canal": "Midia paga",
-      "orders": 26
+      "canal": "Direto",
+      "orders": 5
     },
     {
-      "platform": "app",
+      "platform": "web",
       "canal": "Nao identificado",
-      "orders": 23
-    },
-    {
-      "platform": "web",
-      "canal": "Organico",
-      "orders": 20
+      "orders": 24
     },
     {
       "platform": "app",
@@ -1027,38 +1037,28 @@
     },
     {
       "platform": "app",
-      "canal": "Organico",
-      "orders": 39
-    },
-    {
-      "platform": "web",
       "canal": "Nao identificado",
-      "orders": 24
-    },
-    {
-      "platform": "web",
-      "canal": "Direto",
-      "orders": 5
-    },
-    {
-      "platform": "app",
-      "canal": "CRM",
-      "orders": 1
+      "orders": 25
     },
     {
       "platform": "web",
       "canal": "Outros",
       "orders": 1
+    },
+    {
+      "platform": "app",
+      "canal": "CRM",
+      "orders": 1
     }
   ],
   "erp": {
-    "orders": 0,
-    "subtotal": 0.0,
-    "taxas": 0.0,
-    "descontos": 0.0,
-    "revenue": 0.0,
-    "revenue_grand": 0.0,
-    "last_order_at": null,
-    "last_load_at": null
+    "orders": 224,
+    "subtotal": 266679.43,
+    "taxas": 37314.1,
+    "descontos": 5628.02,
+    "revenue": 298365.51,
+    "revenue_grand": 298365.51,
+    "last_order_at": "2026-08-31T04:36:56",
+    "last_load_at": "2026-08-31T07:40:15"
   }
 }
