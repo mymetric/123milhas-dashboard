@@ -23,11 +23,11 @@ function loginPage(showError) {
     box-shadow: 0 10px 40px rgba(0,0,0,.3); }
   .brand-bar { display:flex; align-items:center; justify-content:space-between; gap:16px;
     padding-bottom:18px; margin-bottom:22px; border-bottom:1px solid #e2e8f0; }
-  .brand-bar img.mm-logo { height:18px; width:auto; display:block; opacity:.88; }
+  .brand-bar img.mm-logo { height:22px; width:auto; display:block; opacity:.88; }
   .brand-bar .client-lockup { display:flex; align-items:center; gap:8px; }
-  .brand-bar img.client-logo { height:30px; width:30px; padding:3px; background:#fff;
-    border-radius:8px; box-shadow:0 0 0 1px #e2e8f0; display:block; flex:none; }
-  .brand-bar .client-name { font-size:13px; font-weight:600; color:#475569; white-space:nowrap; }
+  .brand-bar img.client-logo { height:36px; width:36px; padding:4px; background:#fff;
+    border-radius:9px; box-shadow:0 0 0 1px #e2e8f0; display:block; flex:none; }
+  .brand-bar .client-name { font-size:14px; font-weight:600; color:#475569; white-space:nowrap; }
   h1 { font-size:18px; margin:0 0 20px; color:#0f172a; }
   label { display:block; font-size:13px; color:#475569; margin-bottom:4px; }
   input { width:100%; padding:10px 12px; margin-bottom:14px; border:1px solid #cbd5e1;
