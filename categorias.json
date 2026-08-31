@@ -1,0 +1,57 @@
+{
+  "versao": 1,
+  "descricao": "Cadastro de categorias de trafego do dashboard. Cada categoria e uma lista ordenada de regras sobre origem (source) e midia (medium) da sessao do GA4. A primeira categoria com alguma regra que casa leva o par; o que nao casa cai em 'Outros'. Operadores: qualquer, eq, in (lista separada por virgula), contem, comeca, regex. Tudo case-insensitive. Editavel pelo botao 'categorias' no bloco 'Origem das vendas' — exporte o JSON de la e commite por cima deste arquivo pra valer pra todo mundo.",
+  "categorias": [
+    {
+      "nome": "Metasearch",
+      "cor": "#2a78d6",
+      "regras": [
+        { "medium": { "op": "eq", "valor": "metasearch" } }
+      ]
+    },
+    {
+      "nome": "Mídia paga",
+      "cor": "#eb6834",
+      "regras": [
+        { "medium": { "op": "in", "valor": "cpc, ppc, cpa, paid" } }
+      ]
+    },
+    {
+      "nome": "Orgânico",
+      "cor": "#1a9c6b",
+      "regras": [
+        { "medium": { "op": "in", "valor": "organic, organico" } }
+      ]
+    },
+    {
+      "nome": "Direto",
+      "cor": "#8b5cf6",
+      "regras": [
+        { "source": { "op": "eq", "valor": "(direct)" }, "medium": { "op": "eq", "valor": "(none)" } }
+      ]
+    },
+    {
+      "nome": "Push",
+      "cor": "#b8860b",
+      "regras": [
+        { "medium": { "op": "in", "valor": "push, notification" } }
+      ]
+    },
+    {
+      "nome": "CRM",
+      "cor": "#d1478f",
+      "regras": [
+        { "medium": { "op": "in", "valor": "email, email_marketing, sms, chat, radar, botaorecompra, botaocta, botao_comprar" } }
+      ]
+    },
+    {
+      "nome": "Referral",
+      "cor": "#0f766e",
+      "regras": [
+        { "medium": { "op": "eq", "valor": "referral" } }
+      ]
+    }
+  ],
+  "outros": { "nome": "Outros", "cor": "#898781" },
+  "sem_origem": { "nome": "Sem origem", "cor": "#c3c2b7" }
+}

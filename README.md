@@ -16,6 +16,7 @@ Deploy simples via Vercel (import do repo, sem build step / sem configuração).
 - `data.json` — série diária por plataforma (ERP) + bloco de origem
 - `intraday.json` — por hora de hoje/ontem/semana passada + origem do dia
 - `pedidos.csv` — 1 linha por pedido, 30 dias, com valor decomposto e atribuição
+- `categorias.json` — cadastro de categorias de tráfego (origem × mídia)
 - `cron/` — cópia versionada do script que roda no droplet
 - `query.sql` — query de referência usada para gerar a série diária
 - `refresh_data.py` — gera os dois arquivos a partir do BigQuery
@@ -97,11 +98,55 @@ no Python, por agregado.
 Essa tabela **só acumula, nunca é truncada**: o export do GA4 é apagado depois
 de ~36 dias, então ela é o único registro histórico de origem que sobra.
 
+Como o dashboard reclassifica a origem por conta própria (ver "Categorias de
+tráfego"), o `intraday.json` carrega `source`/`medium` crus junto com o canal —
+sem eles a aba Intraday ficaria presa na taxonomia do BigQuery.
+
 O bloco de origem no dashboard não mostra o volume do GA4: mostra o volume do
 **ERP**, rateado pela participação de cada canal medida no GA4 naquele mesmo
 dia e plataforma. Assim ele fecha exatamente com os totais do topo. Dia sem
 base suficiente no GA4 (menos de 20 pedidos) aparece como "Sem origem" em vez
 de ser rateado em cima de ruído.
+
+
+## Categorias de tráfego (`categorias.json`)
+
+O `canal` que vem do BigQuery é só o **padrão de fábrica**. Quem manda no
+dashboard é o `categorias.json`: uma lista **ordenada** de categorias, cada uma
+com regras que combinam **origem** (`source`) e **mídia** (`medium`) da sessão.
+
+```json
+{ "nome": "Mídia paga", "cor": "#eb6834",
+  "regras": [ { "medium": { "op": "in", "valor": "cpc, ppc, cpa, paid" } } ] }
+```
+
+- uma regra pode ter as duas condições (valem juntas, é um E) ou só uma;
+- vale a **primeira** categoria de cima para baixo com alguma regra que casa —
+  por isso a ordem importa, e o botão ▲ do editor é o que resolve conflito;
+- operadores: `qualquer`, `eq`, `in` (lista separada por vírgula), `contem`,
+  `comeca`, `regex`. Tudo sem diferenciar maiúscula de minúscula;
+- o que não casa com ninguém cai em **Outros**;
+- **Sem origem** fica fora das regras de propósito: é o pedido que nenhuma rota
+  de atribuição resolveu, e é ele que faz o bloco fechar com o total do ERP.
+  Uma regra larga engolindo ele quebraria essa conta.
+
+O cadastro vale para o bloco "Origem das vendas" (ranking, tabela origem/mídia,
+timelines com filtro ligado), para a aba **Pedidos** (as colunas de categoria
+saem de origem/mídia, não da coluna `canal_*` do CSV) e para a aba **Intraday**.
+
+**Editando pelo dashboard:** botão `categorias` no bloco "Origem das vendas".
+Cada regra mostra quantos pedidos ela captura no recorte aberto, e a lista
+"Não classificados" embaixo é a fila de trabalho — todo par de origem/mídia que
+ainda cai em "Outros", do maior para o menor, com um clique para classificar.
+
+**Onde a edição fica salva:** no `localStorage` do navegador de quem editou.
+Para virar o padrão de todo mundo, use **exportar JSON** e commite o arquivo por
+cima de `categorias.json`. Enquanto o navegador tiver cadastro próprio, o rodapé
+do editor avisa; **restaurar padrão** + salvar apaga a cópia local e volta a
+seguir o arquivo do repo.
+
+Os defaults do arquivo reproduzem exatamente a taxonomia que o BigQuery já
+aplicava — instalar isso não mexeu em nenhum número.
 
 ## Como o faturamento é calculado (e por que não é o `grand_total`)
 

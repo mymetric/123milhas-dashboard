@@ -608,6 +608,10 @@ def gen_intraday(creds, anterior=None):
 
     # origem do dia: a tabela intraday do GA4 nao traz o traffic source resolvido,
     # entao ele e reconstruido a partir do session_start da propria sessao.
+    #
+    # O source/medium sai cru junto com o canal: o dashboard recategoriza por
+    # conta propria (categorias.json), e o CASE abaixo e so o padrao de fabrica
+    # -- sem os dois campos, a aba Intraday ficaria presa nesta taxonomia.
     origem = bq_query(creds, f"""
     WITH compras AS (
       SELECT * EXCEPT(rn) FROM (
@@ -633,6 +637,8 @@ def gen_intraday(creds, anterior=None):
     )
     SELECT
       c.plataforma,
+      COALESCE(s.source, "(sem origem)") AS source,
+      COALESCE(s.medium, "(sem origem)") AS medium,
       CASE
         WHEN s.tem_gclid THEN "Midia paga"
         WHEN s.medium = "metasearch" THEN "Metasearch"
@@ -649,7 +655,7 @@ def gen_intraday(creds, anterior=None):
       COUNT(DISTINCT c.tid) AS pedidos
     FROM compras c
     LEFT JOIN sessoes s ON s.user_pseudo_id = c.user_pseudo_id AND s.sid = c.sid
-    GROUP BY 1, 2
+    GROUP BY 1, 2, 3, 4
     """)
 
     return {
@@ -662,7 +668,9 @@ def gen_intraday(creds, anterior=None):
         "current_hour": agora.hour,
         "hours": list(range(24)),
         "series": series,
-        "origin": [{"platform": r["plataforma"], "canal": r["canal"], "orders": int(r["pedidos"])}
+        "origin": [{"platform": r["plataforma"], "canal": r["canal"],
+                    "source": r["source"], "medium": r["medium"],
+                    "orders": int(r["pedidos"])}
                    for r in origem],
         "erp": {
             "orders": int(erp["pedidos"]) if erp.get("pedidos") else 0,

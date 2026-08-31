@@ -580,6 +580,106 @@
     padding-left: 18px;
   }
   .composicao .parcela.desconto .value { color: #e34948; }
+
+  /* ---- cadastro de categorias de trafego ---- */
+  .panel-acoes {
+    position: absolute; top: 18px; right: 18px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  dialog.cat-modal {
+    width: min(760px, calc(100vw - 32px));
+    max-height: min(86vh, 900px);
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface-1);
+    color: var(--text-primary);
+    font: inherit;
+    box-shadow: 0 24px 64px rgba(11,11,11,0.24);
+  }
+  dialog.cat-modal::backdrop { background: rgba(11,11,11,0.38); }
+  .cat-topo {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    padding: 20px 20px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cat-topo h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+  .cat-topo p { margin: 0; font-size: 12px; color: var(--text-muted); max-width: 60ch; line-height: 1.5; }
+  .cat-x {
+    background: none; border: 0; cursor: pointer; font: inherit; font-size: 20px;
+    line-height: 1; color: var(--text-muted); padding: 0 2px;
+  }
+  .cat-x:hover { color: var(--text-primary); }
+  .cat-corpo { padding: 16px 20px; overflow-y: auto; max-height: calc(86vh - 190px); }
+  /* recebe o foco so pra abertura do modal nao cair no "x" — nao e um controle */
+  .cat-corpo:focus { outline: none; }
+  .cat-card {
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 10px; background: var(--page-plane);
+  }
+  .cat-card-topo { display: flex; align-items: center; gap: 8px; }
+  .cat-card-topo input[type=color] {
+    width: 26px; height: 26px; padding: 0; border: 1px solid var(--border);
+    border-radius: 6px; background: none; cursor: pointer; flex: none;
+  }
+  .cat-card-topo input[type=text] {
+    flex: 1 1 auto; min-width: 0; font: inherit; font-size: 14px; font-weight: 600;
+    padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px;
+    background: var(--surface-1); color: var(--text-primary);
+  }
+  .cat-card-topo .cat-total { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+  .cat-icone {
+    background: none; border: 0; cursor: pointer; font: inherit; font-size: 13px;
+    color: var(--text-muted); padding: 2px 4px; border-radius: 4px;
+  }
+  .cat-icone:hover { color: var(--text-primary); background: var(--surface-1); }
+  .cat-icone[disabled] { opacity: .3; cursor: default; }
+  .cat-regras { margin: 8px 0 0; display: flex; flex-direction: column; gap: 6px; }
+  .cat-regra {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+    font-size: 12px; color: var(--text-secondary);
+  }
+  .cat-regra select, .cat-regra input[type=text] {
+    font: inherit; font-size: 12px; padding: 4px 6px;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--surface-1); color: var(--text-primary);
+  }
+  .cat-cond { display: inline-flex; align-items: center; gap: 6px; }
+  .cat-regra input[type=text] { width: 165px; }
+  .cat-regra input[type=text][hidden] { display: none; }
+  .cat-regra .cat-e { color: var(--text-muted); }
+  .cat-regra .cat-hits { margin-left: auto; color: var(--text-muted); white-space: nowrap; }
+  .cat-add {
+    background: none; border: 1px dashed var(--baseline); border-radius: 8px;
+    padding: 6px 10px; cursor: pointer; font: inherit; font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .cat-add:hover { border-color: var(--text-muted); color: var(--text-primary); }
+  .cat-orfaos { margin-top: 6px; }
+  .cat-orfao {
+    display: flex; align-items: center; gap: 10px; font-size: 12px;
+    padding: 5px 0; border-bottom: 1px solid var(--border);
+  }
+  .cat-orfao .cat-par { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cat-orfao .cat-qtd { color: var(--text-muted); white-space: nowrap; }
+  .cat-orfao select { font: inherit; font-size: 12px; padding: 3px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-1); }
+  .cat-rodape {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 12px 20px; border-top: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .cat-rodape .cat-acoes { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+  .cat-aviso { font-size: 12px; color: var(--text-muted); }
+  .cat-aviso.erro { color: var(--down); }
+  .btn-pri, .btn-sec {
+    font: inherit; font-size: 13px; font-weight: 600; padding: 7px 14px;
+    border-radius: 8px; cursor: pointer; border: 1px solid var(--border);
+  }
+  .btn-pri { background: var(--text-primary); color: #fff; border-color: var(--text-primary); }
+  .btn-sec { background: var(--surface-1); color: var(--text-secondary); }
+  @media (max-width: 620px) {
+    .cat-regra input[type=text] { width: 100%; }
+    .cat-regra .cat-hits { margin-left: 0; }
+  }
   @media (max-width: 720px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
     .intraday-stats { grid-template-columns: repeat(1, 1fr); }
@@ -702,7 +802,10 @@
   <div class="panel" id="originPanel">
     <h2>Origem das vendas</h2>
     <p class="panel-sub" id="originSub">De onde vem a sessão que terminou em pedido</p>
-    <button type="button" class="baixar" id="baixarCanal">baixar CSV</button>
+    <div class="panel-acoes">
+      <button type="button" class="baixar" id="abrirCategorias">categorias</button>
+      <button type="button" class="baixar" id="baixarCanal">baixar CSV</button>
+    </div>
     <div class="rank" id="originRank"></div>
     <div class="mini-serie" id="semOrigemWrap"
          title="Fatia dos pedidos do dia que nenhuma rota de atribuição resolveu. Segue o modelo e a plataforma, não o filtro de canal. A média conta só os dias já fechados.">
@@ -722,7 +825,7 @@
     <div class="tabela-wrap">
       <table class="tabela" id="originTableSM">
         <thead><tr>
-          <th>Origem / mídia</th><th>Canal</th>
+          <th>Origem / mídia</th><th>Categoria</th>
           <th class="num">Pedidos</th><th class="num">%</th>
           <th class="num">Faturamento</th><th class="num">Ticket médio</th>
         </tr></thead>
@@ -796,7 +899,7 @@
         </div>
       </div>
       <div class="filtro">
-        <span class="filtro-label">Canal (último clique)</span>
+        <span class="filtro-label">Categoria (último clique)</span>
         <div class="seg" id="pedCanalWrap"><select id="pedCanal"></select></div>
       </div>
       <div class="filtro">
@@ -817,8 +920,8 @@
             <th>Pedido</th><th>Data</th><th>Plat.</th>
             <th class="num">Subtotal</th><th class="num">Taxas</th>
             <th class="num">Descontos</th><th class="num">Faturamento</th>
-            <th>Canal último</th><th>Origem / mídia último</th>
-            <th>Canal primeiro</th><th>Origem / mídia primeiro</th>
+            <th>Categoria último</th><th>Origem / mídia último</th>
+            <th>Categoria primeiro</th><th>Origem / mídia primeiro</th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -826,6 +929,36 @@
       <p class="origin-note" id="pedidosNota"></p>
     </div>
   </div>
+
+  <dialog class="cat-modal" id="catModal" aria-labelledby="catTitulo">
+    <div class="cat-topo">
+      <div>
+        <h3 id="catTitulo">Categorias de tráfego</h3>
+        <p>Cada categoria é uma lista de regras sobre <b>origem</b> (source) e <b>mídia</b> (medium) —
+           as duas valem juntas na mesma regra. Vale a primeira categoria de cima para baixo que casa;
+           o que não casa com ninguém cai em “Outros”. Os números do lado são os pedidos do recorte
+           aberto agora.</p>
+      </div>
+      <button type="button" class="cat-x" id="catFechar" title="fechar">&times;</button>
+    </div>
+    <div class="cat-corpo" tabindex="-1" autofocus>
+      <div id="catLista"></div>
+      <button type="button" class="cat-add" id="catNova">+ nova categoria</button>
+      <div class="rank-split"><span>Não classificados (caem em “Outros”)</span></div>
+      <div class="cat-orfaos" id="catOrfaos"></div>
+    </div>
+    <div class="cat-rodape">
+      <span class="cat-aviso" id="catAviso"></span>
+      <span class="cat-acoes">
+        <button type="button" class="baixar" id="catExportar">exportar JSON</button>
+        <button type="button" class="baixar" id="catImportar">importar JSON</button>
+        <button type="button" class="baixar" id="catPadrao">restaurar padrão</button>
+        <button type="button" class="btn-sec" id="catCancelar">cancelar</button>
+        <button type="button" class="btn-pri" id="catSalvar">salvar</button>
+      </span>
+    </div>
+    <input type="file" id="catArquivoInput" accept="application/json,.json" hidden>
+  </dialog>
 
   <footer>Gerado a partir de dados reais do BigQuery. Veja o README para instruções de atualização do data.json.</footer>
 </div>
@@ -893,9 +1026,13 @@ function recorteSalvo(period) {
 // no-store nos dois snapshots: o cron reescreve data.json/intraday.json de 10 em
 // 10 minutos, e o browser servindo uma copia velha nao so mostra numero
 // desatualizado como pode misturar um JSON antigo com um index.html novo.
-fetch('data.json', { cache: 'no-store' })
-  .then(r => r.json())
-  .then(data => {
+// O cadastro de categorias entra junto com o snapshot: se o render viesse
+// antes, a tela pintaria com a taxonomia padrao e trocaria de categoria na
+// frente do usuario um instante depois.
+const CATS_PRONTAS = carregaCategorias();
+
+Promise.all([fetch('data.json', { cache: 'no-store' }).then(r => r.json()), CATS_PRONTAS])
+  .then(([data]) => {
     fullData = data;
     document.getElementById('dateFrom').min = data.period.start;
     document.getElementById('dateFrom').max = data.period.end;
@@ -1231,17 +1368,14 @@ function render(data) {
 // --------------------------------------------------------------------------
 const PEDIDOS_PREVIEW = 200;
 
-// mesma regra de nome do bloco de origem: "Nao identificado" vira "Sem origem",
-// canal fora da lista vira "Outros"
-const rotulaCanal = (c) => c ? (LABEL_CANAL[normalizaCanal(c)] || normalizaCanal(c)) : 'Sem origem';
+// mesma regra do bloco de origem: a categoria sai do cadastro (origem + midia),
+// nao da coluna `canal_*` do CSV -- senao a aba Pedidos discordaria da Visao geral
 const smPedido = (s, m) => [s, m].filter(v => v && v !== '(not set)').join(' / ') || '—';
 // '(not set)' e vazio sao coisas diferentes na origem, entao a chave usa os valores
 // crus: o rotulo colapsa os dois em '—', a chave nao.
 const chaveSM = (s, m) => `${s || ''}\u241f${m || ''}`;
-const canalDoPedido = (p) => p.canal_ultimo || '(sem canal)';
-// '(sem canal)' e sentinela do filtro, nao um canal: sem isto ele cairia em
-// "Outros" pelo normalizaCanal e o seletor discordaria da celula da tabela.
-const rotulaCanalFiltro = (c) => c === '(sem canal)' ? 'Sem origem' : rotulaCanal(c);
+const canalDoPedido = (p) => categoriaDe(p.origem_ultimo, p.midia_ultimo);
+const canalPrimeiroDoPedido = (p) => categoriaDe(p.origem_primeiro, p.midia_primeiro);
 let pedidosTodos = null, pedidosCarregando = false, pedidosRecorte = null;
 
 function parseCSV(texto) {
@@ -1292,12 +1426,7 @@ function carregaPedidos() {
       document.getElementById('pedTo').value = max;
       document.getElementById('pedFilterLabel').textContent = `${min} a ${max}`;
 
-      const canais = [...new Set(pedidosTodos.map(canalDoPedido))].sort();
-      const selCanal = document.getElementById('pedCanal');
-      selCanal.innerHTML = '';
-      selCanal.appendChild(new Option('Todos', ''));
-      // via DOM, nao innerHTML: canal/origem/midia sao texto livre do GA4
-      canais.forEach(c => selCanal.appendChild(new Option(rotulaCanalFiltro(c), c)));
+      montaSelectCanal();
       montaSelectSM();
       renderPedidos();
     })
@@ -1305,6 +1434,20 @@ function carregaPedidos() {
       pedidosCarregando = false;
       document.getElementById('pedidosNota').textContent = 'Falha ao carregar pedidos.csv: ' + err;
     });
+}
+
+/** O seletor de categoria e remontado do zero quando o cadastro muda: categoria
+ *  renomeada ou apagada nao pode continuar de pe na lista. A selecao atual so
+ *  sobrevive se o nome ainda existir. */
+function montaSelectCanal() {
+  const sel = document.getElementById('pedCanal');
+  const anterior = sel.value;
+  const canais = [...new Set(pedidosTodos.map(canalDoPedido))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  sel.innerHTML = '';
+  sel.appendChild(new Option('Todos', ''));
+  // via DOM, nao innerHTML: categoria/origem/midia sao texto livre
+  canais.forEach(c => sel.appendChild(new Option(c, c)));
+  sel.value = canais.includes(anterior) ? anterior : '';
 }
 
 /** As opcoes de origem/midia acompanham o canal selecionado: com um canal
@@ -1382,9 +1525,9 @@ function renderPedidos() {
       <td class="num">${fmtBRL(p.taxas)}</td>
       <td class="num">${fmtBRL(p.descontos)}</td>
       <td class="num">${fmtBRL(p.faturamento)}</td>
-      <td class="clicavel" data-canal="${esc(canalDoPedido(p))}" title="filtrar por este canal"><span>${esc(rotulaCanal(p.canal_ultimo))}</span></td>
+      <td class="clicavel" data-canal="${esc(canalDoPedido(p))}" title="filtrar por esta categoria"><span>${esc(canalDoPedido(p))}</span></td>
       <td class="clicavel" data-sm="${esc(chaveSM(p.origem_ultimo, p.midia_ultimo))}" title="filtrar por esta origem / mídia"><span>${esc(sm(p.origem_ultimo, p.midia_ultimo))}</span></td>
-      <td>${esc(rotulaCanal(p.canal_primeiro))}</td>
+      <td>${esc(canalPrimeiroDoPedido(p))}</td>
       <td>${esc(sm(p.origem_primeiro, p.midia_primeiro))}</td>
     </tr>`).join('');
 
@@ -1471,11 +1614,11 @@ document.getElementById('baixarPedidos').addEventListener('click', () => {
     { titulo: 'Taxas',             valor: p => p.taxas },
     { titulo: 'Descontos',         valor: p => p.descontos },
     { titulo: 'Faturamento',       valor: p => p.faturamento },
-    { titulo: 'Canal ultimo',      valor: p => rotulaCanal(p.canal_ultimo) },
+    { titulo: 'Categoria ultimo',  valor: p => canalDoPedido(p) },
     { titulo: 'Origem ultimo',     valor: p => p.origem_ultimo },
     { titulo: 'Midia ultimo',      valor: p => p.midia_ultimo },
     { titulo: 'Campanha ultimo',   valor: p => p.campanha_ultimo },
-    { titulo: 'Canal primeiro',    valor: p => rotulaCanal(p.canal_primeiro) },
+    { titulo: 'Categoria primeiro', valor: p => canalPrimeiroDoPedido(p) },
     { titulo: 'Origem primeiro',   valor: p => p.origem_primeiro },
     { titulo: 'Midia primeiro',    valor: p => p.midia_primeiro },
     { titulo: 'Campanha primeiro', valor: p => p.campanha_primeiro },
@@ -1515,27 +1658,172 @@ function sufixoRecorte(data) {
   return `${modelo} ${originPlatform}${filtro} ${data.period.start} a ${data.period.end}`;
 }
 
-// ---------------- Origem ----------------
-// Ordem fixa: um canal tem sempre a mesma cor, mesmo que suma do recorte.
-// Tudo que não está nesta lista cai em "Outros"; "Sem origem" é o pedido que o
-// GA4 não viu (ou viu sem fonte), e fica em cinza porque não é um canal.
-const CANAIS = [
-  { nome: 'Metasearch',  cor: '#2a78d6' },
-  { nome: 'Midia paga',  cor: '#eb6834', label: 'Mídia paga' },
-  { nome: 'Organico',    cor: '#1a9c6b', label: 'Orgânico' },
-  { nome: 'Direto',      cor: '#8b5cf6' },
-  { nome: 'Push',        cor: '#b8860b' },
-  { nome: 'CRM',         cor: '#d1478f' },
-  { nome: 'Outros',      cor: '#898781' },
-  { nome: 'Sem origem',  cor: '#c3c2b7' }
+// ---------------- Origem: cadastro de categorias de trafego ----------------
+// A coluna `canal` que vem do BigQuery e so o padrao de fabrica. Quem manda no
+// dashboard e este cadastro: uma lista ORDENADA de categorias, cada uma com
+// regras que combinam origem (source) e midia (medium). A primeira categoria
+// com alguma regra que casa leva o par; o que nao casa cai em "Outros".
+//
+// Base versionada em `categorias.json` (vale pra todo mundo). O botao
+// "categorias" no bloco de origem edita isso no proprio dashboard e guarda no
+// localStorage do navegador -- pra virar padrao do time, exporte o JSON de la e
+// commite por cima do arquivo.
+const CAT_CHAVE = '123m:categorias:v1';
+const CAT_OPS = [
+  { id: 'qualquer', label: 'qualquer' },
+  { id: 'eq',       label: 'é' },
+  { id: 'in',       label: 'é um de' },
+  { id: 'contem',   label: 'contém' },
+  { id: 'comeca',   label: 'começa com' },
+  { id: 'regex',    label: 'regex' }
 ];
-const COR_CANAL = Object.fromEntries(CANAIS.map(c => [c.nome, c.cor]));
-const LABEL_CANAL = Object.fromEntries(CANAIS.map(c => [c.nome, c.label || c.nome]));
-const CONHECIDOS = new Set(CANAIS.map(c => c.nome));
+// Fallback se o categorias.json nao vier (404 num deploy antigo): a mesma
+// taxonomia que o BigQuery ja aplicava, pra tela nunca abrir sem categoria.
+const CAT_PADRAO = {
+  versao: 1,
+  categorias: [
+    { nome: 'Metasearch',  cor: '#2a78d6', regras: [{ medium: { op: 'eq', valor: 'metasearch' } }] },
+    { nome: 'Mídia paga',  cor: '#eb6834', regras: [{ medium: { op: 'in', valor: 'cpc, ppc, cpa, paid' } }] },
+    { nome: 'Orgânico',    cor: '#1a9c6b', regras: [{ medium: { op: 'in', valor: 'organic, organico' } }] },
+    { nome: 'Direto',      cor: '#8b5cf6', regras: [{ source: { op: 'eq', valor: '(direct)' },
+                                                      medium: { op: 'eq', valor: '(none)' } }] },
+    { nome: 'Push',        cor: '#b8860b', regras: [{ medium: { op: 'in', valor: 'push, notification' } }] },
+    { nome: 'CRM',         cor: '#d1478f', regras: [{ medium: { op: 'in', valor: 'email, email_marketing, sms, chat, radar, botaorecompra, botaocta, botao_comprar' } }] },
+    { nome: 'Referral',    cor: '#0f766e', regras: [{ medium: { op: 'eq', valor: 'referral' } }] }
+  ],
+  outros: { nome: 'Outros', cor: '#898781' },
+  sem_origem: { nome: 'Sem origem', cor: '#c3c2b7' }
+};
 
-function normalizaCanal(canal) {
-  if (canal === 'Nao identificado' || canal === 'Sem dado de origem') return 'Sem origem';
-  return CONHECIDOS.has(canal) ? canal : 'Outros';
+const clonaCat = (o) => JSON.parse(JSON.stringify(o));
+
+// "Sem origem" nao e categoria: e o pedido que nenhuma rota de atribuicao
+// resolveu. Fica fora das regras de proposito -- se entrasse, uma regra larga
+// engoliria ele e o bloco pararia de fechar com o total do ERP.
+const ehSemOrigem = (s) => {
+  const v = String(s ?? '').trim().toLowerCase();
+  return v === '' || v === '(sem origem)' || v === '(no data)';
+};
+
+function preparaCond(c) {
+  if (!c || !c.op || c.op === 'qualquer') return null;
+  const op = CAT_OPS.some(o => o.id === c.op) ? c.op : 'eq';
+  const valor = String(c.valor ?? '');
+  if (op === 'in') {
+    return { op, valor, lista: valor.split(',').map(v => v.trim().toLowerCase()).filter(Boolean) };
+  }
+  if (op === 'regex') {
+    try { return { op, valor, re: new RegExp(valor, 'i') }; } catch (e) { return null; }
+  }
+  return { op, valor, alvo: valor.trim().toLowerCase() };
+}
+
+function preparaCats(raw) {
+  const sem = { nome: (raw.sem_origem && raw.sem_origem.nome) || 'Sem origem',
+                cor: (raw.sem_origem && raw.sem_origem.cor) || '#c3c2b7' };
+  const outros = { nome: (raw.outros && raw.outros.nome) || 'Outros',
+                   cor: (raw.outros && raw.outros.cor) || '#898781' };
+  const categorias = (raw.categorias || []).map(c => ({
+    nome: String(c.nome ?? '').trim() || 'Sem nome',
+    cor: /^#[0-9a-f]{6}$/i.test(String(c.cor || '')) ? c.cor : '#898781',
+    regras: (c.regras || []).map(r => ({ source: preparaCond(r.source), medium: preparaCond(r.medium) }))
+  }));
+  const cores = {};
+  categorias.forEach(c => { cores[c.nome] = c.cor; });
+  cores[outros.nome] = outros.cor;
+  cores[sem.nome] = sem.cor;
+  return { categorias, outros, semOrigem: sem, cores, raw: clonaCat(raw) };
+}
+
+function condCasa(cond, valor) {
+  if (!cond) return true;
+  const v = String(valor ?? '').trim().toLowerCase();
+  switch (cond.op) {
+    case 'eq':     return v === cond.alvo;
+    case 'in':     return cond.lista.includes(v);
+    case 'contem': return cond.alvo !== '' && v.includes(cond.alvo);
+    case 'comeca': return cond.alvo !== '' && v.startsWith(cond.alvo);
+    case 'regex':  return cond.re.test(v);
+  }
+  return true;
+}
+
+// Regra com as duas condicoes em "qualquer" pegaria o dado inteiro -- quase
+// sempre e uma regra que a pessoa comecou a escrever e nao terminou, entao ela
+// nao casa com nada em vez de sequestrar todo o resto do cadastro.
+const regraVazia = (r) => !r.source && !r.medium;
+
+/** Retorna { nome, cat, regra } -- cat/regra sao os indices que capturaram o
+ *  par (-1 quando caiu em "Sem origem" ou em "Outros"), e e isso que alimenta
+ *  as contagens por regra do editor. */
+function achaCategoria(source, medium, cats) {
+  if (ehSemOrigem(source)) return { nome: cats.semOrigem.nome, cat: -1, regra: -1 };
+  for (let i = 0; i < cats.categorias.length; i++) {
+    const regras = cats.categorias[i].regras;
+    for (let j = 0; j < regras.length; j++) {
+      const r = regras[j];
+      if (regraVazia(r)) continue;
+      if (condCasa(r.source, source) && condCasa(r.medium, medium)) {
+        return { nome: cats.categorias[i].nome, cat: i, regra: j };
+      }
+    }
+  }
+  return { nome: cats.outros.nome, cat: -1, regra: -1 };
+}
+
+let CATS = preparaCats(CAT_PADRAO);
+let catArquivo = CAT_PADRAO;      // o que veio do categorias.json, pro "restaurar padrão"
+let catCustomizado = false;       // true quando o navegador tem cadastro proprio salvo
+const catCache = new Map();       // (source, medium) -> nome; sao ~50 pares, o dado e grande
+
+function categoriaDe(source, medium) {
+  const k = `${source ?? ''}\u241f${medium ?? ''}`;
+  let nome = catCache.get(k);
+  if (nome === undefined) { nome = achaCategoria(source, medium, CATS).nome; catCache.set(k, nome); }
+  return nome;
+}
+
+const corCat = (nome) => CATS.cores[nome] || '#898781';
+const nomesCats = () => CATS.categorias.map(c => c.nome).concat([CATS.outros.nome, CATS.semOrigem.nome]);
+
+// A aba Intraday (e qualquer linha antiga do snapshot) so traz o canal ja
+// resolvido pelo BigQuery, sem source/medium: aqui ele vira o nome equivalente
+// do cadastro. Nome que o cadastro nao conhece mais cai em "Outros".
+const CANAL_LEGADO = {
+  'Midia paga': 'Mídia paga', 'Organico': 'Orgânico',
+  'Nao identificado': 'Sem origem', 'Sem dado de origem': 'Sem origem'
+};
+function categoriaLegada(canal) {
+  const n = CANAL_LEGADO[canal] || canal || '';
+  if (!n || n === 'Sem origem') return CATS.semOrigem.nome;
+  return CATS.categorias.some(c => c.nome === n) ? n : CATS.outros.nome;
+}
+
+/** Categoria de uma linha do snapshot de origem: usa source/medium quando eles
+ *  existem (data.json) e cai no canal ja resolvido quando nao (intraday.json). */
+const categoriaDaLinha = (r) => r.source !== undefined
+  ? categoriaDe(r.source, r.medium)
+  : categoriaLegada(r.canal);
+
+function aplicaCats(raw) {
+  CATS = preparaCats(raw);
+  catCache.clear();
+}
+
+/** Base do cadastro: o categorias.json versionado, com o que o navegador tiver
+ *  salvo por cima. O boot espera essa promise antes do primeiro render -- sem
+ *  isso a tela pinta com o padrao e troca de categoria na frente do usuario. */
+function carregaCategorias() {
+  return fetch('categorias.json', { cache: 'no-store' })
+    .then(r => (r.ok ? r.json() : null))
+    .catch(() => null)
+    .then(j => {
+      if (j && Array.isArray(j.categorias)) catArquivo = j;
+      let salvo = null;
+      try { salvo = JSON.parse(localStorage.getItem(CAT_CHAVE) || 'null'); } catch (e) { salvo = null; }
+      catCustomizado = !!(salvo && Array.isArray(salvo.categorias));
+      aplicaCats(catCustomizado ? salvo : catArquivo);
+    });
 }
 
 // Origem e midia vem do GA4 como texto livre: escapa antes de entrar em HTML,
@@ -1551,7 +1839,7 @@ let originFiltro = { canal: null, source: null, medium: null };
 const temFiltroOrigin = () => !!(originFiltro.canal || originFiltro.source !== null);
 
 function casaFiltroOrigin(r) {
-  if (originFiltro.canal && normalizaCanal(r.canal) !== originFiltro.canal) return false;
+  if (originFiltro.canal && categoriaDaLinha(r) !== originFiltro.canal) return false;
   if (originFiltro.source !== null && r.source !== originFiltro.source) return false;
   if (originFiltro.medium !== null && r.medium !== originFiltro.medium) return false;
   return true;
@@ -1572,7 +1860,7 @@ function setFiltroOrigin(patch) {
 const rotuloSM = (s, m) => `${s} / ${m}`;
 const nomeDoFiltroOrigin = () => originFiltro.source !== null
   ? rotuloSM(originFiltro.source, originFiltro.medium)
-  : (LABEL_CANAL[originFiltro.canal] || originFiltro.canal);
+  : originFiltro.canal;
 
 /** Chips na barra suspensa: sao o unico lugar que diz "tem filtro ligado" quando
  *  o usuario ja rolou pra longe da tabela onde clicou. */
@@ -1584,8 +1872,8 @@ function renderChipsOrigin() {
   const partes = [];
   if (originFiltro.canal) {
     partes.push(`<span class="chip" data-limpa="tudo">
-      <span class="swatch" style="background:${COR_CANAL[originFiltro.canal] || '#898781'}"></span>
-      <span class="rotulo">${esc(LABEL_CANAL[originFiltro.canal] || originFiltro.canal)}</span>
+      <span class="swatch" style="background:${corCat(originFiltro.canal)}"></span>
+      <span class="rotulo">${esc(originFiltro.canal)}</span>
       <button type="button" title="remover filtro de canal">&times;</button></span>`);
   }
   if (originFiltro.source !== null) {
@@ -1653,7 +1941,7 @@ document.getElementById('baixarCanal').addEventListener('click', () => {
   if (!exportaCanal) return;
   const { itens, total, data } = exportaCanal;
   baixaCSV(`123milhas canal ${sufixoRecorte(data)}`, [
-    { titulo: 'Canal',        valor: i => LABEL_CANAL[i.canal] || i.canal },
+    { titulo: 'Categoria',    valor: i => i.canal },
     { titulo: 'Pedidos',      valor: i => Math.round(i.valor) },
     { titulo: '% dos pedidos', valor: i => total ? +(i.valor / total * 100).toFixed(2) : 0 },
     { titulo: 'Faturamento',  valor: i => +i.receita.toFixed(2) },
@@ -1667,7 +1955,7 @@ document.getElementById('baixarSM').addEventListener('click', () => {
   baixaCSV(`123milhas origem-midia ${sufixoRecorte(data)}`, [
     { titulo: 'Origem',       valor: i => i.label.split(' / ')[0] },
     { titulo: 'Midia',        valor: i => i.label.split(' / ')[1] },
-    { titulo: 'Canal',        valor: i => LABEL_CANAL[i.canal] || i.canal },
+    { titulo: 'Categoria',    valor: i => i.canal },
     { titulo: 'Pedidos',      valor: i => Math.round(i.valor) },
     { titulo: '% dos pedidos', valor: i => total ? +(i.valor / total * 100).toFixed(2) : 0 },
     { titulo: 'Faturamento',  valor: i => +i.receita.toFixed(2) },
@@ -1723,7 +2011,7 @@ function renderRank(el, itens, total, formata, opts) {
   const { clicavel = false, selecionado = null } = opts || {};
   const max = itens.length ? itens[0].valor : 0;
   el.innerHTML = itens.map(i => {
-    const nome = i.label || LABEL_CANAL[i.canal] || i.canal;
+    const nome = i.label || i.canal;
     const cls = ['rank-row'];
     let attrs = '';
     if (clicavel) {
@@ -1735,11 +2023,11 @@ function renderRank(el, itens, total, formata, opts) {
     return `
     <div class="${cls.join(' ')}"${attrs}>
       <div class="rank-name">
-        <span class="swatch" style="background:${COR_CANAL[i.canal] || '#898781'}"></span>
+        <span class="swatch" style="background:${corCat(i.canal)}"></span>
         <span>${esc(nome)}</span>
       </div>
       <div class="rank-track">
-        <div class="rank-bar" style="width:${max ? (i.valor / max * 100) : 0}%;background:${COR_CANAL[i.canal] || '#898781'}"></div>
+        <div class="rank-bar" style="width:${max ? (i.valor / max * 100) : 0}%;background:${corCat(i.canal)}"></div>
       </div>
       <div class="rank-val"><b>${formata(i.valor)}</b> · ${total ? (i.valor / total * 100).toFixed(1) : '0.0'}%</div>
     </div>`;
@@ -1786,12 +2074,16 @@ function renderOrigin(data) {
 
   montaSeletorModelo(data.origin.models || [{ id: 'last', label: 'Último clique' }]);
   const doModelo = r => (r.modelo || 'last') === originModelo;
-  const linhas = data.origin.rows.filter(doModelo)
+  // O ranking sai das linhas com source/medium, nao do agregado por canal: a
+  // categoria e recalculada aqui a cada render, a partir do cadastro. Os dois
+  // blocos somam o mesmo total, entao nada muda no numero -- so na classificacao.
+  const base = (data.origin.rows_sm || []).length ? data.origin.rows_sm : data.origin.rows;
+  const linhas = base.filter(doModelo)
     .filter(r => originPlatform === 'total' || r.platform === originPlatform);
 
   const porCanal = {};
   linhas.forEach(r => {
-    const c = normalizaCanal(r.canal);
+    const c = categoriaDaLinha(r);
     porCanal[c] = porCanal[c] || { pedidos: 0, receita: 0 };
     porCanal[c].pedidos += r.orders;
     porCanal[c].receita += r.revenue;
@@ -1806,7 +2098,7 @@ function renderOrigin(data) {
   renderChipsOrigin();
   document.getElementById('originSub').textContent =
     `De onde vem a sessão que terminou em pedido — ${data.period.start} a ${data.period.end} · ` +
-    'clique num canal ou numa linha da tabela para filtrar';
+    'clique numa categoria ou numa linha da tabela para filtrar';
   renderRank(document.getElementById('originRank'), itens, total, v => fmtInt(Math.round(v)),
              { clicavel: true, selecionado: originFiltro.canal });
 
@@ -1819,7 +2111,7 @@ function renderOrigin(data) {
   linhas.forEach(r => {
     const d = porDia[r.date] = porDia[r.date] || { total: 0, sem: 0 };
     d.total += r.orders;
-    if (normalizaCanal(r.canal) === 'Sem origem') d.sem += r.orders;
+    if (categoriaDaLinha(r) === CATS.semOrigem.nome) d.sem += r.orders;
   });
   // O bloco de origem sempre fecha com o total do ERP do dia -- o que nenhuma rota
   // resolveu vira "Sem origem". Quando NAO fecha, o dia ainda esta sendo carregado
@@ -1927,12 +2219,12 @@ function renderOrigin(data) {
     // O canal selecionado define o ESCOPO da tabela; o par selecionado so marca a
     // linha. Assim da pra trocar de par (ou de canal) sem ter que limpar antes.
     const escopo = linhasSM.filter(r =>
-      !originFiltro.canal || normalizaCanal(r.canal) === originFiltro.canal);
+      !originFiltro.canal || categoriaDe(r.source, r.medium) === originFiltro.canal);
     const porSM = {};
     escopo.forEach(r => {
       const k = `${r.source}\u241f${r.medium}`;   // separador que nao aparece no dado
       porSM[k] = porSM[k] || {
-        label: rotuloSM(r.source, r.medium), canal: normalizaCanal(r.canal),
+        label: rotuloSM(r.source, r.medium), canal: categoriaDe(r.source, r.medium),
         source: r.source, medium: r.medium, pedidos: 0, receita: 0
       };
       porSM[k].pedidos += r.orders;
@@ -1970,7 +2262,7 @@ function renderOrigin(data) {
       return `
       <tr class="${cls.join(' ')}"${attrs}>
         <td>${esc(i.label)}</td>
-        <td><span class="canal-cel"><span class="swatch" style="background:${COR_CANAL[i.canal] || '#898781'}"></span>${esc(LABEL_CANAL[i.canal] || i.canal)}</span></td>
+        <td><span class="canal-cel"><span class="swatch" style="background:${corCat(i.canal)}"></span>${esc(i.canal)}</span></td>
         <td class="num">${fmtInt(Math.round(i.valor))}</td>
         <td class="num">${totalSM ? (i.valor / totalSM * 100).toFixed(1) : '0.0'}%</td>
         <td class="num">${fmtBRLCompact(i.receita)}</td>
@@ -1981,7 +2273,7 @@ function renderOrigin(data) {
     toggleSM.textContent = originSMTudo ? 'ver top 10' : `ver todos (${todos.length})`;
     // Com canal filtrado o % passa a ser dentro do canal — o cabecalho tem que dizer isso.
     document.querySelector('.rank-split > span').textContent = originFiltro.canal
-      ? `Origem / mídia · ${LABEL_CANAL[originFiltro.canal] || originFiltro.canal} (% dentro do canal)`
+      ? `Origem / mídia · ${originFiltro.canal} (% dentro da categoria)`
       : 'Origem / mídia';
   }
 
@@ -2004,7 +2296,7 @@ function renderOrigin(data) {
     `<b>${((data.origin.models || []).find(m => m.id === originModelo) || data.origin).match_pct}%</b> dos pedidos ` +
     `do ERP têm origem identificada neste modelo; o resto aparece como "Sem origem" — o bloco fecha com os números do topo. ` +
     `Disponível a partir de ${data.origin.start} — o export do GA4 só guarda ~36 dias. ` +
-    `Faturamento por canal: ${itens.map(i => `${LABEL_CANAL[i.canal] || i.canal} ${fmtBRLCompact(i.receita)}`).join(' · ')}.`;
+    `Faturamento por categoria: ${itens.map(i => `${i.canal} ${fmtBRLCompact(i.receita)}`).join(' · ')}.`;
 
 }
 
@@ -2024,15 +2316,17 @@ function compareBadge(now, before) {
   return `<span class="compare-badge ${up ? 'up' : 'down'}">${up ? '▲' : '▼'} ${Math.abs(pct).toFixed(1)}%</span>`;
 }
 
-fetch('intraday.json', { cache: 'no-store' })
-  .then(r => r.json())
-  .then(renderIntraday)
+Promise.all([fetch('intraday.json', { cache: 'no-store' }).then(r => r.json()), CATS_PRONTAS])
+  .then(([data]) => renderIntraday(data))
   .catch(err => {
     document.getElementById('intradayStats').innerHTML =
       '<p style="color:#e34948">Falha ao carregar intraday.json: ' + err + '</p>';
   });
 
+let intradayData = null;
+
 function renderIntraday(data) {
+  intradayData = data;
   const { hours, series, current_hour, today, yesterday, last_week, generated_at, erp, origin } = data;
   const cut = current_hour; // último índice com dado real de "hoje"
 
@@ -2079,7 +2373,7 @@ function renderIntraday(data) {
   if (origin && origin.length) {
     const porCanal = {};
     origin.forEach(r => {
-      const c = normalizaCanal(r.canal);
+      const c = categoriaDaLinha(r);
       porCanal[c] = (porCanal[c] || 0) + r.orders;
     });
     const itens = Object.entries(porCanal).map(([canal, valor]) => ({ canal, valor }))
@@ -2138,6 +2432,288 @@ function renderIntraday(data) {
     options: intradayBaseOptions(fmtBRLCompact)
   });
 }
+
+
+// ---------------- Editor do cadastro de categorias ----------------
+// Trabalha sempre num rascunho (catDraft, no formato cru do JSON): o cadastro
+// que esta valendo so troca no "salvar". Cada regra mostra quantos pedidos ela
+// captura no recorte aberto -- regra escrita no escuro e regra que ninguem
+// confere, e o "Nao classificados" embaixo e a lista de trabalho.
+let catDraft = null;
+const catModal = document.getElementById('catModal');
+
+/** Pares origem/midia do recorte que esta na tela, com volume. "Sem origem"
+ *  fica de fora: ele nao passa pelas regras. */
+function catPares() {
+  const d = originData || dadosVisiveis;
+  const rows = (d && d.origin && d.origin.rows_sm) || [];
+  const m = new Map();
+  rows.forEach(r => {
+    if ((r.modelo || 'last') !== originModelo) return;
+    if (ehSemOrigem(r.source)) return;
+    const k = `${r.source}\u241f${r.medium}`;
+    const e = m.get(k) || { source: r.source, medium: r.medium, orders: 0 };
+    e.orders += r.orders;
+    m.set(k, e);
+  });
+  return [...m.values()].sort((a, b) => b.orders - a.orders);
+}
+
+/** Roda o rascunho contra o recorte: total por categoria, total por regra e o
+ *  que sobrou sem dono. */
+function catSimula(draft) {
+  const cats = preparaCats(draft);
+  const porCat = new Map(), porRegra = new Map(), orfaos = [];
+  catPares().forEach(par => {
+    const hit = achaCategoria(par.source, par.medium, cats);
+    if (hit.cat < 0) { orfaos.push(par); return; }
+    porCat.set(hit.cat, (porCat.get(hit.cat) || 0) + par.orders);
+    const k = hit.cat + ':' + hit.regra;
+    porRegra.set(k, (porRegra.get(k) || 0) + par.orders);
+  });
+  return { porCat, porRegra, orfaos };
+}
+
+const catPedidos = (v) => {
+  const n = Math.round(v);
+  return `${fmtInt(n)} ${n === 1 ? 'pedido' : 'pedidos'}`;
+};
+
+const catOpcoesOp = (sel) => CAT_OPS
+  .map(o => `<option value="${o.id}"${o.id === sel ? ' selected' : ''}>${o.label}</option>`).join('');
+
+function catCampo(cat, regra, campo, cond) {
+  const op = (cond && cond.op) || 'qualquer';
+  const valor = (cond && cond.valor) || '';
+  const rotulo = campo === 'source' ? 'origem' : 'mídia';
+  const dica = campo === 'source' ? 'google, skyscanner…' : 'cpc, organic…';
+  return `<span class="cat-cond">${rotulo}
+    <select data-cat="${cat}" data-regra="${regra}" data-campo="${campo}" data-attr="op"
+            aria-label="operador de ${rotulo}">${catOpcoesOp(op)}</select>
+    <input type="text" data-cat="${cat}" data-regra="${regra}" data-campo="${campo}" data-attr="valor"
+           value="${esc(valor)}" placeholder="${dica}" aria-label="valor de ${rotulo}"
+           ${op === 'qualquer' ? 'hidden' : ''}></span>`;
+}
+
+function desenhaEditor() {
+  const sim = catSimula(catDraft);
+  const ult = catDraft.categorias.length - 1;
+  document.getElementById('catLista').innerHTML = catDraft.categorias.map((c, i) => `
+    <div class="cat-card">
+      <div class="cat-card-topo">
+        <input type="color" data-cat="${i}" data-attr="cor" title="cor da categoria"
+               value="${/^#[0-9a-f]{6}$/i.test(String(c.cor || '')) ? c.cor : '#898781'}">
+        <input type="text" data-cat="${i}" data-attr="nome" placeholder="nome da categoria"
+               value="${esc(c.nome || '')}" aria-label="nome da categoria">
+        <span class="cat-total">${catPedidos(sim.porCat.get(i) || 0)}</span>
+        <button type="button" class="cat-icone" data-acao="sobe" data-cat="${i}"
+                title="subir — quem está mais em cima ganha o par"${i === 0 ? ' disabled' : ''}>▲</button>
+        <button type="button" class="cat-icone" data-acao="desce" data-cat="${i}"
+                title="descer"${i === ult ? ' disabled' : ''}>▼</button>
+        <button type="button" class="cat-icone" data-acao="remove-cat" data-cat="${i}"
+                title="remover categoria">&times;</button>
+      </div>
+      <div class="cat-regras">
+        ${(c.regras || []).map((r, j) => `
+          <div class="cat-regra">
+            ${catCampo(i, j, 'source', r.source)}
+            <span class="cat-e">e</span>
+            ${catCampo(i, j, 'medium', r.medium)}
+            <span class="cat-hits" title="pedidos capturados por esta regra no recorte">${fmtInt(Math.round(sim.porRegra.get(i + ':' + j) || 0))}</span>
+            <button type="button" class="cat-icone" data-acao="remove-regra" data-cat="${i}"
+                    data-regra="${j}" title="remover regra">&times;</button>
+          </div>`).join('')}
+        <button type="button" class="cat-add" data-acao="add-regra" data-cat="${i}">+ regra</button>
+      </div>
+    </div>`).join('');
+
+  const el = document.getElementById('catOrfaos');
+  const orfaos = sim.orfaos;
+  if (!orfaos.length) {
+    el.innerHTML = '<p class="cat-aviso">Todo par de origem / mídia do recorte tem categoria.</p>';
+  } else {
+    const opcoes = catDraft.categorias
+      .map((c, i) => `<option value="${i}">${esc(c.nome || '(sem nome)')}</option>`).join('');
+    el.innerHTML = orfaos.slice(0, 30).map(o => `
+      <div class="cat-orfao">
+        <span class="cat-par">${esc(o.source)} / ${esc(o.medium)}</span>
+        <span class="cat-qtd">${catPedidos(o.orders)}</span>
+        <select data-acao="adota" data-source="${esc(o.source)}" data-medium="${esc(o.medium)}"
+                aria-label="classificar ${esc(o.source)} / ${esc(o.medium)}">
+          <option value="">classificar em…</option>${opcoes}
+        </select>
+      </div>`).join('') +
+      (orfaos.length > 30 ? `<p class="cat-aviso">…e mais ${orfaos.length - 30} pares menores.</p>` : '');
+  }
+
+  document.getElementById('catAviso').className = 'cat-aviso';
+  document.getElementById('catAviso').textContent = catCustomizado
+    ? 'Este navegador está usando um cadastro próprio. Exporte o JSON e commite em categorias.json pra valer pra todo mundo.'
+    : 'Usando o categorias.json do repositório.';
+}
+
+/** Texto e cor entram no rascunho a cada tecla, sem redesenhar: redesenhar aqui
+ *  tiraria o foco do campo no meio da digitacao. As contagens sobem no change
+ *  (quando o campo perde o foco) e nas mudancas de estrutura. */
+function catAtualizaCampo(t) {
+  const c = catDraft.categorias[+t.dataset.cat];
+  if (!c) return;
+  if (t.dataset.regra === undefined) {
+    if (t.dataset.attr === 'nome') c.nome = t.value;
+    if (t.dataset.attr === 'cor') c.cor = t.value;
+    return;
+  }
+  const r = c.regras[+t.dataset.regra];
+  if (!r) return;
+  const campo = t.dataset.campo;
+  if (t.dataset.attr === 'op') {
+    r[campo] = t.value === 'qualquer' ? null : { op: t.value, valor: (r[campo] && r[campo].valor) || '' };
+  } else {
+    r[campo] = { op: (r[campo] && r[campo].op) || 'eq', valor: t.value };
+  }
+}
+
+document.getElementById('catLista').addEventListener('input', (e) => {
+  if (!e.target.dataset.attr) return;
+  catAtualizaCampo(e.target);
+});
+document.getElementById('catLista').addEventListener('change', (e) => {
+  if (!e.target.dataset.attr) return;
+  catAtualizaCampo(e.target);
+  desenhaEditor();
+});
+document.getElementById('catLista').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-acao]');
+  if (!b) return;
+  const i = +b.dataset.cat;
+  const cats = catDraft.categorias;
+  switch (b.dataset.acao) {
+    case 'sobe':         if (i > 0) cats.splice(i - 1, 0, cats.splice(i, 1)[0]); break;
+    case 'desce':        if (i < cats.length - 1) cats.splice(i + 1, 0, cats.splice(i, 1)[0]); break;
+    case 'remove-cat':   cats.splice(i, 1); break;
+    case 'add-regra':    cats[i].regras.push({ source: null, medium: { op: 'eq', valor: '' } }); break;
+    case 'remove-regra': cats[i].regras.splice(+b.dataset.regra, 1); break;
+    default: return;
+  }
+  desenhaEditor();
+});
+
+// Par sem dono vira regra exata (origem E mídia) na categoria escolhida — e o
+// caminho de um clique pra fechar o "Outros" sem escrever nada na mão.
+document.getElementById('catOrfaos').addEventListener('change', (e) => {
+  const sel = e.target.closest('select[data-acao="adota"]');
+  if (!sel || sel.value === '') return;
+  const c = catDraft.categorias[+sel.value];
+  if (!c) return;
+  c.regras.push({ source: { op: 'eq', valor: sel.dataset.source },
+                  medium: { op: 'eq', valor: sel.dataset.medium } });
+  desenhaEditor();
+});
+
+function catValida(draft) {
+  if (!draft || !Array.isArray(draft.categorias)) return 'JSON sem a lista "categorias".';
+  if (!draft.categorias.length) return 'Precisa de pelo menos uma categoria.';
+  const reservados = [String((draft.outros || {}).nome || 'Outros').toLowerCase(),
+                      String((draft.sem_origem || {}).nome || 'Sem origem').toLowerCase()];
+  const vistos = new Set();
+  for (const c of draft.categorias) {
+    const n = String(c.nome || '').trim();
+    if (!n) return 'Toda categoria precisa de um nome.';
+    if (vistos.has(n.toLowerCase())) return `Tem duas categorias chamadas "${n}".`;
+    if (reservados.includes(n.toLowerCase())) return `"${n}" é reservado pelo dashboard.`;
+    vistos.add(n.toLowerCase());
+    for (const r of (c.regras || [])) {
+      for (const campo of ['source', 'medium']) {
+        const cond = r[campo];
+        if (cond && cond.op === 'regex') {
+          try { new RegExp(cond.valor, 'i'); }
+          catch (err) { return `Regex inválida em "${n}": ${cond.valor}`; }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function catErro(msg) {
+  const el = document.getElementById('catAviso');
+  el.className = 'cat-aviso erro';
+  el.textContent = msg;
+}
+
+/** O cadastro mexe em tudo que fala de canal: ranking, tabela origem/mídia,
+ *  timeline com filtro ligado, intraday e a aba Pedidos. */
+function catRedesenhaTudo() {
+  const nomes = new Set(nomesCats());
+  if (originFiltro.canal && !nomes.has(originFiltro.canal)) {
+    originFiltro = { canal: null, source: null, medium: null };
+  }
+  if (dadosVisiveis) render(dadosVisiveis);
+  else if (originData) renderOrigin(originData);
+  if (intradayData) renderIntraday(intradayData);
+  if (pedidosTodos) { montaSelectCanal(); montaSelectSM(); renderPedidos(); }
+}
+
+document.getElementById('abrirCategorias').addEventListener('click', () => {
+  catDraft = clonaCat(CATS.raw || catArquivo);
+  desenhaEditor();
+  catModal.showModal();
+});
+document.getElementById('catNova').addEventListener('click', () => {
+  catDraft.categorias.push({ nome: '', cor: '#2a78d6',
+                             regras: [{ source: null, medium: { op: 'eq', valor: '' } }] });
+  desenhaEditor();
+  const campos = document.querySelectorAll('#catLista input[data-attr="nome"]');
+  if (campos.length) campos[campos.length - 1].focus();
+});
+document.getElementById('catSalvar').addEventListener('click', () => {
+  const erro = catValida(catDraft);
+  if (erro) { catErro(erro); return; }
+  const igualAoArquivo = JSON.stringify(catDraft) === JSON.stringify(catArquivo);
+  try {
+    // Voltou a ser igual ao arquivo: apaga a copia local em vez de congelar
+    // esta versao — assim um categorias.json novo no repo volta a valer.
+    if (igualAoArquivo) localStorage.removeItem(CAT_CHAVE);
+    else localStorage.setItem(CAT_CHAVE, JSON.stringify(catDraft));
+  } catch (e) { /* navegador sem storage: vale so nesta sessao */ }
+  catCustomizado = !igualAoArquivo;
+  aplicaCats(catDraft);
+  catRedesenhaTudo();
+  catModal.close();
+});
+document.getElementById('catPadrao').addEventListener('click', () => {
+  catDraft = clonaCat(catArquivo);
+  desenhaEditor();
+});
+document.getElementById('catExportar').addEventListener('click', () => {
+  const erro = catValida(catDraft);
+  if (erro) { catErro(erro); return; }
+  const url = URL.createObjectURL(new Blob([JSON.stringify(catDraft, null, 2) + '\n'],
+                                           { type: 'application/json;charset=utf-8;' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'categorias.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+});
+document.getElementById('catImportar').addEventListener('click', () => {
+  document.getElementById('catArquivoInput').click();
+});
+document.getElementById('catArquivoInput').addEventListener('change', (e) => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  f.text().then(t => {
+    let j;
+    try { j = JSON.parse(t); } catch (err) { catErro('Arquivo não é um JSON válido.'); return; }
+    const erro = catValida(j);
+    if (erro) { catErro(erro); return; }
+    catDraft = j;
+    desenhaEditor();
+  });
+  e.target.value = '';
+});
+document.getElementById('catCancelar').addEventListener('click', () => catModal.close());
+document.getElementById('catFechar').addEventListener('click', () => catModal.close());
 
 /* ---- barra de filtros suspensa ----
    marca a barra visivel como .grudado quando ela encosta no topo, pra
