@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-30T23:10:03.387766-03:00",
+  "generated_at": "2026-08-30T23:20:03.247747-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-08-30",
@@ -59,7 +59,7 @@
           54,
           83,
           61,
-          2
+          11
         ],
         "revenue": [
           41505.5,
@@ -85,7 +85,7 @@
           72837.97,
           106403.21,
           76969.93,
-          2295.31
+          19120.18
         ],
         "orders_cum": [
           25,
@@ -111,7 +111,7 @@
           929,
           1012,
           1073,
-          1075
+          1084
         ],
         "revenue_cum": [
           41505.5,
@@ -137,7 +137,7 @@
           1291680.14,
           1398083.35,
           1475053.28,
-          1477348.59
+          1494173.46
         ]
       },
       "web": {
@@ -165,7 +165,7 @@
           90,
           79,
           70,
-          11
+          22
         ],
         "revenue": [
           53530.79,
@@ -191,7 +191,7 @@
           125633.79,
           117623.16,
           95931.24,
-          7596.98
+          19389.99
         ],
         "orders_cum": [
           33,
@@ -217,7 +217,7 @@
           1061,
           1140,
           1210,
-          1221
+          1232
         ],
         "revenue_cum": [
           53530.79,
@@ -243,7 +243,7 @@
           1469386.16,
           1587009.32,
           1682940.56,
-          1690537.54
+          1702330.55
         ]
       },
       "total": {
@@ -271,7 +271,7 @@
           144,
           162,
           131,
-          13
+          33
         ],
         "revenue": [
           95036.29,
@@ -297,7 +297,7 @@
           198471.76,
           224026.37,
           172901.17,
-          9892.29
+          38510.17
         ],
         "orders_cum": [
           58,
@@ -323,7 +323,7 @@
           1990,
           2152,
           2283,
-          2296
+          2316
         ],
         "revenue_cum": [
           95036.29,
@@ -349,7 +349,7 @@
           2761066.3,
           2985092.67,
           3157993.84,
-          3167886.13
+          3196504.01
         ]
       }
     },
@@ -997,38 +997,33 @@
   "origin": [
     {
       "platform": "app",
-      "canal": "Organico",
-      "orders": 344
-    },
-    {
-      "platform": "web",
-      "canal": "Organico",
-      "orders": 321
-    },
-    {
-      "platform": "app",
-      "canal": "Direto",
-      "orders": 434
-    },
-    {
-      "platform": "web",
-      "canal": "Metasearch",
-      "orders": 411
-    },
-    {
-      "platform": "app",
       "canal": "Nao identificado",
       "orders": 160
     },
     {
       "platform": "web",
-      "canal": "Midia paga",
-      "orders": 179
+      "canal": "Organico",
+      "orders": 324
+    },
+    {
+      "platform": "web",
+      "canal": "Metasearch",
+      "orders": 415
+    },
+    {
+      "platform": "web",
+      "canal": "Nao identificado",
+      "orders": 211
     },
     {
       "platform": "app",
-      "canal": "Midia paga",
-      "orders": 106
+      "canal": "Direto",
+      "orders": 437
+    },
+    {
+      "platform": "app",
+      "canal": "Organico",
+      "orders": 347
     },
     {
       "platform": "web",
@@ -1037,18 +1032,28 @@
     },
     {
       "platform": "web",
-      "canal": "Nao identificado",
-      "orders": 209
+      "canal": "Midia paga",
+      "orders": 181
+    },
+    {
+      "platform": "app",
+      "canal": "Midia paga",
+      "orders": 107
     },
     {
       "platform": "app",
       "canal": "Push",
-      "orders": 14
+      "orders": 15
     },
     {
       "platform": "app",
       "canal": "Metasearch",
-      "orders": 12
+      "orders": 13
+    },
+    {
+      "platform": "web",
+      "canal": "Outros",
+      "orders": 7
     },
     {
       "platform": "web",
@@ -1059,11 +1064,6 @@
       "platform": "app",
       "canal": "Outros",
       "orders": 2
-    },
-    {
-      "platform": "web",
-      "canal": "Outros",
-      "orders": 7
     },
     {
       "platform": "app",
