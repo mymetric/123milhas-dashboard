@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-02T06:50:03.056190-03:00",
+  "generated_at": "2026-09-02T07:00:04.405941-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-09-02",
   "yesterday": "2026-09-01",
   "last_week": "2026-08-26",
-  "current_hour": 6,
+  "current_hour": 7,
   "hours": [
     0,
     1,
@@ -42,8 +42,8 @@
           7,
           6,
           11,
-          8,
-          null,
+          11,
+          0,
           null,
           null,
           null,
@@ -68,8 +68,8 @@
           15794.22,
           8657.36,
           15054.97,
-          10825.61,
-          null,
+          20265.57,
+          0.0,
           null,
           null,
           null,
@@ -94,8 +94,8 @@
           56,
           62,
           73,
-          81,
-          null,
+          84,
+          84,
           null,
           null,
           null,
@@ -120,8 +120,8 @@
           86808.26,
           95465.62,
           110520.59,
-          121346.2,
-          null,
+          130786.16,
+          130786.16,
           null,
           null,
           null,
@@ -148,8 +148,8 @@
           3,
           16,
           17,
-          10,
-          null,
+          15,
+          0,
           null,
           null,
           null,
@@ -174,8 +174,8 @@
           5418.43,
           25696.97,
           35648.59,
-          14421.29,
-          null,
+          24540.37,
+          0.0,
           null,
           null,
           null,
@@ -200,8 +200,8 @@
           94,
           110,
           127,
-          137,
-          null,
+          142,
+          142,
           null,
           null,
           null,
@@ -226,8 +226,8 @@
           139629.07,
           165326.04,
           200974.63,
-          215395.92,
-          null,
+          225515.0,
+          225515.0,
           null,
           null,
           null,
@@ -254,8 +254,8 @@
           10,
           22,
           28,
-          18,
-          null,
+          26,
+          0,
           null,
           null,
           null,
@@ -280,8 +280,8 @@
           21212.65,
           34354.33,
           50703.56,
-          25246.9,
-          null,
+          44805.94,
+          0.0,
           null,
           null,
           null,
@@ -306,8 +306,8 @@
           150,
           172,
           200,
-          218,
-          null,
+          226,
+          226,
           null,
           null,
           null,
@@ -332,8 +332,8 @@
           226437.33,
           260791.66,
           311495.22,
-          336742.12,
-          null,
+          356301.16,
+          356301.16,
           null,
           null,
           null,
@@ -996,32 +996,32 @@
   },
   "origin": [
     {
-      "platform": "app",
+      "platform": "web",
       "canal": "Nao identificado",
       "source": "(sem origem)",
       "medium": "(sem origem)",
-      "orders": 35
+      "orders": 38
     },
     {
       "platform": "web",
-      "canal": "Metasearch",
-      "source": "skyscanner",
-      "medium": "metasearch",
-      "orders": 26
+      "canal": "Midia paga",
+      "source": "google",
+      "medium": "cpc",
+      "orders": 3
+    },
+    {
+      "platform": "web",
+      "canal": "Midia paga",
+      "source": "google",
+      "medium": "organic",
+      "orders": 21
     },
     {
       "platform": "app",
-      "canal": "Direto",
-      "source": "(direct)",
-      "medium": "(none)",
-      "orders": 25
-    },
-    {
-      "platform": "web",
-      "canal": "Organico",
-      "source": "google",
-      "medium": "organic",
-      "orders": 32
+      "canal": "Metasearch",
+      "source": "skyscanner",
+      "medium": "metasearch",
+      "orders": 1
     },
     {
       "platform": "web",
@@ -1031,25 +1031,53 @@
       "orders": 6
     },
     {
-      "platform": "web",
-      "canal": "Nao identificado",
-      "source": "(sem origem)",
-      "medium": "(sem origem)",
-      "orders": 36
-    },
-    {
       "platform": "app",
       "canal": "Organico",
       "source": "google-play",
       "medium": "organic",
-      "orders": 12
+      "orders": 14
+    },
+    {
+      "platform": "app",
+      "canal": "Direto",
+      "source": "(direct)",
+      "medium": "(none)",
+      "orders": 26
     },
     {
       "platform": "web",
-      "canal": "Midia paga",
+      "canal": "Metasearch",
+      "source": "skyscanner",
+      "medium": "metasearch",
+      "orders": 29
+    },
+    {
+      "platform": "web",
+      "canal": "Organico",
       "source": "google",
       "medium": "organic",
-      "orders": 21
+      "orders": 32
+    },
+    {
+      "platform": "app",
+      "canal": "Nao identificado",
+      "source": "(sem origem)",
+      "medium": "(sem origem)",
+      "orders": 35
+    },
+    {
+      "platform": "web",
+      "canal": "Organico",
+      "source": "bing",
+      "medium": "organic",
+      "orders": 1
+    },
+    {
+      "platform": "web",
+      "canal": "Direto",
+      "source": "(direct)",
+      "medium": "(none)",
+      "orders": 6
     },
     {
       "platform": "web",
@@ -1066,20 +1094,6 @@
       "orders": 2
     },
     {
-      "platform": "app",
-      "canal": "Midia paga",
-      "source": "google",
-      "medium": "cpc",
-      "orders": 5
-    },
-    {
-      "platform": "web",
-      "canal": "Direto",
-      "source": "(direct)",
-      "medium": "(none)",
-      "orders": 6
-    },
-    {
       "platform": "web",
       "canal": "Midia paga",
       "source": "google-passagem",
@@ -1088,37 +1102,23 @@
     },
     {
       "platform": "app",
-      "canal": "Organico",
-      "source": "google",
-      "medium": "organic",
-      "orders": 1
-    },
-    {
-      "platform": "web",
       "canal": "Midia paga",
       "source": "google",
       "medium": "cpc",
-      "orders": 3
-    },
-    {
-      "platform": "web",
-      "canal": "Midia paga",
-      "source": "skyscanner",
-      "medium": "cpc",
-      "orders": 1
+      "orders": 5
     },
     {
       "platform": "app",
-      "canal": "Metasearch",
-      "source": "skyscanner",
-      "medium": "metasearch",
+      "canal": "Organico",
+      "source": "google",
+      "medium": "organic",
       "orders": 1
     },
     {
       "platform": "web",
-      "canal": "Organico",
-      "source": "bing",
-      "medium": "organic",
+      "canal": "Midia paga",
+      "source": "skyscanner",
+      "medium": "cpc",
       "orders": 1
     }
   ],
