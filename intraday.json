@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-02T04:10:02.780684-03:00",
+  "generated_at": "2026-09-02T04:20:02.914975-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-09-02",
@@ -146,7 +146,7 @@
           22,
           18,
           3,
-          5,
+          7,
           null,
           null,
           null,
@@ -172,7 +172,7 @@
           35738.01,
           35161.17,
           5418.43,
-          7843.57,
+          12249.47,
           null,
           null,
           null,
@@ -198,7 +198,7 @@
           73,
           91,
           94,
-          99,
+          101,
           null,
           null,
           null,
@@ -224,7 +224,7 @@
           99049.47,
           134210.64,
           139629.07,
-          147472.64,
+          151878.54,
           null,
           null,
           null,
@@ -252,7 +252,7 @@
           38,
           26,
           10,
-          5,
+          7,
           null,
           null,
           null,
@@ -278,7 +278,7 @@
           59691.85,
           43663.82,
           21212.65,
-          7843.57,
+          12249.47,
           null,
           null,
           null,
@@ -304,7 +304,7 @@
           114,
           140,
           150,
-          155,
+          157,
           null,
           null,
           null,
@@ -330,7 +330,7 @@
           161560.86,
           205224.68,
           226437.33,
-          234280.9,
+          238686.8,
           null,
           null,
           null,
@@ -997,17 +997,38 @@
   "origin": [
     {
       "platform": "app",
+      "canal": "Midia paga",
+      "source": "google",
+      "medium": "cpc",
+      "orders": 4
+    },
+    {
+      "platform": "web",
+      "canal": "Nao identificado",
+      "source": "(sem origem)",
+      "medium": "(sem origem)",
+      "orders": 33
+    },
+    {
+      "platform": "web",
       "canal": "Direto",
       "source": "(direct)",
       "medium": "(none)",
-      "orders": 16
+      "orders": 4
+    },
+    {
+      "platform": "app",
+      "canal": "Nao identificado",
+      "source": "(sem origem)",
+      "medium": "(sem origem)",
+      "orders": 27
     },
     {
       "platform": "web",
       "canal": "Midia paga",
       "source": "google",
-      "medium": "cpc",
-      "orders": 1
+      "medium": "organic",
+      "orders": 11
     },
     {
       "platform": "web",
@@ -1021,21 +1042,7 @@
       "canal": "Organico",
       "source": "google",
       "medium": "organic",
-      "orders": 22
-    },
-    {
-      "platform": "web",
-      "canal": "Midia paga",
-      "source": "google",
-      "medium": "organic",
-      "orders": 11
-    },
-    {
-      "platform": "web",
-      "canal": "Direto",
-      "source": "(direct)",
-      "medium": "(none)",
-      "orders": 4
+      "orders": 23
     },
     {
       "platform": "web",
@@ -1046,6 +1053,13 @@
     },
     {
       "platform": "web",
+      "canal": "Midia paga",
+      "source": "google",
+      "medium": "cpc",
+      "orders": 1
+    },
+    {
+      "platform": "web",
       "canal": "Organico",
       "source": "bing",
       "medium": "organic",
@@ -1053,17 +1067,10 @@
     },
     {
       "platform": "app",
-      "canal": "Nao identificado",
-      "source": "(sem origem)",
-      "medium": "(sem origem)",
-      "orders": 27
-    },
-    {
-      "platform": "web",
-      "canal": "Nao identificado",
-      "source": "(sem origem)",
-      "medium": "(sem origem)",
-      "orders": 33
+      "canal": "Direto",
+      "source": "(direct)",
+      "medium": "(none)",
+      "orders": 16
     },
     {
       "platform": "app",
@@ -1081,17 +1088,17 @@
     },
     {
       "platform": "web",
+      "canal": "Midia paga",
+      "source": "google-passagem",
+      "medium": "search",
+      "orders": 1
+    },
+    {
+      "platform": "web",
       "canal": "Metasearch",
       "source": "kayak",
       "medium": "metasearch",
       "orders": 3
-    },
-    {
-      "platform": "app",
-      "canal": "Midia paga",
-      "source": "google",
-      "medium": "cpc",
-      "orders": 4
     },
     {
       "platform": "app",
