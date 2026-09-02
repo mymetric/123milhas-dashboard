@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-01T23:10:03.536422-03:00",
+  "generated_at": "2026-09-01T23:20:03.417695-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-09-01",
@@ -59,7 +59,7 @@
           85,
           103,
           92,
-          13
+          27
         ],
         "revenue": [
           44186.58,
@@ -85,7 +85,7 @@
           120744.92,
           124342.82,
           104420.58,
-          13443.18
+          40084.91
         ],
         "orders_cum": [
           37,
@@ -111,7 +111,7 @@
           930,
           1033,
           1125,
-          1138
+          1152
         ],
         "revenue_cum": [
           44186.58,
@@ -137,7 +137,7 @@
           1281657.58,
           1406000.4,
           1510420.98,
-          1523864.16
+          1550505.89
         ]
       },
       "web": {
@@ -165,7 +165,7 @@
           172,
           188,
           175,
-          15
+          37
         ],
         "revenue": [
           54971.53,
@@ -191,7 +191,7 @@
           251911.01,
           271615.38,
           260190.79,
-          27589.94
+          71938.0
         ],
         "orders_cum": [
           45,
@@ -217,7 +217,7 @@
           1917,
           2105,
           2280,
-          2295
+          2317
         ],
         "revenue_cum": [
           54971.53,
@@ -243,7 +243,7 @@
           2701721.07,
           2973336.45,
           3233527.24,
-          3261117.18
+          3305465.24
         ]
       },
       "total": {
@@ -271,7 +271,7 @@
           257,
           291,
           267,
-          28
+          64
         ],
         "revenue": [
           99158.11,
@@ -297,7 +297,7 @@
           372655.93,
           395958.2,
           364611.37,
-          41033.12
+          112022.91
         ],
         "orders_cum": [
           82,
@@ -323,7 +323,7 @@
           2847,
           3138,
           3405,
-          3433
+          3469
         ],
         "revenue_cum": [
           99158.11,
@@ -349,7 +349,7 @@
           3983378.65,
           4379336.85,
           4743948.22,
-          4784981.34
+          4855971.13
         ]
       }
     },
@@ -996,60 +996,46 @@
   },
   "origin": [
     {
-      "platform": "web",
-      "canal": "Metasearch",
-      "source": "kayak",
-      "medium": "metasearch",
-      "orders": 98
-    },
-    {
-      "platform": "web",
+      "platform": "app",
       "canal": "Nao identificado",
       "source": "(sem origem)",
       "medium": "(sem origem)",
-      "orders": 469
-    },
-    {
-      "platform": "web",
-      "canal": "Metasearch",
-      "source": "skyscanner",
-      "medium": "metasearch",
-      "orders": 779
-    },
-    {
-      "platform": "app",
-      "canal": "Direto",
-      "source": "(direct)",
-      "medium": "(none)",
-      "orders": 436
+      "orders": 226
     },
     {
       "platform": "app",
       "canal": "Organico",
       "source": "google-play",
       "medium": "organic",
-      "orders": 352
-    },
-    {
-      "platform": "app",
-      "canal": "Nao identificado",
-      "source": "(sem origem)",
-      "medium": "(sem origem)",
-      "orders": 224
+      "orders": 357
     },
     {
       "platform": "web",
-      "canal": "Midia paga",
-      "source": "googleflights",
+      "canal": "Nao identificado",
+      "source": "(sem origem)",
+      "medium": "(sem origem)",
+      "orders": 473
+    },
+    {
+      "platform": "app",
+      "canal": "Direto",
+      "source": "(direct)",
+      "medium": "(none)",
+      "orders": 442
+    },
+    {
+      "platform": "web",
+      "canal": "Metasearch",
+      "source": "skyscanner",
       "medium": "metasearch",
-      "orders": 92
+      "orders": 786
     },
     {
       "platform": "web",
       "canal": "Organico",
       "source": "google",
       "medium": "organic",
-      "orders": 430
+      "orders": 435
     },
     {
       "platform": "web",
@@ -1059,25 +1045,32 @@
       "orders": 42
     },
     {
+      "platform": "app",
+      "canal": "Metasearch",
+      "source": "skyscanner",
+      "medium": "metasearch",
+      "orders": 9
+    },
+    {
       "platform": "web",
       "canal": "Midia paga",
-      "source": "google",
-      "medium": "organic",
-      "orders": 188
+      "source": "(sem origem)",
+      "medium": "(sem origem)",
+      "orders": 4
     },
     {
       "platform": "app",
       "canal": "Midia paga",
       "source": "google",
       "medium": "cpc",
-      "orders": 93
+      "orders": 94
     },
     {
-      "platform": "app",
-      "canal": "CRM",
-      "source": "responsys",
-      "medium": "email_marketing",
-      "orders": 1
+      "platform": "web",
+      "canal": "Midia paga",
+      "source": "googleflights",
+      "medium": "metasearch",
+      "orders": 93
     },
     {
       "platform": "web",
@@ -1088,45 +1081,24 @@
     },
     {
       "platform": "web",
+      "canal": "Midia paga",
+      "source": "google",
+      "medium": "organic",
+      "orders": 191
+    },
+    {
+      "platform": "web",
       "canal": "CRM",
-      "source": "whatsapp",
-      "medium": "botaorecompra",
-      "orders": 2
-    },
-    {
-      "platform": "app",
-      "canal": "Metasearch",
-      "source": "skyscanner",
-      "medium": "metasearch",
-      "orders": 9
-    },
-    {
-      "platform": "app",
-      "canal": "Push",
-      "source": "firebase",
-      "medium": "push",
-      "orders": 2
-    },
-    {
-      "platform": "app",
-      "canal": "Metasearch",
-      "source": "kayak",
-      "medium": "metasearch",
-      "orders": 1
-    },
-    {
-      "platform": "app",
-      "canal": "Push",
-      "source": "Firebase",
-      "medium": "notification",
+      "source": "crm",
+      "medium": "email",
       "orders": 3
     },
     {
       "platform": "web",
-      "canal": "Midia paga",
-      "source": "google",
-      "medium": "cpc",
-      "orders": 36
+      "canal": "Metasearch",
+      "source": "kayak",
+      "medium": "metasearch",
+      "orders": 98
     },
     {
       "platform": "app",
@@ -1134,6 +1106,13 @@
       "source": "google",
       "medium": "organic",
       "orders": 10
+    },
+    {
+      "platform": "web",
+      "canal": "Midia paga",
+      "source": "google",
+      "medium": "cpc",
+      "orders": 37
     },
     {
       "platform": "web",
@@ -1150,25 +1129,11 @@
       "orders": 1
     },
     {
-      "platform": "web",
-      "canal": "CRM",
+      "platform": "app",
+      "canal": "Push",
       "source": "crm",
-      "medium": "email",
+      "medium": "push",
       "orders": 3
-    },
-    {
-      "platform": "web",
-      "canal": "Midia paga",
-      "source": "(sem origem)",
-      "medium": "(sem origem)",
-      "orders": 4
-    },
-    {
-      "platform": "web",
-      "canal": "Metasearch",
-      "source": "jetcost",
-      "medium": "metasearch",
-      "orders": 1
     },
     {
       "platform": "web",
@@ -1176,6 +1141,41 @@
       "source": "",
       "medium": "",
       "orders": 8
+    },
+    {
+      "platform": "app",
+      "canal": "Metasearch",
+      "source": "kayak",
+      "medium": "metasearch",
+      "orders": 1
+    },
+    {
+      "platform": "app",
+      "canal": "Push",
+      "source": "firebase",
+      "medium": "push",
+      "orders": 2
+    },
+    {
+      "platform": "web",
+      "canal": "CRM",
+      "source": "whatsapp",
+      "medium": "botaorecompra",
+      "orders": 2
+    },
+    {
+      "platform": "app",
+      "canal": "Push",
+      "source": "Firebase",
+      "medium": "notification",
+      "orders": 3
+    },
+    {
+      "platform": "app",
+      "canal": "CRM",
+      "source": "responsys",
+      "medium": "email_marketing",
+      "orders": 1
     },
     {
       "platform": "web",
@@ -1199,11 +1199,18 @@
       "orders": 2
     },
     {
-      "platform": "app",
-      "canal": "Push",
-      "source": "crm",
-      "medium": "push",
-      "orders": 3
+      "platform": "web",
+      "canal": "Metasearch",
+      "source": "jetcost",
+      "medium": "metasearch",
+      "orders": 1
+    },
+    {
+      "platform": "web",
+      "canal": "Midia paga",
+      "source": "skyscanner",
+      "medium": "metasearch",
+      "orders": 2
     },
     {
       "platform": "web",
@@ -1213,16 +1220,30 @@
       "orders": 11
     },
     {
-      "platform": "app",
-      "canal": "CRM",
-      "source": "whatsapp",
-      "medium": "radar",
+      "platform": "web",
+      "canal": "Midia paga",
+      "source": "google-passagem",
+      "medium": "search",
       "orders": 1
     },
     {
       "platform": "app",
       "canal": "Outros",
       "source": "",
+      "medium": "",
+      "orders": 1
+    },
+    {
+      "platform": "web",
+      "canal": "Midia paga",
+      "source": "meliuz",
+      "medium": "cpa",
+      "orders": 1
+    },
+    {
+      "platform": "app",
+      "canal": "Outros",
+      "source": "cuponomia",
       "medium": "",
       "orders": 1
     },
@@ -1242,23 +1263,9 @@
     },
     {
       "platform": "app",
-      "canal": "Outros",
-      "source": "cuponomia",
-      "medium": "",
-      "orders": 1
-    },
-    {
-      "platform": "web",
-      "canal": "Midia paga",
-      "source": "skyscanner",
-      "medium": "metasearch",
-      "orders": 2
-    },
-    {
-      "platform": "web",
-      "canal": "Midia paga",
-      "source": "google-passagem",
-      "medium": "search",
+      "canal": "CRM",
+      "source": "whatsapp",
+      "medium": "radar",
       "orders": 1
     }
   ],
