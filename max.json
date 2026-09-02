@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-02T10:02:16.769893-03:00",
+  "generated_at": "2026-09-02T10:07:36.146257-03:00",
   "source": "grupo123-metrics.df_granular.checkouts (site='maxmilhas')",
   "metric": "checkouts",
   "freshness": {
@@ -415,8 +415,14 @@
         "checkouts": 2
       },
       {
-        "source": "turismocity",
-        "medium": "metasearch_api",
+        "source": "(vazio)",
+        "medium": "(vazio)",
+        "canal": "Midia paga",
+        "checkouts": 1
+      },
+      {
+        "source": "skyscanner",
+        "medium": "(vazio)",
         "canal": "Metasearch",
         "checkouts": 1
       },
@@ -427,15 +433,9 @@
         "checkouts": 1
       },
       {
-        "source": "email",
-        "medium": "social",
-        "canal": "Social",
-        "checkouts": 1
-      },
-      {
-        "source": "(vazio)",
-        "medium": "(vazio)",
-        "canal": "Midia paga",
+        "source": "turismocity",
+        "medium": "metasearch_api",
+        "canal": "Metasearch",
         "checkouts": 1
       },
       {
@@ -445,15 +445,15 @@
         "checkouts": 1
       },
       {
-        "source": "whatsapp",
+        "source": "email",
         "medium": "social",
         "canal": "Social",
         "checkouts": 1
       },
       {
-        "source": "skyscanner",
-        "medium": "(vazio)",
-        "canal": "Metasearch",
+        "source": "whatsapp",
+        "medium": "social",
+        "canal": "Social",
         "checkouts": 1
       }
     ],
