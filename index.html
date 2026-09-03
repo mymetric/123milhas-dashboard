@@ -856,33 +856,40 @@
   </div>
 
   <div class="view" id="viewIntraday">
+    <div class="filtros">
+      <div class="filtro">
+        <span class="filtro-label">Dia</span>
+        <div class="seg"><select id="intraDia"></select></div>
+      </div>
+      <div class="filtro">
+        <span class="filtro-label">Categoria</span>
+        <div class="seg"><select id="intraCanal"></select></div>
+      </div>
+      <div class="filtro">
+        <span class="filtro-label">Origem / mídia</span>
+        <div class="seg"><select id="intraSM"></select></div>
+      </div>
+    </div>
+
     <div class="intraday-stats" id="intradayStats"></div>
 
     <div class="panel">
       <h2>Pedidos acumulados no dia</h2>
-      <p class="panel-sub" id="intradaySub">Hoje x ontem x mesmo dia da semana passada, por hora</p>
-      <div class="legend">
-        <span><span class="dot app"></span>Hoje</span>
-        <span><span class="dot web"></span>Ontem</span>
-        <span><span class="dot lastweek"></span>Semana passada</span>
-      </div>
+      <p class="panel-sub" id="intradaySub"></p>
+      <div class="legend" id="intradayLegendOrders"></div>
       <canvas id="intradayOrdersChart"></canvas>
     </div>
 
     <div class="panel">
       <h2>Faturamento acumulado no dia</h2>
       <p class="panel-sub">Valores em R$</p>
-      <div class="legend">
-        <span><span class="dot app"></span>Hoje</span>
-        <span><span class="dot web"></span>Ontem</span>
-        <span><span class="dot lastweek"></span>Semana passada</span>
-      </div>
+      <div class="legend" id="intradayLegendRevenue"></div>
       <canvas id="intradayRevenueChart"></canvas>
     </div>
 
     <div class="panel">
-      <h2>Origem das vendas de hoje</h2>
-      <p class="panel-sub" id="intradayOriginSub">Parcial do dia, reconstruída em tempo real</p>
+      <h2>Origem das vendas</h2>
+      <p class="panel-sub" id="intradayOriginSub"></p>
       <div class="rank" id="intradayOriginRank"></div>
       <p class="origin-note" id="intradayOriginNote"></p>
     </div>
@@ -2621,8 +2628,17 @@ function renderOrigin(data) {
 }
 
 // ---------------- Intraday ----------------
+// O snapshot traz cada dia como lista esparsa de [hora, plataforma, indice de
+// origem/midia, pedidos, receita]. A serie acumulada e montada aqui, ja com o
+// recorte aplicado -- e por isso que os filtros existem: enquanto a serie
+// chegava somada por hora, nao dava pra escolher o dia nem recortar por origem.
+const IN_HR = 0, IN_PLAT = 1, IN_SM = 2, IN_ORD = 3, IN_REV = 4;
+const DIA_SEMANA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+
 let intradayOrdersChart = null;
 let intradayRevenueChart = null;
+let intradayData = null;
+let intraSMPermitidos = null;   // Set de indices de sm; null = sem recorte
 
 function pctChange(now, before) {
   if (!before) return null;
@@ -2637,49 +2653,190 @@ function compareBadge(now, before) {
 }
 
 Promise.all([fetch('intraday.json', { cache: 'no-store' }).then(r => r.json()), CATS_PRONTAS])
-  .then(([data]) => renderIntraday(data))
+  .then(([data]) => {
+    // janela entre o deploy e o proximo tick do cron: o snapshot no ar ainda e o
+    // do formato antigo (serie ja somada por hora), que esta tela nao le mais
+    if (!data.days) {
+      document.getElementById('intradayStats').innerHTML =
+        '<p class="origin-note">Publicando o snapshot no formato novo — recarregue em alguns minutos.</p>';
+      return;
+    }
+    intradayData = data;
+    montaSelectDia();
+    montaSelectCanalIntra();
+    montaSelectSMIntra();
+    renderIntraday();
+  })
   .catch(err => {
     document.getElementById('intradayStats').innerHTML =
       '<p style="color:#e34948">Falha ao carregar intraday.json: ' + err + '</p>';
   });
 
-let intradayData = null;
+const diasIntraday = () => Object.keys(intradayData.days).sort().reverse();
+const rotuloDia = (iso) => {
+  const d = new Date(iso + 'T12:00:00Z');
+  return `${DIA_SEMANA[d.getUTCDay()]} ${iso.slice(8)}/${iso.slice(5, 7)}`;
+};
+// tudo em UTC (meio-dia): o dia do snapshot ja e BRT, e fazer a conta em hora
+// local trocaria a data em navegador de fuso adiantado
+const menosDias = (iso, n) => {
+  const d = new Date(iso + 'T12:00:00Z');
+  d.setUTCDate(d.getUTCDate() - n);
+  return d.toISOString().slice(0, 10);
+};
+const diaIntraday = () => document.getElementById('intraDia').value || intradayData.today;
 
-function renderIntraday(data) {
-  intradayData = data;
-  const { hours, series, current_hour, today, yesterday, last_week, generated_at, erp, origin } = data;
-  const cut = current_hour; // último índice com dado real de "hoje"
+/** Pares origem/midia do dia aberto, do mais vendido pro menos: as opcoes do
+ *  filtro seguem o dia, senao a lista viria cheia de par que nao existe nele. */
+function paresDoDia(dia, canal) {
+  const soma = new Map();
+  for (const l of (intradayData.days[dia] || [])) {
+    const [source, medium] = intradayData.sm[l[IN_SM]];
+    if (canal && categoriaDe(source, medium) !== canal) continue;
+    const k = chaveSM(source, medium);
+    const e = soma.get(k) || { source, medium, orders: 0 };
+    e.orders += l[IN_ORD];
+    soma.set(k, e);
+  }
+  return [...soma.entries()].sort((a, b) => b[1].orders - a[1].orders);
+}
 
-  const hoje = series.today.total;
-  const ontem = series.yesterday.total;
-  const semana = series.last_week.total;
+function montaSelectDia() {
+  const sel = document.getElementById('intraDia');
+  const anterior = sel.value;
+  const dias = diasIntraday();
+  sel.innerHTML = '';
+  dias.forEach(d => sel.appendChild(new Option(
+    d === intradayData.today ? `hoje — ${rotuloDia(d)}` : rotuloDia(d), d)));
+  sel.value = dias.includes(anterior) ? anterior : intradayData.today;
+}
 
-  const ordersNow = hoje.orders_cum[cut];
-  const revenueNow = hoje.revenue_cum[cut];
+/** Remontado quando o cadastro de categorias muda: categoria renomeada ou
+ *  apagada nao pode continuar de pe na lista. */
+function montaSelectCanalIntra() {
+  const sel = document.getElementById('intraCanal');
+  const anterior = sel.value;
+  const canais = [...new Set(intradayData.sm.map(([s, m]) => categoriaDe(s, m)))]
+    .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  sel.innerHTML = '';
+  sel.appendChild(new Option('Todas', ''));
+  // via DOM, nao innerHTML: categoria/origem/midia sao texto livre
+  canais.forEach(c => sel.appendChild(new Option(c, c)));
+  sel.value = canais.includes(anterior) ? anterior : '';
+}
 
+function montaSelectSMIntra() {
+  const sel = document.getElementById('intraSM');
+  const anterior = sel.value;
+  const canal = document.getElementById('intraCanal').value;
+  const pares = paresDoDia(diaIntraday(), canal);
+  sel.innerHTML = '';
+  sel.appendChild(new Option('Todas', ''));
+  pares.forEach(([k, e]) => {
+    const rot = smPedido(e.source, e.medium);
+    sel.appendChild(new Option(`${rot === '—' ? '(sem origem)' : rot} · ${fmtInt(e.orders)}`, k));
+  });
+  sel.value = pares.some(([k]) => k === anterior) ? anterior : '';
+}
+
+/** O recorte vira um Set de indices de origem/midia uma vez por render: a serie
+ *  varre milhares de linhas e nao pode reclassificar par a par. */
+function recalcSMPermitidos() {
+  const canal = document.getElementById('intraCanal').value;
+  const par = document.getElementById('intraSM').value;
+  if (!canal && !par) { intraSMPermitidos = null; return; }
+  intraSMPermitidos = new Set();
+  intradayData.sm.forEach(([s, m], i) => {
+    if (canal && categoriaDe(s, m) !== canal) return;
+    if (par && chaveSM(s, m) !== par) return;
+    intraSMPermitidos.add(i);
+  });
+}
+
+/** Serie acumulada de um dia, com o recorte aplicado. `ate` zera as horas que
+ *  ainda nao aconteceram (so o dia corrente tem isso), pra linha nao despencar. */
+function serieIntraday(dia, ate) {
+  const zeros = () => new Array(24).fill(0);
+  const acc = { app: { o: zeros(), r: zeros() }, web: { o: zeros(), r: zeros() } };
+  for (const l of (intradayData.days[dia] || [])) {
+    if (intraSMPermitidos && !intraSMPermitidos.has(l[IN_SM])) continue;
+    const p = acc[intradayData.platforms[l[IN_PLAT]]];
+    if (!p) continue;
+    p.o[l[IN_HR]] += l[IN_ORD];
+    p.r[l[IN_HR]] += l[IN_REV];
+  }
+  const out = {};
+  for (const plat of ['app', 'web', 'total']) {
+    const orders = [], revenue = [], orders_cum = [], revenue_cum = [];
+    let so = 0, sr = 0;
+    for (let h = 0; h < 24; h++) {
+      const vo = plat === 'total' ? acc.app.o[h] + acc.web.o[h] : acc[plat].o[h];
+      const vr = plat === 'total' ? acc.app.r[h] + acc.web.r[h] : acc[plat].r[h];
+      so += vo; sr += vr;
+      const fora = ate !== null && h > ate;
+      orders.push(fora ? null : vo);
+      revenue.push(fora ? null : Math.round(vr * 100) / 100);
+      orders_cum.push(fora ? null : so);
+      revenue_cum.push(fora ? null : Math.round(sr * 100) / 100);
+    }
+    out[plat] = { orders, revenue, orders_cum, revenue_cum };
+  }
+  return out;
+}
+
+function renderIntraday() {
+  if (!intradayData) return;
+  recalcSMPermitidos();
+
+  const { hours, current_hour, today, generated_at, erp, days } = intradayData;
+  const dia = diaIntraday();
+  const ehHoje = dia === today;
+  // so o dia corrente e parcial; dia fechado vale as 24 horas
+  const cut = ehHoje ? current_hour : 23;
+
+  const vesperaDia = menosDias(dia, 1);
+  const semanaDia = menosDias(dia, 7);
+  const linhas = [
+    { dia, rotulo: ehHoje ? `Hoje (${rotuloDia(dia)})` : rotuloDia(dia), cor: '#2a78d6', dot: 'app' },
+    { dia: vesperaDia, rotulo: `Véspera (${rotuloDia(vesperaDia)})`, cor: '#eb6834', dot: 'web' },
+    { dia: semanaDia, rotulo: `Semana anterior (${rotuloDia(semanaDia)})`, cor: '#a78bfa', dot: 'lastweek' },
+  ].filter((l, i) => i === 0 || days[l.dia]);
+  linhas.forEach(l => { l.serie = serieIntraday(l.dia, l.dia === today ? current_hour : null).total; });
+
+  const atual = linhas[0];
+  const vespera = linhas.find(l => l.dia === vesperaDia);
+  const semAnt = linhas.find(l => l.dia === semanaDia);
+  const ordersNow = atual.serie.orders_cum[cut];
+  const revenueNow = atual.serie.revenue_cum[cut];
+  const cmp = (l, key) => (l ? compareBadge(atual.serie[key][cut], l.serie[key][cut]) : '—');
+
+  const ateTxt = ehHoje ? ` até ${String(cut).padStart(2, '0')}h` : '';
   document.getElementById('intradaySub').textContent =
-    `Hoje (${today}) até ${String(cut).padStart(2, '0')}h x ontem (${yesterday}) x mesmo dia da semana passada (${last_week})`;
+    `${rotuloDia(dia)}${ateTxt} x véspera x mesmo dia da semana anterior, por hora` +
+    (intraSMPermitidos ? ' — o recorte de origem vale nas três linhas' : '');
 
+  const plat = serieIntraday(dia, ehHoje ? current_hour : null);
   document.getElementById('intradayStats').innerHTML = `
     <div class="stat-tile">
-      <div class="label">Pedidos hoje até ${String(cut).padStart(2, '0')}h</div>
+      <div class="label">Pedidos em ${rotuloDia(dia)}${ateTxt}</div>
       <div class="value">${fmtInt(ordersNow)}</div>
-      <div class="sub">vs ontem ${compareBadge(ordersNow, ontem.orders_cum[cut])} · vs sem. passada ${compareBadge(ordersNow, semana.orders_cum[cut])}</div>
+      <div class="sub">vs véspera ${cmp(vespera, 'orders_cum')} · vs sem. anterior ${cmp(semAnt, 'orders_cum')}</div>
     </div>
     <div class="stat-tile">
-      <div class="label">Faturamento hoje até ${String(cut).padStart(2, '0')}h</div>
+      <div class="label">Faturamento em ${rotuloDia(dia)}${ateTxt}</div>
       <div class="value">${fmtBRLCompact(revenueNow)}</div>
-      <div class="sub">vs ontem ${compareBadge(revenueNow, ontem.revenue_cum[cut])} · vs sem. passada ${compareBadge(revenueNow, semana.revenue_cum[cut])}</div>
+      <div class="sub">vs véspera ${cmp(vespera, 'revenue_cum')} · vs sem. anterior ${cmp(semAnt, 'revenue_cum')}</div>
     </div>
     <div class="stat-tile">
-      <div class="label">App x Web hoje</div>
-      <div class="value">${fmtInt(series.today.app.orders_cum[cut])} / ${fmtInt(series.today.web.orders_cum[cut])}</div>
+      <div class="label">App x Web</div>
+      <div class="value">${fmtInt(plat.app.orders_cum[cut])} / ${fmtInt(plat.web.orders_cum[cut])}</div>
       <div class="sub"><span class="dot app"></span>App · <span class="dot web"></span>Web · ticket ${fmtBRLCompact(ordersNow ? revenueNow / ordersNow : 0)}</div>
     </div>
   `;
 
   const fmtDT = (iso) => new Date(iso).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-  const erpTxt = erp && erp.last_order_at
+  // o ERP so tem o numero do dia corrente, e ele nao se recorta por origem
+  const erpTxt = (ehHoje && !intraSMPermitidos && erp && erp.last_order_at)
     ? `Para conferência, o ERP (fonte oficial de faturamento) registra ${fmtInt(erp.orders)} pedidos hoje, ` +
       `mas chega atrasado: último pedido ${fmtDT(erp.last_order_at)}, última carga ${fmtDT(erp.last_load_at)}.`
     : '';
@@ -2689,25 +2846,31 @@ function renderIntraday(data) {
     erpTxt;
 
   // ---- origem do dia ----
+  // o ranking mostra o dia inteiro, sem o filtro de categoria: com um canal
+  // escolhido ele viraria uma barra so. Clicar numa barra e que liga o filtro.
   const rankEl = document.getElementById('intradayOriginRank');
-  if (origin && origin.length) {
-    const porCanal = {};
-    origin.forEach(r => {
-      const c = categoriaDaLinha(r);
-      porCanal[c] = (porCanal[c] || 0) + r.orders;
-    });
-    const itens = Object.entries(porCanal).map(([canal, valor]) => ({ canal, valor }))
-      .sort((a, b) => b.valor - a.valor);
-    const total = itens.reduce((s, i) => s + i.valor, 0);
-    renderRank(rankEl, itens, total, fmtInt);
+  const porCanal = {};
+  for (const l of (days[dia] || [])) {
+    const [source, medium] = intradayData.sm[l[IN_SM]];
+    const c = categoriaDe(source, medium);
+    porCanal[c] = (porCanal[c] || 0) + l[IN_ORD];
+  }
+  const itens = Object.entries(porCanal).map(([canal, valor]) => ({ canal, valor }))
+    .sort((a, b) => b.valor - a.valor);
+  const totalOrigem = itens.reduce((s, i) => s + i.valor, 0);
+  if (itens.length) {
+    renderRank(rankEl, itens, totalOrigem, fmtInt,
+               { clicavel: true, selecionado: document.getElementById('intraCanal').value || null });
     document.getElementById('intradayOriginSub').textContent =
-      `Parcial de hoje (${today}) até ${String(cut).padStart(2, '0')}h — ${fmtInt(total)} pedidos vistos pelo GA4`;
+      `${rotuloDia(dia)}${ateTxt} — ${fmtInt(totalOrigem)} pedidos vistos pelo GA4 · clique numa categoria para filtrar`;
     document.getElementById('intradayOriginNote').textContent =
       'A tabela de tempo real do GA4 não traz a origem já resolvida: ela é reconstruída aqui a partir do ' +
       'início de sessão, o que deixa uma fatia em "Sem origem". O número consolidado do dia aparece na ' +
       'aba Visão geral no dia seguinte.';
   } else {
-    rankEl.innerHTML = '<p class="origin-note">Sem dados de origem para hoje ainda.</p>';
+    rankEl.innerHTML = '<p class="origin-note">Sem dados de origem para este dia.</p>';
+    document.getElementById('intradayOriginSub').textContent = '';
+    document.getElementById('intradayOriginNote').textContent = '';
   }
 
   const labels = hours.map(h => String(h).padStart(2, '0') + 'h');
@@ -2731,11 +2894,19 @@ function renderIntraday(data) {
     }
   });
 
-  const mkDatasets = (key) => [
-    { label: 'Hoje', data: hoje[key], borderColor: '#2a78d6', backgroundColor: 'rgba(42,120,214,0.10)', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.25 },
-    { label: 'Ontem', data: ontem[key], borderColor: '#eb6834', backgroundColor: 'rgba(235,104,52,0.06)', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.25, borderDash: [4, 3] },
-    { label: 'Semana passada', data: semana[key], borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.06)', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.25, borderDash: [4, 3] }
-  ];
+  const mkDatasets = (key) => linhas.map((l, i) => ({
+    label: l.rotulo,
+    data: l.serie[key],
+    borderColor: l.cor,
+    backgroundColor: i === 0 ? 'rgba(42,120,214,0.10)' : 'transparent',
+    borderWidth: 2, pointRadius: 0, fill: i === 0, tension: 0.25,
+    borderDash: i === 0 ? undefined : [4, 3],
+  }));
+
+  const legenda = linhas.map(l =>
+    `<span><span class="dot ${l.dot}"></span>${esc(l.rotulo)}</span>`).join('');
+  document.getElementById('intradayLegendOrders').innerHTML = legenda;
+  document.getElementById('intradayLegendRevenue').innerHTML = legenda;
 
   if (intradayOrdersChart) intradayOrdersChart.destroy();
   if (intradayRevenueChart) intradayRevenueChart.destroy();
@@ -2752,6 +2923,31 @@ function renderIntraday(data) {
     options: intradayBaseOptions(fmtBRLCompact)
   });
 }
+
+document.getElementById('intraDia').addEventListener('change', () => {
+  montaSelectSMIntra();   // trocar de dia reescreve a lista de pares dele
+  renderIntraday();
+});
+document.getElementById('intraCanal').addEventListener('change', () => {
+  montaSelectSMIntra();   // trocar de categoria reescreve a lista de pares dela
+  renderIntraday();
+});
+document.getElementById('intraSM').addEventListener('change', renderIntraday);
+
+// clique numa barra do ranking = escolher aquela categoria no filtro da barra;
+// clicar de novo na que ja esta filtrada desliga
+function cliqueCanalIntra(e) {
+  const linha = e.target.closest('.rank-row[data-canal]');
+  if (!linha) return;
+  if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+  if (e.type === 'keydown') e.preventDefault();
+  const sel = document.getElementById('intraCanal');
+  sel.value = sel.value === linha.dataset.canal ? '' : linha.dataset.canal;
+  montaSelectSMIntra();
+  renderIntraday();
+}
+document.getElementById('intradayOriginRank').addEventListener('click', cliqueCanalIntra);
+document.getElementById('intradayOriginRank').addEventListener('keydown', cliqueCanalIntra);
 
 
 // ---------------- Editor do cadastro de categorias ----------------
@@ -2970,7 +3166,7 @@ function catRedesenhaTudo() {
   }
   if (dadosVisiveis) render(dadosVisiveis);
   else if (originData) renderOrigin(originData);
-  if (intradayData) renderIntraday(intradayData);
+  if (intradayData) { montaSelectCanalIntra(); montaSelectSMIntra(); renderIntraday(); }
   if (pedidosTodos) { montaSelectCanal(); montaSelectSM(); renderPedidos(); }
 }
 

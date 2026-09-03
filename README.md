@@ -11,12 +11,14 @@ Deploy simples via Vercel (import do repo, sem build step / sem configuração).
 
 - `index.html` — dashboard com um seletor de marca (123 Milhas / MaxMilhas). Na
   123, 3 abas: "Visão geral" (stat tiles, composição do faturamento, série
-  diária, origem das vendas), "Intraday" (hoje x ontem x mesmo dia da semana
-  passada, acumulado por hora, em tempo real) e "Pedidos" (uma linha por
-  pedido, para export). Na MaxMilhas, uma tela só, de checkouts
+  diária, origem das vendas), "Intraday" (um dia escolhido x véspera x mesmo
+  dia da semana anterior, acumulado por hora, com filtro de origem/mídia) e
+  "Pedidos" (uma linha por pedido, para export). Na MaxMilhas, uma tela só, de
+  checkouts
 - `data.json` — série diária por plataforma (ERP) + bloco de origem
 - `max.json` — aba MaxMilhas: checkouts por dia e origem (ver "MaxMilhas" abaixo)
-- `intraday.json` — por hora de hoje/ontem/semana passada + origem do dia
+- `intraday.json` — últimos 30 dias por hora **e** por origem/mídia (ver "Aba
+  Intraday" abaixo)
 - `pedidos.csv` — 1 linha por pedido, 30 dias, com valor decomposto e atribuição
 - `categorias.json` — cadastro de categorias de tráfego (origem × mídia)
 - `cron/` — cópia versionada do script que roda no droplet
@@ -78,6 +80,44 @@ dia corrente, que sempre chega pela metade por causa do atraso acima.
 
 Query de referência pra série diária (equivalente ao que `refresh_data.py`
 roda): ver `query.sql`.
+
+## Aba "Intraday"
+
+Três filtros: **dia**, **categoria** e **origem / mídia**. O dia escolhido é
+comparado com a véspera e com o mesmo dia da semana anterior, e o recorte de
+origem vale nas três linhas.
+
+Pra isso existir, o `intraday.json` deixou de trazer a série já somada por hora.
+Cada dia é uma lista esparsa de `[hora, plataforma, índice de origem/mídia,
+pedidos, receita]`, e o navegador monta a curva acumulada a partir dela. O par
+origem/mídia vira índice numa tabela única (`sm`) — são ~30 pares repetidos em
+todas as horas de todos os dias, e escrever o nome em cada linha triplicaria um
+arquivo que é baixado a cada carregamento da página. Com 30 dias ele fica em
+~150 KB (o `data.json`, do lado, tem 1,5 MB).
+
+**Uma query por dia**, não duas: a que trazia a série por hora e a que trazia a
+origem do dia viraram a mesma (`GA4_DIA_SELECT`). O `LEFT JOIN` com o
+`session_start` preserva o pedido que não casou com sessão nenhuma — ele vira
+`(sem origem)`, e é isso que faz a soma das linhas continuar batendo com o total
+de pedidos do dia.
+
+**Dia fechado é consultado uma vez.** Só o dia corrente é reconsultado a cada
+rodada; o resto é reaproveitado do snapshot anterior. A janela do seletor
+(`INTRADAY_DIAS = 30`, abaixo dos ~36 dias de retenção do export do GA4) é
+preenchida na **rodada completa**, no máximo `MAX_DIAS_NOVOS = 3` dias por vez —
+sem esse teto a primeira rodada depois do deploy tentaria os 30 de uma vez.
+Ontem e a semana passada entram em qualquer rodada, porque são o padrão da tela.
+Na prática, o seletor leva algumas horas pra encher depois de um deploy e depois
+anda 1 dia por dia.
+
+**O `canal` saiu do arquivo.** Ele vinha resolvido do BigQuery mas a tela já o
+ignorava: quem classifica é o `categorias.json`, a partir de `source`/`medium`.
+Efeito colateral: o `gclid` deixa de reclassificar sessão como "Mídia paga" —
+mas isso já não aparecia na tela antes, porque o `canal` do arquivo não era lido.
+
+**O número do ERP some quando não vale.** Ele só existe pro dia corrente e não
+se recorta por origem, então a nota de conferência só aparece em "hoje" e sem
+filtro ligado.
 
 ## Origem das vendas
 

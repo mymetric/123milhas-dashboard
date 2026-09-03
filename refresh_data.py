@@ -3,8 +3,9 @@
 
   data.json      serie diaria (90 dias) de pedidos/faturamento app x web, do ERP,
                  + bloco de origem de sessao (GA4 last click)
-  intraday.json  hoje x ontem x mesmo dia da semana passada, por hora, em tempo
-                 real (GA4), com a origem do dia e o numero oficial do ERP
+  intraday.json  ultimos 30 dias por hora E por origem/midia, do GA4 em tempo
+                 real, + o numero oficial do ERP do dia corrente -- a aba
+                 "Intraday" monta a serie acumulada e os filtros a partir dai
   pedidos.csv    1 linha por pedido (30 dias), com o valor decomposto e a
                  atribuicao de ultimo e de primeiro clique -- a aba "Pedidos"
 
@@ -472,66 +473,78 @@ def gen_pedidos(creds):
 
 # --------------------------------------------------------------------------
 # intraday (GA4 em tempo real)
+#
+# O snapshot guarda um dia por chave em `days`, e cada dia e uma lista esparsa de
+# [hora, plataforma, indice de origem/midia, pedidos, receita]. A serie acumulada
+# (app x web x total) e montada no navegador a partir dessas linhas. Antes a
+# serie ja chegava somada por hora, o que impedia dois filtros que a tela
+# precisava: escolher o dia e recortar por origem/midia.
+#
+# Dia fechado nunca muda: e consultado uma vez e reaproveitado do snapshot da
+# rodada anterior. So o dia corrente e reconsultado a cada rodada.
 # --------------------------------------------------------------------------
 
-def _hourly_from_rows(rows):
-    """rows: [{hr, plataforma, pedidos, receita}] -> series por hora, acumulada."""
-    cell = {}
-    for r in rows:
-        cell[(int(r["hr"]), r["plataforma"])] = (int(r["pedidos"]), float(r["receita"] or 0))
+# Quantos dias fechados o seletor de dia oferece. O export do GA4 e apagado
+# depois de ~36 dias, entao passar muito disso so gera 404.
+INTRADAY_DIAS = 30
 
-    out = {}
-    for plataforma in ("app", "web", "total"):
-        orders, revenue, orders_cum, revenue_cum = [], [], [], []
-        run_o, run_r = 0, 0.0
-        for h in range(24):
-            if plataforma == "total":
-                o = sum(cell.get((h, p), (0, 0.0))[0] for p in ("app", "web"))
-                v = sum(cell.get((h, p), (0, 0.0))[1] for p in ("app", "web"))
-            else:
-                o, v = cell.get((h, plataforma), (0, 0.0))
-            run_o += o
-            run_r += v
-            orders.append(o)
-            revenue.append(round(v, 2))
-            orders_cum.append(run_o)
-            revenue_cum.append(round(run_r, 2))
-        out[plataforma] = {"orders": orders, "revenue": revenue,
-                           "orders_cum": orders_cum, "revenue_cum": revenue_cum}
-    return out
+# Teto de dias fechados novos por rodada completa. Cada um custa uma varredura da
+# tabela diaria do GA4 -- sem o teto, a primeira rodada depois do deploy tentaria
+# os 30 de uma vez. Como dia fechado nunca muda, a janela se completa sozinha em
+# algumas horas e depois so entra 1 dia por dia.
+MAX_DIAS_NOVOS = 3
 
+# a ordem e a codificacao: o snapshot guarda o indice, nao o nome
+PLATAFORMAS = ("app", "web")
 
-def _cap(series, cap_hour):
-    """Zera as horas que ainda nao aconteceram, pra linha de hoje nao despencar."""
-    for plataforma in series:
-        for key in series[plataforma]:
-            series[plataforma][key] = [
-                v if h <= cap_hour else None for h, v in enumerate(series[plataforma][key])
-            ]
-    return series
-
-
+# Serie horaria de um dia, ja quebrada por origem/midia.
+#
 # Um mesmo pedido pode disparar purchase mais de uma vez (retry, reload da pagina
 # de obrigado). Fica so o primeiro evento de cada transaction_id, senao o pedido
 # entra duas vezes -- e, se os dois eventos caem em horas diferentes, nem o
 # COUNT(DISTINCT) por hora resolve.
-GA4_HOUR_SELECT = """
+#
+# A tabela do GA4 nao traz o traffic source resolvido: ele e reconstruido a
+# partir do session_start da propria sessao. O LEFT JOIN preserva o pedido que
+# nao casou com sessao nenhuma (vira "(sem origem)"), e e isso que faz a soma das
+# linhas continuar batendo com o total de pedidos do dia.
+#
+# `source`/`medium` saem crus: quem classifica em categoria e o categorias.json,
+# ja no navegador -- sem eles a aba ficaria presa na taxonomia do BigQuery.
+GA4_DIA_SELECT = """
   WITH compras AS (
-    SELECT
-      ecommerce.transaction_id AS tid,
-      IF(platform = "WEB", "web", "app") AS plataforma,
-      IF(IS_NAN(ecommerce.purchase_revenue) OR IS_INF(ecommerce.purchase_revenue),
-         0, ecommerce.purchase_revenue) AS receita,
-      EXTRACT(HOUR FROM TIMESTAMP_MICROS(event_timestamp) AT TIME ZONE "America/Sao_Paulo") AS hr,
-      ROW_NUMBER() OVER (PARTITION BY ecommerce.transaction_id ORDER BY event_timestamp) AS rn
+    SELECT * EXCEPT(rn) FROM (
+      SELECT user_pseudo_id,
+             (SELECT value.int_value FROM UNNEST(event_params) WHERE key = "ga_session_id") AS sid,
+             IF(platform = "WEB", "web", "app") AS plataforma,
+             IF(IS_NAN(ecommerce.purchase_revenue) OR IS_INF(ecommerce.purchase_revenue),
+                0, ecommerce.purchase_revenue) AS receita,
+             EXTRACT(HOUR FROM TIMESTAMP_MICROS(event_timestamp)
+                     AT TIME ZONE "America/Sao_Paulo") AS hr,
+             ROW_NUMBER() OVER (PARTITION BY ecommerce.transaction_id
+                                ORDER BY event_timestamp) AS rn
+      FROM `{table}`
+      WHERE event_name = "purchase"
+        AND ecommerce.transaction_id IS NOT NULL
+        AND ecommerce.transaction_id NOT LIKE "(%"
+    ) WHERE rn = 1
+  ),
+  sessoes AS (
+    SELECT user_pseudo_id,
+           (SELECT value.int_value FROM UNNEST(event_params) WHERE key = "ga_session_id") AS sid,
+           ANY_VALUE(COALESCE(collected_traffic_source.manual_source, traffic_source.source)) AS source,
+           ANY_VALUE(COALESCE(collected_traffic_source.manual_medium, traffic_source.medium)) AS medium
     FROM `{table}`
-    WHERE event_name = "purchase"
-      AND ecommerce.transaction_id IS NOT NULL
-      AND ecommerce.transaction_id NOT LIKE "(%"
+    WHERE event_name = "session_start"
+    GROUP BY 1, 2
   )
-  SELECT hr, plataforma, COUNT(*) AS pedidos, SUM(receita) AS receita
-  FROM compras WHERE rn = 1
-  GROUP BY 1, 2
+  SELECT c.hr, c.plataforma,
+         COALESCE(s.source, "(sem origem)") AS source,
+         COALESCE(s.medium, "(sem origem)") AS medium,
+         COUNT(*) AS pedidos, SUM(c.receita) AS receita
+  FROM compras c
+  LEFT JOIN sessoes s ON s.user_pseudo_id = c.user_pseudo_id AND s.sid = c.sid
+  GROUP BY 1, 2, 3, 4
 """
 
 
@@ -547,7 +560,7 @@ def _dia_ga4(creds, dia):
     sufixo = dia.strftime("%Y%m%d")
     for tabela in (f"{GA4_DATASET}.events_{sufixo}", f"{GA4_DATASET}.events_fresh_{sufixo}"):
         try:
-            return bq_query(creds, GA4_HOUR_SELECT.format(table=tabela))
+            return bq_query(creds, GA4_DIA_SELECT.format(table=tabela))
         except requests.HTTPError as e:
             if e.response is None or e.response.status_code != 404:
                 raise
@@ -555,44 +568,90 @@ def _dia_ga4(creds, dia):
     return None
 
 
-def gen_intraday(creds, anterior=None):
-    """Hoje em tempo real (GA4 intraday) x ontem x mesmo dia da semana passada.
+def _linhas_dia(rows):
+    """Resposta do BigQuery -> [(hora, plataforma, source, medium, pedidos, receita)]."""
+    return [(int(r["hr"]), r["plataforma"], r["source"], r["medium"],
+             int(r["pedidos"]), float(r["receita"] or 0))
+            for r in rows]
 
-    As tres linhas vem do GA4 pra serem comparaveis entre si. O GA4 ve ~85% dos
-    pedidos do ERP; o numero oficial do ERP entra separado, como referencia (e
-    chega com ~3h de atraso, por isso nao serve pra linha "ao vivo").
 
-    `anterior` e o intraday.json da rodada passada: ontem e semana passada nao
-    mudam ao longo do dia, entao sao reaproveitados em vez de reconsultados a
-    cada 10 minutos (essas duas queries custam mais que a de hoje).
+def _le_dias(anterior):
+    """Dias ja consultados no snapshot da rodada passada, decodificados.
+
+    Snapshot em formato antigo (ou linha corrompida) vira dia ausente: ele
+    simplesmente volta a ser consultado.
+    """
+    if not isinstance(anterior, dict):
+        return {}
+    sm = anterior.get("sm") or []
+    out = {}
+    for dia, linhas in (anterior.get("days") or {}).items():
+        try:
+            out[dia] = [(int(h), PLATAFORMAS[p], sm[i][0], sm[i][1], int(o), float(v))
+                        for h, p, i, o, v in linhas]
+        except (TypeError, ValueError, IndexError, KeyError):
+            continue
+    return out
+
+
+def _compacta(dias):
+    """{dia: [(hora, plataforma, source, medium, pedidos, receita)]} -> (sm, days).
+
+    O par origem/midia vira indice numa tabela unica: sao ~30 pares repetidos em
+    todas as horas de todos os dias, e escrever o nome em cada linha triplicaria
+    o arquivo, que e baixado a cada carregamento da pagina.
+    """
+    idx, sm, days = {}, [], {}
+    for dia in sorted(dias):
+        linhas = []
+        for hr, plat, src, med, ped, rec in sorted(dias[dia]):
+            k = (src, med)
+            if k not in idx:
+                idx[k] = len(sm)
+                sm.append([src, med])
+            linhas.append([hr, PLATAFORMAS.index(plat), idx[k], ped, round(rec, 2)])
+        days[dia] = linhas
+    return sm, days
+
+
+def gen_intraday(creds, anterior=None, historico=False):
+    """Dia a dia por hora e por origem/midia, do evento purchase do GA4.
+
+    O dia corrente sai de `events_intraday_`, que e tempo real; os dias fechados
+    saem das tabelas diarias e sao reaproveitados do snapshot anterior -- dia
+    fechado nao muda, e essas queries custam mais que a do dia corrente.
+
+    `historico=False` (a rodada barata, de 10 em 10 min) so garante o dia
+    corrente, ontem e a semana passada, que sao as tres linhas do padrao da tela.
+    O resto da janela do seletor de dia entra na rodada completa, aos poucos.
+
+    O GA4 ve ~85% dos pedidos do ERP; o numero oficial do ERP entra separado,
+    como referencia do dia corrente (e chega com ~3h de atraso, por isso nao
+    serve pra linha "ao vivo").
     """
     agora = datetime.datetime.now(BRT)
     hoje = agora.date()
-    ontem = hoje - datetime.timedelta(days=1)
-    semana = hoje - datetime.timedelta(days=7)
 
-    series = {}
-    series["today"] = _cap(
-        _hourly_from_rows(bq_query(creds, GA4_HOUR_SELECT.format(
-            table=f"{GA4_DATASET}.events_intraday_{hoje.strftime('%Y%m%d')}"))),
-        agora.hour,
-    )
+    janela = [hoje - datetime.timedelta(days=i) for i in range(INTRADAY_DIAS + 1)]
+    validos = {d.isoformat() for d in janela}
+    dias = {d: v for d, v in _le_dias(anterior).items() if d in validos}
 
-    reaproveitou = (
-        anterior
-        and anterior.get("yesterday") == ontem.isoformat()
-        and anterior.get("last_week") == semana.isoformat()
-        and "yesterday" in anterior.get("series", {})
-        and "last_week" in anterior.get("series", {})
-    )
-    if reaproveitou:
-        series["yesterday"] = anterior["series"]["yesterday"]
-        series["last_week"] = anterior["series"]["last_week"]
-    else:
-        for chave, dia in (("yesterday", ontem), ("last_week", semana)):
-            linhas = _dia_ga4(creds, dia)
-            if linhas is not None:
-                series[chave] = _hourly_from_rows(linhas)
+    # o dia corrente e sempre reconsultado -- e o unico que ainda muda
+    dias[hoje.isoformat()] = _linhas_dia(bq_query(creds, GA4_DIA_SELECT.format(
+        table=f"{GA4_DATASET}.events_intraday_{hoje.strftime('%Y%m%d')}")))
+
+    comparacao = [hoje - datetime.timedelta(days=1), hoje - datetime.timedelta(days=7)]
+    faltando = [d for d in comparacao if d.isoformat() not in dias]
+    if historico:
+        # janela ja vem do mais recente pro mais antigo: o seletor ganha primeiro
+        # os dias que alguem de fato vai abrir
+        faltando += [d for d in janela[1:]
+                     if d not in comparacao and d.isoformat() not in dias][:MAX_DIAS_NOVOS]
+
+    for d in faltando:
+        linhas = _dia_ga4(creds, d)
+        if linhas is not None:
+            dias[d.isoformat()] = _linhas_dia(linhas)
 
     # numero oficial do ERP pra hoje, so como referencia (chega atrasado)
     erp = bq_query(creds, f"""
@@ -606,72 +665,17 @@ def gen_intraday(creds, anterior=None):
     """)
     erp = erp[0] if erp else {}
 
-    # origem do dia: a tabela intraday do GA4 nao traz o traffic source resolvido,
-    # entao ele e reconstruido a partir do session_start da propria sessao.
-    #
-    # O source/medium sai cru junto com o canal: o dashboard recategoriza por
-    # conta propria (categorias.json), e o CASE abaixo e so o padrao de fabrica
-    # -- sem os dois campos, a aba Intraday ficaria presa nesta taxonomia.
-    origem = bq_query(creds, f"""
-    WITH compras AS (
-      SELECT * EXCEPT(rn) FROM (
-        SELECT user_pseudo_id,
-               (SELECT value.int_value FROM UNNEST(event_params) WHERE key = "ga_session_id") AS sid,
-               IF(platform = "WEB", "web", "app") AS plataforma,
-               ecommerce.transaction_id AS tid,
-               ROW_NUMBER() OVER (PARTITION BY ecommerce.transaction_id ORDER BY event_timestamp) AS rn
-        FROM `{GA4_DATASET}.events_intraday_{hoje.strftime('%Y%m%d')}`
-        WHERE event_name = "purchase" AND ecommerce.transaction_id IS NOT NULL
-          AND ecommerce.transaction_id NOT LIKE "(%"
-      ) WHERE rn = 1
-    ),
-    sessoes AS (
-      SELECT user_pseudo_id,
-             (SELECT value.int_value FROM UNNEST(event_params) WHERE key = "ga_session_id") AS sid,
-             ANY_VALUE(COALESCE(collected_traffic_source.manual_source, traffic_source.source)) AS source,
-             ANY_VALUE(COALESCE(collected_traffic_source.manual_medium, traffic_source.medium)) AS medium,
-             ANY_VALUE(IF(collected_traffic_source.gclid IS NOT NULL, TRUE, FALSE)) AS tem_gclid
-      FROM `{GA4_DATASET}.events_intraday_{hoje.strftime('%Y%m%d')}`
-      WHERE event_name = "session_start"
-      GROUP BY 1, 2
-    )
-    SELECT
-      c.plataforma,
-      COALESCE(s.source, "(sem origem)") AS source,
-      COALESCE(s.medium, "(sem origem)") AS medium,
-      CASE
-        WHEN s.tem_gclid THEN "Midia paga"
-        WHEN s.medium = "metasearch" THEN "Metasearch"
-        WHEN s.medium IN ("cpc", "ppc", "cpa", "paid") THEN "Midia paga"
-        WHEN s.medium IN ("push", "notification") THEN "Push"
-        WHEN s.medium IN ("email", "email_marketing", "sms", "chat", "radar",
-                          "botaorecompra", "botaocta", "botao_comprar") THEN "CRM"
-        WHEN s.medium IN ("organic", "organico") THEN "Organico"
-        WHEN s.medium = "(none)" AND s.source = "(direct)" THEN "Direto"
-        WHEN s.medium = "referral" THEN "Referral"
-        WHEN s.source IS NULL THEN "Nao identificado"
-        ELSE "Outros"
-      END AS canal,
-      COUNT(DISTINCT c.tid) AS pedidos
-    FROM compras c
-    LEFT JOIN sessoes s ON s.user_pseudo_id = c.user_pseudo_id AND s.sid = c.sid
-    GROUP BY 1, 2, 3, 4
-    """)
-
+    sm, days = _compacta(dias)
     return {
         "generated_at": agora.isoformat(),
         "timezone": "America/Sao_Paulo",
         "source": f"{GA4_DATASET} (evento purchase, tempo real)",
         "today": hoje.isoformat(),
-        "yesterday": ontem.isoformat(),
-        "last_week": semana.isoformat(),
         "current_hour": agora.hour,
         "hours": list(range(24)),
-        "series": series,
-        "origin": [{"platform": r["plataforma"], "canal": r["canal"],
-                    "source": r["source"], "medium": r["medium"],
-                    "orders": int(r["pedidos"])}
-                   for r in origem],
+        "platforms": list(PLATAFORMAS),
+        "sm": sm,
+        "days": days,
         "erp": {
             "orders": int(erp["pedidos"]) if erp.get("pedidos") else 0,
             **(_receita(erp) if erp.get("pedidos") else
@@ -865,12 +869,16 @@ def main():
                     anterior = json.load(f)
             except (ValueError, OSError):
                 anterior = None
-        intraday = gen_intraday(creds, anterior)
+        intraday = gen_intraday(creds, anterior, historico=(args.only == "all"))
+        # sem indentacao: sao 30 dias x 24 horas x ~30 pares de origem/midia, e o
+        # arquivo e baixado a cada carregamento da pagina
         with open(caminho("intraday.json"), "w") as f:
-            json.dump(intraday, f, ensure_ascii=False, indent=2)
+            json.dump(intraday, f, ensure_ascii=False, separators=(",", ":"))
         cut = intraday["current_hour"]
-        print(f"intraday.json atualizado: {intraday['series']['today']['total']['orders_cum'][cut]} "
-              f"pedidos ate {cut}h (GA4)")
+        hoje = intraday["days"].get(intraday["today"], [])
+        ate_agora = sum(o for h, _, _, o, _ in hoje if h <= cut)
+        print(f"intraday.json atualizado: {ate_agora} pedidos ate {cut}h (GA4), "
+              f"{len(intraday['days'])} dias no seletor")
 
 
 if __name__ == "__main__":
