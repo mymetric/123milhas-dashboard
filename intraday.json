@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-03T00:50:03.555126-03:00",
+  "generated_at": "2026-09-03T01:00:03.928861-03:00",
   "timezone": "America/Sao_Paulo",
   "source": "grupo123-metrics.analytics_327722742 (evento purchase, tempo real)",
   "today": "2026-09-03",
   "yesterday": "2026-09-02",
   "last_week": "2026-08-27",
-  "current_hour": 0,
+  "current_hour": 1,
   "hours": [
     0,
     1,
@@ -37,7 +37,7 @@
       "app": {
         "orders": [
           23,
-          null,
+          0,
           null,
           null,
           null,
@@ -63,7 +63,7 @@
         ],
         "revenue": [
           27194.13,
-          null,
+          0.0,
           null,
           null,
           null,
@@ -89,7 +89,7 @@
         ],
         "orders_cum": [
           23,
-          null,
+          23,
           null,
           null,
           null,
@@ -115,7 +115,7 @@
         ],
         "revenue_cum": [
           27194.13,
-          null,
+          27194.13,
           null,
           null,
           null,
@@ -142,8 +142,8 @@
       },
       "web": {
         "orders": [
-          66,
-          null,
+          75,
+          0,
           null,
           null,
           null,
@@ -168,8 +168,8 @@
           null
         ],
         "revenue": [
-          95222.64,
-          null,
+          110937.87,
+          0.0,
           null,
           null,
           null,
@@ -194,8 +194,8 @@
           null
         ],
         "orders_cum": [
-          66,
-          null,
+          75,
+          75,
           null,
           null,
           null,
@@ -220,8 +220,8 @@
           null
         ],
         "revenue_cum": [
-          95222.64,
-          null,
+          110937.87,
+          110937.87,
           null,
           null,
           null,
@@ -248,8 +248,8 @@
       },
       "total": {
         "orders": [
-          89,
-          null,
+          98,
+          0,
           null,
           null,
           null,
@@ -274,8 +274,8 @@
           null
         ],
         "revenue": [
-          122416.77,
-          null,
+          138132.0,
+          0.0,
           null,
           null,
           null,
@@ -300,8 +300,8 @@
           null
         ],
         "orders_cum": [
-          89,
-          null,
+          98,
+          98,
           null,
           null,
           null,
@@ -326,8 +326,8 @@
           null
         ],
         "revenue_cum": [
-          122416.77,
-          null,
+          138132.0,
+          138132.0,
           null,
           null,
           null,
@@ -997,24 +997,10 @@
   "origin": [
     {
       "platform": "web",
-      "canal": "Midia paga",
-      "source": "google",
-      "medium": "organic",
-      "orders": 3
-    },
-    {
-      "platform": "web",
-      "canal": "Metasearch",
-      "source": "skyscanner",
-      "medium": "metasearch",
-      "orders": 31
-    },
-    {
-      "platform": "web",
       "canal": "Nao identificado",
       "source": "(sem origem)",
       "medium": "(sem origem)",
-      "orders": 24
+      "orders": 26
     },
     {
       "platform": "app",
@@ -1026,15 +1012,29 @@
     {
       "platform": "web",
       "canal": "Metasearch",
-      "source": "kayak",
+      "source": "skyscanner",
       "medium": "metasearch",
-      "orders": 2
+      "orders": 32
     },
     {
       "platform": "app",
       "canal": "Direto",
       "source": "(direct)",
       "medium": "(none)",
+      "orders": 5
+    },
+    {
+      "platform": "web",
+      "canal": "Organico",
+      "source": "google",
+      "medium": "organic",
+      "orders": 5
+    },
+    {
+      "platform": "web",
+      "canal": "Metasearch",
+      "source": "kayak",
+      "medium": "metasearch",
       "orders": 5
     },
     {
@@ -1053,10 +1053,17 @@
     },
     {
       "platform": "web",
-      "canal": "Organico",
+      "canal": "Midia paga",
       "source": "google",
       "medium": "organic",
       "orders": 3
+    },
+    {
+      "platform": "web",
+      "canal": "Midia paga",
+      "source": "skyscanner",
+      "medium": "cpc",
+      "orders": 1
     }
   ],
   "erp": {
