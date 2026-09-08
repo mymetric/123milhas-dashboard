@@ -92,6 +92,18 @@ Sessão → viu resultados → viu oferta → checkout → pedido, com filtro de
 período, plataforma, categoria e origem/mídia. A leitura de 30 dias (05/09):
 4,76 mi de sessões, 16,6% chegam ao checkout, 2,33% viram pedido.
 
+**A taxa de cada passagem aparece em três lugares**, porque é ela — e não o
+absoluto — que diz onde o funil vaza:
+
+- entre as barras: quantos % seguiram e quantas sessões pararam ali;
+- no gráfico "Taxas etapa a etapa por dia": uma linha por passagem, mais a
+  conversão inteira tracejada como referência. A legenda liga e desliga linha
+  (a última visível não desliga — gráfico vazio não diz nada);
+- na tabela por categoria, no modo "Taxa etapa a etapa". É lá que se vê que
+  Metasearch não converte mais por ser melhor no fim: ele entra 89,5% →
+  92,2% no topo (a sessão já chega na oferta) e converte 13,1% do checkout,
+  ABAIXO do Direto (25,9%).
+
 **Os passos são definidos no Dataform, não aqui.** `funil.json` só transporta o
 que já sai de `grupo123-metrics.df_granular_us.funil_diario` (repo
 `ga4-sessions`, modelos `funil_sessoes` + `funil_diario`). Isso é de propósito:

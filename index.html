@@ -359,9 +359,24 @@
   .funil-num { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; }
   .funil-num b { font-weight: 600; font-size: 15px; }
   .funil-num span { display: block; font-size: 11.5px; color: var(--text-muted, #898781); }
+  /* a taxa entre um passo e o proximo: e ela que diz onde o funil vaza, entao
+     mora entre as barras, na coluna da barra, e nao espremida na legenda */
+  .funil-liga {
+    display: grid; grid-template-columns: 170px 1fr 160px; gap: 12px;
+    margin: -3px 0; font-size: 12px; color: var(--text-muted, #898781);
+  }
+  .funil-liga > div { grid-column: 2; display: flex; align-items: baseline; gap: 7px; }
+  .funil-liga b { color: var(--text-primary); font-weight: 600; font-size: 13px; }
+  .funil-liga .seta { color: var(--baseline, #c3c2b7); }
+  .funil-liga .perda { color: var(--down, #e0483f); }
+  /* legenda que liga/desliga a linha do grafico */
+  .legend span.clicavel { cursor: pointer; user-select: none; }
+  .legend span.apagado { opacity: .4; text-decoration: line-through; }
   @media (max-width: 640px) {
     .funil-passo { grid-template-columns: 1fr 110px; }
     .funil-barra { grid-column: 1 / -1; }
+    .funil-liga { grid-template-columns: 1fr; }
+    .funil-liga > div { grid-column: 1; }
   }
 
   .filtros {
@@ -1013,8 +1028,8 @@
     </div>
 
     <div class="panel">
-      <h2>Taxa de conversão por dia</h2>
-      <p class="panel-sub">Pedidos ÷ sessões</p>
+      <h2>Taxas etapa a etapa por dia</h2>
+      <p class="panel-sub">Cada linha é uma passagem do funil. Clique na legenda para tirar ou pôr uma linha.</p>
       <div class="legend" id="funilLegend"></div>
       <canvas id="funilChart"></canvas>
     </div>
@@ -1022,6 +1037,10 @@
     <div class="panel">
       <h2>Funil por categoria</h2>
       <p class="panel-sub">Mesmos passos, abertos pela categoria de tráfego da sessão</p>
+      <div class="seg" id="funTabModo">
+        <button type="button" data-modo="abs" class="active">Sessões</button>
+        <button type="button" data-modo="taxa">Taxa etapa a etapa</button>
+      </div>
       <div class="tabela-wrap">
         <table class="tabela" id="funilTabela">
           <thead><tr>
@@ -3346,7 +3365,19 @@ const FUNIL_PASSOS = [
 // interessa, e cor diferente por passo leria como categoria, nao como etapa
 const FUNIL_CORES = ['#b9cde8', '#93b4dd', '#6d9bd2', '#4782cb', '#2a78d6'];
 
+// As 4 passagens do funil, na ordem. A ultima linha (sessao -> pedido) nao e
+// passagem nenhuma: e a conversao inteira, e entra tracejada so como referencia.
+const FUNIL_LIGAS = [
+  { de: 0, para: 1, rotulo: 'Sessão → resultados', cor: '#2a78d6' },
+  { de: 1, para: 2, rotulo: 'Resultados → oferta', cor: '#eb6834' },
+  { de: 2, para: 3, rotulo: 'Oferta → checkout',   cor: '#1a9c6b' },
+  { de: 3, para: 4, rotulo: 'Checkout → pedido',   cor: '#a78bfa' },
+];
+const FUNIL_TOTAL_LINHA = { de: 0, para: 4, rotulo: 'Sessão → pedido', cor: '#4a4842' };
+
 let funilData = null, funilChart = null, funilPedido = false;
+// linhas que o usuario desligou clicando na legenda; sobrevive ao re-render
+const funilOcultas = new Set();
 
 function carregaFunil() {
   if (funilData || funilPedido) return;
@@ -3383,7 +3414,7 @@ function agregaFunil() {
   const porDia = new Map(), porCat = new Map();
 
   for (const dia of funDias()) {
-    const d = porDia.get(dia) || { app: [0, 0], web: [0, 0] };
+    const d = porDia.get(dia) || [0, 0, 0, 0, 0];
     porDia.set(dia, d);
     for (const l of (funilData.days[dia] || [])) {
       const nomePlat = funilData.plataformas[l[FU.PLAT]];
@@ -3393,10 +3424,8 @@ function agregaFunil() {
       if (canal && cat !== canal) continue;
       if (sm && chaveSM(source, medium) !== sm) continue;
 
-      FUNIL_PASSOS.forEach((p, k) => { total[k] += l[p.i]; });
+      FUNIL_PASSOS.forEach((p, k) => { total[k] += l[p.i]; d[k] += l[p.i]; });
       receita.v += l[FU.REC];
-      d[nomePlat][0] += l[FU.SESS];
-      d[nomePlat][1] += l[FU.PED];
 
       const c = porCat.get(cat) || { cat, passos: [0, 0, 0, 0, 0], receita: 0 };
       FUNIL_PASSOS.forEach((p, k) => { c.passos[k] += l[p.i]; });
@@ -3480,20 +3509,32 @@ function renderFunil() {
     </div>
   `;
 
-  // ---- as barras ----
-  document.getElementById('funilPassos').innerHTML = FUNIL_PASSOS.map((p, k) => {
+  // ---- as barras, com a taxa de passagem entre elas ----
+  const blocos = [];
+  FUNIL_PASSOS.forEach((p, k) => {
+    if (k) {
+      const ant = total[k - 1], perda = ant - total[k];
+      blocos.push(`
+        <div class="funil-liga">
+          <div>
+            <span class="seta">↓</span>
+            <b>${ant ? pctBR(total[k] / ant * 100) : '—'}</b> seguiram
+            <span class="perda">−${fmtInt(perda)}</span>
+            <span>pararam aqui${ant ? ` (${pctBR(perda / ant * 100)})` : ''}</span>
+          </div>
+        </div>`);
+    }
     const v = total[k];
-    const ant = k ? total[k - 1] : 0;
-    const doPasso = k && ant ? ` · ${pctBR(v / ant * 100)} do passo anterior` : '';
-    return `
+    blocos.push(`
       <div class="funil-passo">
         <div class="funil-nome">${esc(p.nome)}<span>${esc(p.sub)}</span></div>
         <div class="funil-barra">
           <div class="funil-preenche" style="width:${Math.max(v / base * 100, 0.4)}%;background:${FUNIL_CORES[k]}"></div>
         </div>
-        <div class="funil-num"><b>${fmtInt(v)}</b><span>${pctBR(v / base * 100)} das sessões${doPasso}</span></div>
-      </div>`;
-  }).join('');
+        <div class="funil-num"><b>${fmtInt(v)}</b><span>${pctBR(v / base * 100)} das sessões</span></div>
+      </div>`);
+  });
+  document.getElementById('funilPassos').innerHTML = blocos.join('');
 
   document.getElementById('funilSub').textContent =
     (plat === 'total' ? 'App e web somados' : plat === 'app' ? 'Só app (iOS/Android)' : 'Só web')
@@ -3505,29 +3546,24 @@ function renderFunil() {
     + 'checkout e pedido não há passo — não existe evento de pagamento em nenhuma das duas '
     + 'plataformas. Os 2-3% de pedidos que não casam com sessão nenhuma ficam fora do funil.';
 
-  // ---- conversao por dia ----
+  // ---- as taxas etapa a etapa, dia a dia ----
+  // Sem area preenchida: sao 5 linhas na mesma escala, e preenchimento aqui
+  // viraria mancha sobre mancha.
   const labels = dias.map(d => `${d.slice(8)}/${d.slice(5, 7)}`);
-  const serie = (nome) => dias.map(d => {
+  const serieLiga = (liga) => dias.map(d => {
     const e = porDia.get(d);
-    const [sess, ped] = e ? e[nome] : [0, 0];
-    return sess ? ped / sess * 100 : null;
-  });
-  const serieTotal = () => dias.map(d => {
-    const e = porDia.get(d);
-    if (!e) return null;
-    const sess = e.app[0] + e.web[0], ped = e.app[1] + e.web[1];
-    return sess ? ped / sess * 100 : null;
+    if (!e || !e[liga.de]) return null;
+    return e[liga.para] / e[liga.de] * 100;
   });
 
-  // mesmas cores da serie diaria da Visao geral: total cinza, app azul, web laranja
-  const linhas = plat === 'total'
-    ? [{ rotulo: 'Total', cor: '#4a4842', fundo: 'rgba(74,72,66,0.10)', dados: serieTotal() }]
-    : plat === 'app'
-      ? [{ rotulo: 'App', cor: '#2a78d6', fundo: 'rgba(42,120,214,0.10)', dados: serie('app') }]
-      : [{ rotulo: 'Web', cor: '#eb6834', fundo: 'rgba(235,104,52,0.10)', dados: serie('web') }];
+  const linhas = FUNIL_LIGAS.concat([FUNIL_TOTAL_LINHA]).map((l, i) => ({
+    rotulo: l.rotulo, cor: l.cor, dados: serieLiga(l),
+    tracejada: i === FUNIL_LIGAS.length,   // a conversao inteira e referencia, nao passagem
+  }));
 
   document.getElementById('funilLegend').innerHTML = linhas.map(l =>
-    `<span><span class="dot" style="background:${l.cor}"></span>${esc(l.rotulo)}</span>`).join('');
+    `<span class="clicavel${funilOcultas.has(l.rotulo) ? ' apagado' : ''}" data-linha="${esc(l.rotulo)}">` +
+    `<span class="dot" style="background:${l.cor}"></span>${esc(l.rotulo)}</span>`).join('');
 
   const fmtPct = (v) => pctBR(Number(v), 2);
   if (funilChart) funilChart.destroy();
@@ -3535,9 +3571,10 @@ function renderFunil() {
     type: 'line',
     data: {
       labels,
-      datasets: linhas.map(l => ({
-        label: l.rotulo, data: l.dados, borderColor: l.cor, backgroundColor: l.fundo,
-        borderWidth: 2, pointRadius: 0, fill: true, tension: 0.25,
+      datasets: linhas.filter(l => !funilOcultas.has(l.rotulo)).map(l => ({
+        label: l.rotulo, data: l.dados, borderColor: l.cor, backgroundColor: 'transparent',
+        borderWidth: 2, pointRadius: 0, fill: false, tension: 0.25,
+        borderDash: l.tracejada ? [4, 3] : undefined,
       })),
     },
     options: {
@@ -3558,16 +3595,27 @@ function renderFunil() {
     },
   });
 
-  // ---- tabela por categoria ----
+  // ---- tabela por categoria: sessoes OU a taxa de cada passagem ----
+  // Em taxa a primeira coluna some (seria 100% em toda linha) e as outras quatro
+  // viram a passagem que chega nelas -- e assim que da pra ver que Metasearch
+  // ganha no comeco do funil, nao no fim.
+  const modoTab = (document.querySelector('#funTabModo button.active') || {}).dataset.modo || 'abs';
+  const emTaxa = modoTab === 'taxa';
+  const cabecalho = emTaxa
+    ? ['Categoria', '→ Resultados', '→ Oferta', '→ Checkout', '→ Pedido', 'Sessões', 'Conversão', 'Faturamento']
+    : ['Categoria', 'Sessões', 'Resultados', 'Ofertas', 'Checkout', 'Pedidos', 'Conversão', 'Faturamento'];
+  document.querySelector('#funilTabela thead tr').innerHTML =
+    cabecalho.map((h, i) => `<th${i ? ' class="num"' : ''}>${esc(h)}</th>`).join('');
+
   const linhasCat = [...porCat.values()].sort((a, b) => b.passos[0] - a.passos[0]);
+  const celulas = (c) => emTaxa
+    ? [1, 2, 3, 4].map(k => c.passos[k - 1] ? pctBR(c.passos[k] / c.passos[k - 1] * 100) : '—')
+        .concat([fmtInt(c.passos[0])])
+    : c.passos.map(fmtInt);
   document.querySelector('#funilTabela tbody').innerHTML = linhasCat.map(c => `
     <tr>
       <td><span class="canal-cel"><span class="swatch" style="background:${corCat(c.cat)}"></span>${esc(c.cat)}</span></td>
-      <td class="num">${fmtInt(c.passos[0])}</td>
-      <td class="num">${fmtInt(c.passos[1])}</td>
-      <td class="num">${fmtInt(c.passos[2])}</td>
-      <td class="num">${fmtInt(c.passos[3])}</td>
-      <td class="num">${fmtInt(c.passos[4])}</td>
+      ${celulas(c).map(v => `<td class="num">${v}</td>`).join('')}
       <td class="num">${c.passos[0] ? pctBR(c.passos[4] / c.passos[0] * 100, 2) : '—'}</td>
       <td class="num">${fmtBRL(c.receita)}</td>
     </tr>`).join('') || '<tr><td colspan="8">Nada no recorte.</td></tr>';
@@ -3587,6 +3635,23 @@ document.getElementById('funCanal').addEventListener('change', () => {
   montaSelectSMFunil(); renderFunil();
 });
 document.getElementById('funSM').addEventListener('change', renderFunil);
+document.getElementById('funTabModo').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-modo]');
+  if (!btn) return;
+  document.querySelectorAll('#funTabModo button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderFunil();
+});
+document.getElementById('funilLegend').addEventListener('click', (e) => {
+  const alvo = e.target.closest('span[data-linha]');
+  if (!alvo) return;
+  const nome = alvo.dataset.linha;
+  // a ultima linha visivel nao desliga: grafico vazio nao diz nada
+  if (!funilOcultas.has(nome)
+      && funilOcultas.size >= FUNIL_LIGAS.length) return;
+  if (funilOcultas.has(nome)) funilOcultas.delete(nome); else funilOcultas.add(nome);
+  renderFunil();
+});
 document.getElementById('funSeg').addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-plat]');
   if (!btn) return;
