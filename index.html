@@ -345,6 +345,25 @@
   .panel > .baixar { position: absolute; top: 18px; right: 18px; }
   .panel { position: relative; }
   .rank-split .acoes { display: inline-flex; gap: 14px; }
+
+  /* ---- funil de conversao ---- */
+  .funil { display: flex; flex-direction: column; gap: 9px; margin-top: 6px; }
+  .funil-passo {
+    display: grid; grid-template-columns: 170px 1fr 160px;
+    gap: 12px; align-items: center;
+  }
+  .funil-nome { font-size: 13px; line-height: 1.35; }
+  .funil-nome span { display: block; font-size: 11.5px; color: var(--text-muted, #898781); }
+  .funil-barra { background: #f2f1ec; border-radius: 5px; height: 32px; overflow: hidden; }
+  .funil-preenche { height: 100%; border-radius: 5px; transition: width .2s; }
+  .funil-num { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; }
+  .funil-num b { font-weight: 600; font-size: 15px; }
+  .funil-num span { display: block; font-size: 11.5px; color: var(--text-muted, #898781); }
+  @media (max-width: 640px) {
+    .funil-passo { grid-template-columns: 1fr 110px; }
+    .funil-barra { grid-column: 1 / -1; }
+  }
+
   .filtros {
     display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px;
     /* barra suspensa: acompanha o scroll e fica sempre ao alcance */
@@ -733,6 +752,7 @@
     <button class="tab-btn active" data-tab="geral" type="button">Visão geral</button>
     <button class="tab-btn" data-tab="intraday" type="button">Intraday</button>
     <button class="tab-btn" data-tab="pedidos" type="button">Pedidos</button>
+    <button class="tab-btn" data-tab="funil" type="button">Funil</button>
   </div>
 
   <div class="view active" id="viewGeral">
@@ -953,6 +973,70 @@
       </div>
       <p class="origin-note" id="pedidosNota"></p>
     </div>
+  </div>
+
+  <div class="view" id="viewFunil">
+    <div class="filtros">
+      <div class="filtro">
+        <span class="filtro-label">Período</span>
+        <div class="seg"><select id="funPeriodo">
+          <option value="7">Últimos 7 dias</option>
+          <option value="14">Últimos 14 dias</option>
+          <option value="30" selected>Últimos 30 dias</option>
+        </select></div>
+      </div>
+      <div class="filtro">
+        <span class="filtro-label">Plataforma</span>
+        <div class="seg" id="funSeg">
+          <button type="button" data-plat="total" class="active">Total</button>
+          <button type="button" data-plat="app">App</button>
+          <button type="button" data-plat="web">Web</button>
+        </div>
+      </div>
+      <div class="filtro">
+        <span class="filtro-label">Categoria</span>
+        <div class="seg"><select id="funCanal"></select></div>
+      </div>
+      <div class="filtro">
+        <span class="filtro-label">Origem / mídia</span>
+        <div class="seg"><select id="funSM"></select></div>
+      </div>
+    </div>
+
+    <div class="stats" id="funilStats"></div>
+
+    <div class="panel">
+      <h2>Funil de conversão</h2>
+      <p class="panel-sub" id="funilSub"></p>
+      <div class="funil" id="funilPassos"></div>
+      <p class="origin-note" id="funilNota"></p>
+    </div>
+
+    <div class="panel">
+      <h2>Taxa de conversão por dia</h2>
+      <p class="panel-sub">Pedidos ÷ sessões</p>
+      <div class="legend" id="funilLegend"></div>
+      <canvas id="funilChart"></canvas>
+    </div>
+
+    <div class="panel">
+      <h2>Funil por categoria</h2>
+      <p class="panel-sub">Mesmos passos, abertos pela categoria de tráfego da sessão</p>
+      <div class="tabela-wrap">
+        <table class="tabela" id="funilTabela">
+          <thead><tr>
+            <th>Categoria</th>
+            <th class="num">Sessões</th><th class="num">Resultados</th>
+            <th class="num">Ofertas</th><th class="num">Checkout</th>
+            <th class="num">Pedidos</th><th class="num">Conversão</th>
+            <th class="num">Faturamento</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="intraday-note" id="funilGenerated"></p>
   </div>
 
   <div class="view" id="viewMax">
@@ -1279,6 +1363,16 @@ const TITULO_MARCA = {
         'Checkouts e origem — fonte: grupo123-metrics.df_granular.checkouts (site=maxmilhas)'],
 };
 
+// As abas da 123. Ficam numa lista so porque o toggle acontece em tres lugares
+// (troca de marca, clique na aba, boot) e ja tinha divergido antes.
+const VIEW_DA_ABA = { geral: 'viewGeral', intraday: 'viewIntraday',
+                      pedidos: 'viewPedidos', funil: 'viewFunil' };
+const ABAS_123 = Object.keys(VIEW_DA_ABA);
+function mostraAba(tab) {
+  ABAS_123.forEach(t =>
+    document.getElementById(VIEW_DA_ABA[t]).classList.toggle('active', t === tab));
+}
+
 function trocaMarca(marca) {
   document.querySelectorAll('#marcaSeg button').forEach(b =>
     b.classList.toggle('active', b.dataset.marca === marca));
@@ -1297,16 +1391,14 @@ function trocaMarca(marca) {
   document.getElementById('tabs123').hidden = ehMax;
   document.getElementById('viewMax').classList.toggle('active', ehMax);
   if (ehMax) {
-    ['viewGeral', 'viewIntraday', 'viewPedidos'].forEach(id =>
-      document.getElementById(id).classList.remove('active'));
+    ABAS_123.forEach(t => document.getElementById(VIEW_DA_ABA[t]).classList.remove('active'));
     carregaMax();
   } else {
     // volta pra aba que estava marcada nas abas da 123
     const ativa = document.querySelector('.tab-btn.active');
     const tab = ativa ? ativa.dataset.tab : 'geral';
-    document.getElementById('viewGeral').classList.toggle('active', tab === 'geral');
-    document.getElementById('viewIntraday').classList.toggle('active', tab === 'intraday');
-    document.getElementById('viewPedidos').classList.toggle('active', tab === 'pedidos');
+    mostraAba(tab);
+    if (tab === 'funil') carregaFunil();
   }
 }
 
@@ -1320,11 +1412,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const tab = btn.dataset.tab;
-    document.getElementById('viewGeral').classList.toggle('active', tab === 'geral');
-    document.getElementById('viewIntraday').classList.toggle('active', tab === 'intraday');
-    document.getElementById('viewPedidos').classList.toggle('active', tab === 'pedidos');
+    mostraAba(tab);
     document.getElementById('viewMax').classList.remove('active');
     if (tab === 'pedidos') carregaPedidos();
+    if (tab === 'funil') carregaFunil();
   });
 });
 
@@ -3230,6 +3321,279 @@ document.getElementById('catArquivoInput').addEventListener('change', (e) => {
 });
 document.getElementById('catCancelar').addEventListener('click', () => catModal.close());
 document.getElementById('catFechar').addEventListener('click', () => catModal.close());
+
+// ---------------- Aba "Funil" ----------------
+// O funil vem pronto de df_granular_us.funil_diario (Dataform, repo
+// ga4-sessions): qual evento conta como qual passo esta decidido LA, porque o
+// app e o web nao disparam os mesmos eventos e a regra nao pode ter duas
+// versoes. Esta tela so soma, filtra e desenha.
+//
+// O ultimo passo e o PEDIDO DO ERP casado com a sessao, nao o `purchase` do
+// GA4: o purchase pega 78% dos pedidos, o casamento por sessao pega ~97%. Por
+// isso a ponta do funil conversa com o numero de vendas das outras abas -- mas
+// fica um pouco abaixo do total do ERP, porque 2-3% dos pedidos do dia nao
+// casam com sessao nenhuma e nao entram em passo nenhum.
+const FU = { PLAT: 0, SM: 1, SESS: 2, RES: 3, OFE: 4, CHK: 5, PED: 6, REC: 7 };
+
+const FUNIL_PASSOS = [
+  { i: FU.SESS, nome: 'Sessões',        sub: 'session_start' },
+  { i: FU.RES,  nome: 'Viu resultados', sub: 'view_item_list · search' },
+  { i: FU.OFE,  nome: 'Viu oferta',     sub: 'view_item · select_item · add_to_cart' },
+  { i: FU.CHK,  nome: 'Checkout',       sub: 'begin_checkout' },
+  { i: FU.PED,  nome: 'Pedido',         sub: 'pedido do ERP casado com a sessão' },
+];
+// mesma matiz do azul da casa, do claro pro forte: o passo de baixo e o que
+// interessa, e cor diferente por passo leria como categoria, nao como etapa
+const FUNIL_CORES = ['#b9cde8', '#93b4dd', '#6d9bd2', '#4782cb', '#2a78d6'];
+
+let funilData = null, funilChart = null, funilPedido = false;
+
+function carregaFunil() {
+  if (funilData || funilPedido) return;
+  funilPedido = true;
+  Promise.all([fetch('funil.json', { cache: 'no-store' }).then(r => r.json()), CATS_PRONTAS])
+    .then(([d]) => {
+      if (!d || !d.days) throw new Error('snapshot sem dados');
+      funilData = d;
+      montaSelectCanalFunil();
+      montaSelectSMFunil();
+      renderFunil();
+    })
+    .catch(err => {
+      funilPedido = false;   // deixa tentar de novo na proxima visita a aba
+      document.getElementById('funilStats').innerHTML =
+        '<p class="origin-note">Ainda não há snapshot do funil publicado (' + esc(String(err)) +
+        '). Ele entra na próxima rodada completa do <code>refresh_data.py</code>.</p>';
+    });
+}
+
+const funPeriodo = () => parseInt(document.getElementById('funPeriodo').value, 10) || 30;
+const funPlat = () => (document.querySelector('#funSeg button.active') || {}).dataset.plat;
+const funCanalSel = () => document.getElementById('funCanal').value;
+const funSMSel = () => document.getElementById('funSM').value;
+
+/** Dias do recorte, do mais antigo pro mais novo. */
+const funDias = () => Object.keys(funilData.days).sort().slice(-funPeriodo());
+
+/** Uma varredura so: o total do funil, a serie por dia e a abertura por
+ *  categoria saem juntos porque as tres telas leem exatamente as mesmas linhas. */
+function agregaFunil() {
+  const plat = funPlat(), canal = funCanalSel(), sm = funSMSel();
+  const total = [0, 0, 0, 0, 0], receita = { v: 0 };
+  const porDia = new Map(), porCat = new Map();
+
+  for (const dia of funDias()) {
+    const d = porDia.get(dia) || { app: [0, 0], web: [0, 0] };
+    porDia.set(dia, d);
+    for (const l of (funilData.days[dia] || [])) {
+      const nomePlat = funilData.plataformas[l[FU.PLAT]];
+      if (plat !== 'total' && nomePlat !== plat) continue;
+      const [source, medium] = funilData.sm[l[FU.SM]];
+      const cat = categoriaDe(source, medium);
+      if (canal && cat !== canal) continue;
+      if (sm && chaveSM(source, medium) !== sm) continue;
+
+      FUNIL_PASSOS.forEach((p, k) => { total[k] += l[p.i]; });
+      receita.v += l[FU.REC];
+      d[nomePlat][0] += l[FU.SESS];
+      d[nomePlat][1] += l[FU.PED];
+
+      const c = porCat.get(cat) || { cat, passos: [0, 0, 0, 0, 0], receita: 0 };
+      FUNIL_PASSOS.forEach((p, k) => { c.passos[k] += l[p.i]; });
+      c.receita += l[FU.REC];
+      porCat.set(cat, c);
+    }
+  }
+  return { total, receita: receita.v, porDia, porCat };
+}
+
+/** Categorias presentes no recorte, do maior pro menor volume de sessoes: a
+ *  lista do filtro segue o periodo, senao viria cheia de categoria vazia. */
+function montaSelectCanalFunil() {
+  const soma = new Map();
+  for (const dia of funDias()) {
+    for (const l of (funilData.days[dia] || [])) {
+      const [source, medium] = funilData.sm[l[FU.SM]];
+      const c = categoriaDe(source, medium);
+      soma.set(c, (soma.get(c) || 0) + l[FU.SESS]);
+    }
+  }
+  const ordenadas = [...soma.entries()].sort((a, b) => b[1] - a[1]);
+  const sel = document.getElementById('funCanal');
+  const antes = sel.value;
+  sel.innerHTML = '<option value="">Todas</option>' + ordenadas.map(
+    ([c, n]) => `<option value="${esc(c)}">${esc(c)} (${fmtInt(n)})</option>`).join('');
+  sel.value = soma.has(antes) ? antes : '';
+}
+
+function montaSelectSMFunil() {
+  const canal = funCanalSel();
+  const soma = new Map();
+  for (const dia of funDias()) {
+    for (const l of (funilData.days[dia] || [])) {
+      const [source, medium] = funilData.sm[l[FU.SM]];
+      if (canal && categoriaDe(source, medium) !== canal) continue;
+      const k = chaveSM(source, medium);
+      const e = soma.get(k) || { source, medium, sessoes: 0 };
+      e.sessoes += l[FU.SESS];
+      soma.set(k, e);
+    }
+  }
+  const ordenados = [...soma.entries()].sort((a, b) => b[1].sessoes - a[1].sessoes);
+  const sel = document.getElementById('funSM');
+  const antes = sel.value;
+  sel.innerHTML = '<option value="">Todas</option>' + ordenados.map(
+    ([k, e]) => `<option value="${esc(k)}">${esc(e.source)} / ${esc(e.medium)} ` +
+                `(${fmtInt(e.sessoes)})</option>`).join('');
+  sel.value = soma.has(antes) ? antes : '';
+}
+
+const pctBR = (v, casas = 1) => v.toFixed(casas).replace('.', ',') + '%';
+
+function renderFunil() {
+  const { total, receita, porDia, porCat } = agregaFunil();
+  const dias = funDias();
+  const base = total[0] || 1;
+  const plat = funPlat();
+
+  // ---- cards ----
+  document.getElementById('funilStats').innerHTML = `
+    <div class="stat-tile">
+      <div class="label">Sessões</div>
+      <div class="value">${fmtInt(total[0])}</div>
+      <div class="sub">${dias.length} dias · ${dias[0] || '—'} a ${dias[dias.length - 1] || '—'}</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Chegaram ao checkout</div>
+      <div class="value">${pctBR(total[3] / base * 100)}</div>
+      <div class="sub">${fmtInt(total[3])} sessões</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Pedidos</div>
+      <div class="value">${fmtInt(total[4])}</div>
+      <div class="sub">${fmtBRL(receita)} de faturamento</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Taxa de conversão</div>
+      <div class="value">${pctBR(total[4] / base * 100, 2)}</div>
+      <div class="sub">pedido ÷ sessão${total[3] ? ` · ${pctBR(total[4] / total[3] * 100)} do checkout` : ''}</div>
+    </div>
+  `;
+
+  // ---- as barras ----
+  document.getElementById('funilPassos').innerHTML = FUNIL_PASSOS.map((p, k) => {
+    const v = total[k];
+    const ant = k ? total[k - 1] : 0;
+    const doPasso = k && ant ? ` · ${pctBR(v / ant * 100)} do passo anterior` : '';
+    return `
+      <div class="funil-passo">
+        <div class="funil-nome">${esc(p.nome)}<span>${esc(p.sub)}</span></div>
+        <div class="funil-barra">
+          <div class="funil-preenche" style="width:${Math.max(v / base * 100, 0.4)}%;background:${FUNIL_CORES[k]}"></div>
+        </div>
+        <div class="funil-num"><b>${fmtInt(v)}</b><span>${pctBR(v / base * 100)} das sessões${doPasso}</span></div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('funilSub').textContent =
+    (plat === 'total' ? 'App e web somados' : plat === 'app' ? 'Só app (iOS/Android)' : 'Só web')
+    + ' · uma sessão conta no passo se chegou nele OU em qualquer passo abaixo';
+
+  document.getElementById('funilNota').textContent =
+    'No app o passo "Viu oferta" é quase todo add_to_cart: o view_item do app dispara em menos '
+    + 'sessões que o próprio add_to_cart, então sozinho ele ficaria abaixo do checkout. Entre '
+    + 'checkout e pedido não há passo — não existe evento de pagamento em nenhuma das duas '
+    + 'plataformas. Os 2-3% de pedidos que não casam com sessão nenhuma ficam fora do funil.';
+
+  // ---- conversao por dia ----
+  const labels = dias.map(d => `${d.slice(8)}/${d.slice(5, 7)}`);
+  const serie = (nome) => dias.map(d => {
+    const e = porDia.get(d);
+    const [sess, ped] = e ? e[nome] : [0, 0];
+    return sess ? ped / sess * 100 : null;
+  });
+  const serieTotal = () => dias.map(d => {
+    const e = porDia.get(d);
+    if (!e) return null;
+    const sess = e.app[0] + e.web[0], ped = e.app[1] + e.web[1];
+    return sess ? ped / sess * 100 : null;
+  });
+
+  // mesmas cores da serie diaria da Visao geral: total cinza, app azul, web laranja
+  const linhas = plat === 'total'
+    ? [{ rotulo: 'Total', cor: '#4a4842', fundo: 'rgba(74,72,66,0.10)', dados: serieTotal() }]
+    : plat === 'app'
+      ? [{ rotulo: 'App', cor: '#2a78d6', fundo: 'rgba(42,120,214,0.10)', dados: serie('app') }]
+      : [{ rotulo: 'Web', cor: '#eb6834', fundo: 'rgba(235,104,52,0.10)', dados: serie('web') }];
+
+  document.getElementById('funilLegend').innerHTML = linhas.map(l =>
+    `<span><span class="dot" style="background:${l.cor}"></span>${esc(l.rotulo)}</span>`).join('');
+
+  const fmtPct = (v) => pctBR(Number(v), 2);
+  if (funilChart) funilChart.destroy();
+  funilChart = new Chart(document.getElementById('funilChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: linhas.map(l => ({
+        label: l.rotulo, data: l.dados, borderColor: l.cor, backgroundColor: l.fundo,
+        borderWidth: 2, pointRadius: 0, fill: true, tension: 0.25,
+      })),
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0b0b0b', titleColor: '#fff', bodyColor: '#fff', padding: 10,
+          callbacks: { label: (ctx) => `${ctx.dataset.label}: ${fmtPct(ctx.parsed.y)}` },
+        },
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#898781', maxTicksLimit: 12 } },
+        y: { grid: { color: '#e1e0d9' }, ticks: { color: '#898781', callback: fmtPct },
+             beginAtZero: true },
+      },
+    },
+  });
+
+  // ---- tabela por categoria ----
+  const linhasCat = [...porCat.values()].sort((a, b) => b.passos[0] - a.passos[0]);
+  document.querySelector('#funilTabela tbody').innerHTML = linhasCat.map(c => `
+    <tr>
+      <td><span class="canal-cel"><span class="swatch" style="background:${corCat(c.cat)}"></span>${esc(c.cat)}</span></td>
+      <td class="num">${fmtInt(c.passos[0])}</td>
+      <td class="num">${fmtInt(c.passos[1])}</td>
+      <td class="num">${fmtInt(c.passos[2])}</td>
+      <td class="num">${fmtInt(c.passos[3])}</td>
+      <td class="num">${fmtInt(c.passos[4])}</td>
+      <td class="num">${c.passos[0] ? pctBR(c.passos[4] / c.passos[0] * 100, 2) : '—'}</td>
+      <td class="num">${fmtBRL(c.receita)}</td>
+    </tr>`).join('') || '<tr><td colspan="8">Nada no recorte.</td></tr>';
+
+  const ger = funilData.generated_at
+    ? new Date(funilData.generated_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+    : '—';
+  document.getElementById('funilGenerated').textContent =
+    `Fonte: ${funilData.source} · snapshot de ${ger}. O dia corrente não entra: o export do GA4 `
+    + 'só fecha o dia na madrugada seguinte.';
+}
+
+document.getElementById('funPeriodo').addEventListener('change', () => {
+  montaSelectCanalFunil(); montaSelectSMFunil(); renderFunil();
+});
+document.getElementById('funCanal').addEventListener('change', () => {
+  montaSelectSMFunil(); renderFunil();
+});
+document.getElementById('funSM').addEventListener('change', renderFunil);
+document.getElementById('funSeg').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-plat]');
+  if (!btn) return;
+  document.querySelectorAll('#funSeg button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderFunil();
+});
 
 /* ---- barra de filtros suspensa ----
    marca a barra visivel como .grudado quando ela encosta no topo, pra

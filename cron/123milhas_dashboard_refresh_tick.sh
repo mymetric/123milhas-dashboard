@@ -5,10 +5,13 @@
 #   intraday  -> so a aba Intraday, do evento purchase do GA4 em tempo real.
 #                Roda de 10 em 10 min (~0,5 GB por rodada).
 #   (vazio)   -> rodada completa: le a origem de order_origin_full (mantida pelo Dataform), a serie
-#                diaria do ERP, os checkouts da MaxMilhas e o intraday. Roda de hora em hora.
+#                diaria do ERP, os checkouts da MaxMilhas, o funil e o intraday.
+#                Roda de hora em hora.
 #
 # O max.json (aba MaxMilhas) so sai na rodada completa: a tabela de checkouts e
 # reconstruida uma vez por dia as 08:00, entao nao ha o que buscar de 10 em 10 min.
+# O funil.json tambem: ele so tem dia fechado, e a tabela que o alimenta
+# (df_granular_us.funil_sessoes) e reconstruida uma vez por dia pelo Dataform.
 set -uo pipefail
 
 REPO="/home/loop/loop/123milhas-dashboard"
@@ -17,7 +20,7 @@ MODO="${1:-all}"
 
 cd "$REPO" || exit 1
 
-# o cron so escreve nesses tres arquivos; qualquer outra mudanca vem do git
+# o cron so escreve nesses snapshots; qualquer outra mudanca vem do git
 git fetch -q origin main && git reset -q --hard origin/main
 
 /home/loop/loop/venv/bin/python3 refresh_data.py --sa-key "$SA_KEY" --only "$MODO" >>/tmp/123milhas_refresh.log 2>&1
@@ -27,8 +30,8 @@ if [ $RC -ne 0 ]; then
   exit $RC
 fi
 
-if ! git diff --quiet -- data.json intraday.json pedidos.csv max.json; then
-  git add data.json intraday.json pedidos.csv max.json
+if ! git diff --quiet -- data.json intraday.json pedidos.csv max.json funil.json; then
+  git add data.json intraday.json pedidos.csv max.json funil.json
   git commit -m "Atualiza snapshot de dados ($MODO)" -q
   git push -q origin main >>/tmp/123milhas_refresh.log 2>&1
 fi

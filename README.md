@@ -10,15 +10,18 @@ Deploy simples via Vercel (import do repo, sem build step / sem configuração).
 ## Estrutura
 
 - `index.html` — dashboard com um seletor de marca (123 Milhas / MaxMilhas). Na
-  123, 3 abas: "Visão geral" (stat tiles, composição do faturamento, série
+  123, 4 abas: "Visão geral" (stat tiles, composição do faturamento, série
   diária, origem das vendas), "Intraday" (um dia escolhido x véspera x mesmo
-  dia da semana anterior, acumulado por hora, com filtro de origem/mídia) e
-  "Pedidos" (uma linha por pedido, para export). Na MaxMilhas, uma tela só, de
-  checkouts
+  dia da semana anterior, acumulado por hora, com filtro de origem/mídia),
+  "Pedidos" (uma linha por pedido, para export) e "Funil" (sessão → resultados
+  → oferta → checkout → pedido, com filtro de plataforma e origem). Na
+  MaxMilhas, uma tela só, de checkouts
 - `data.json` — série diária por plataforma (ERP) + bloco de origem
 - `max.json` — aba MaxMilhas: checkouts por dia e origem (ver "MaxMilhas" abaixo)
 - `intraday.json` — últimos 30 dias por hora **e** por origem/mídia (ver "Aba
   Intraday" abaixo)
+- `funil.json` — funil de conversão por sessão, 30 dias, dia × plataforma ×
+  origem/mídia (ver "Aba Funil" abaixo)
 - `pedidos.csv` — 1 linha por pedido, 30 dias, com valor decomposto e atribuição
 - `categorias.json` — cadastro de categorias de tráfego (origem × mídia)
 - `cron/` — cópia versionada do script que roda no droplet
@@ -44,10 +47,12 @@ Sem `--sa-key`, o script tenta `$SA_123_KEY` ou `../sa_123.json`.
 10 em 10 minutos no cron. Sem `--only`, roda tudo: recarrega a origem, o
 `data.json` e o `intraday.json`.
 
+`--only funil` roda só o funil (~340 MB); ele já entra na rodada completa.
+
 **Cron** (droplet `loop-hefesto-atlas`, usuário `loop`):
 
 - `*/10 * * * *` → `--only intraday` (tempo real)
-- `7 * * * *` → rodada completa (série diária + origem)
+- `7 * * * *` → rodada completa (série diária + origem + funil)
 
 **Definição de "dia":** ambos os arquivos usam o campo `order_date` da
 tabela (não `DATE(created_at, "America/Sao_Paulo")` puro) — os dois
@@ -80,6 +85,48 @@ dia corrente, que sempre chega pela metade por causa do atraso acima.
 
 Query de referência pra série diária (equivalente ao que `refresh_data.py`
 roda): ver `query.sql`.
+
+## Aba "Funil"
+
+Sessão → viu resultados → viu oferta → checkout → pedido, com filtro de
+período, plataforma, categoria e origem/mídia. A leitura de 30 dias (05/09):
+4,76 mi de sessões, 16,6% chegam ao checkout, 2,33% viram pedido.
+
+**Os passos são definidos no Dataform, não aqui.** `funil.json` só transporta o
+que já sai de `grupo123-metrics.df_granular_us.funil_diario` (repo
+`ga4-sessions`, modelos `funil_sessoes` + `funil_diario`). Isso é de propósito:
+**o app e o web não disparam os mesmos eventos**, e a regra de qual evento conta
+como qual passo não pode ter duas versões.
+
+O que a diferença entre as plataformas obriga:
+
+- `view_search_results` só existe em 12% das sessões web — quem marca "buscou"
+  no web é o `view_item_list`; no app é o `search`.
+- o `view_item` do app dispara em MENOS sessões (4.173 em 05/09) que o próprio
+  `add_to_cart` (6.359), então o passo "viu oferta" é `view_item OR select_item
+  OR add_to_cart`. Sozinho, o `view_item` ficaria abaixo do checkout.
+- `purchase_voos` é duplicata de `purchase`, e `purchase_test` (~2,2 mil
+  eventos/dia no web) é disparo de teste por Measurement Protocol. Nenhum dos
+  dois entra.
+
+**O último passo é o pedido do ERP, não o `purchase` do GA4.** O `purchase`
+pega 78% dos pedidos; o casamento por sessão de `order_origin_full` pega ~97%.
+É o que faz a ponta do funil conversar com o número de vendas das outras abas
+em vez de abrir um terceiro número de venda na mesma tela. Os 2-3% de pedidos
+que ficam `sem_origem` não têm sessão e não entram em passo nenhum, então a
+ponta fica ligeiramente abaixo do total do ERP — é medido, não é perda do dash.
+
+**Funil monotônico:** cada passo inclui os passos abaixo dele. Sem isso, uma
+sessão que comprou mas não disparou o evento do meio faria o funil subir.
+
+**Não dá para ter, com os eventos de hoje:** passo entre checkout e pedido (não
+existe evento de pagamento em nenhuma das duas plataformas) e funil por
+produto/rota (o `view_item` do app é esparso demais). Os dois pedem tag nova.
+
+O arquivo sai compactado igual ao `intraday.json`: os ~240 pares origem/mídia
+viram índice numa tabela única (`sm`). São 3,3 mil linhas em 30 dias, ~86 KB.
+O dia corrente não entra — o export do GA4 só fecha o dia na madrugada
+seguinte.
 
 ## Aba "Intraday"
 

@@ -8,6 +8,8 @@
                  "Intraday" monta a serie acumulada e os filtros a partir dai
   pedidos.csv    1 linha por pedido (30 dias), com o valor decomposto e a
                  atribuicao de ultimo e de primeiro clique -- a aba "Pedidos"
+  funil.json     funil de conversao por sessao (30 dias), dia x plataforma x
+                 origem/midia -- a aba "Funil"
 
 Fontes e por que sao duas:
   - `grupo123-metrics.df_granular.orders` (southamerica-east1) e a verdade de
@@ -817,11 +819,93 @@ def gen_maxmilhas(creds):
     }
 
 
+# --------------------------------------------------------------------------
+# Funil de conversao (aba "Funil")
+#
+# Vem de df_granular_us.funil_diario, a view do Dataform (repo ga4-sessions) que
+# ja resolve os passos canonicos -- e la que mora a decisao de qual evento conta
+# como qual passo, porque o app e o web NAO disparam os mesmos eventos. Aqui e
+# so transporte.
+#
+# Duas coisas que o numero do funil nao e:
+#   * o ultimo passo e o PEDIDO DO ERP casado com a sessao (via
+#     order_origin_full), nao o `purchase` do GA4 -- o purchase pega 78% dos
+#     pedidos, o casamento por sessao pega ~97%. E o que faz a ponta do funil
+#     bater com o total de vendas das outras abas em vez de abrir um terceiro
+#     numero de venda na mesma tela.
+#   * os pedidos que ficaram `sem_origem` no order_origin_full (~2-3% do dia)
+#     nao tem sessao pra entrar em passo nenhum, entao a ponta do funil fica
+#     ligeiramente abaixo do total do ERP. Isso e medido, nao e perda daqui.
+#
+# O arquivo sai compactado igual ao intraday: os pares origem/midia viram indice
+# numa tabela unica (`sm`), porque sao ~240 pares repetidos em 30 dias.
+# --------------------------------------------------------------------------
+FUNIL_TABLE = "grupo123-metrics.df_granular_us.funil_diario"
+FUNIL_DIAS = 30
+FUNIL_PLATAFORMAS = ("app", "web")
+# ordem dos passos no arquivo; o nome de tela fica no index.html
+FUNIL_PASSOS = ("sessoes", "resultados", "oferta", "checkout", "pedidos")
+
+
+def gen_funil(creds):
+    hoje = datetime.datetime.now(BRT).date().isoformat()
+
+    rows = bq_query(creds, f"""
+    SELECT CAST(session_date AS STRING) AS date,
+           plataforma,
+           source, medium,
+           SUM(sessoes) AS sessoes,
+           SUM(resultados) AS resultados,
+           SUM(oferta) AS oferta,
+           SUM(checkout) AS checkout,
+           SUM(pedidos) AS pedidos,
+           SUM(receita) AS receita
+    FROM `{FUNIL_TABLE}`
+    WHERE session_date >= DATE_SUB(CURRENT_DATE('America/Sao_Paulo'), INTERVAL {FUNIL_DIAS} DAY)
+    GROUP BY date, plataforma, source, medium
+    """)
+
+    sm_idx, sm = {}, []
+    dias = {}
+    for r in rows:
+        # o export do GA4 so fecha o dia na madrugada seguinte: o dia corrente,
+        # quando aparece, vem pela metade e desenharia uma queda que nao existe
+        if r["date"] >= hoje:
+            continue
+        try:
+            p = FUNIL_PLATAFORMAS.index(r["plataforma"])
+        except ValueError:
+            continue
+        k = (r["source"] or "", r["medium"] or "")
+        i = sm_idx.get(k)
+        if i is None:
+            i = sm_idx[k] = len(sm)
+            sm.append(list(k))
+        dias.setdefault(r["date"], []).append([
+            p, i,
+            int(r["sessoes"]), int(r["resultados"]), int(r["oferta"]),
+            int(r["checkout"]), int(r["pedidos"]), round(float(r["receita"] or 0), 2),
+        ])
+
+    datas = sorted(dias)
+    return {
+        "generated_at": datetime.datetime.now(BRT).isoformat(),
+        "source": FUNIL_TABLE,
+        "period": {"start": datas[0] if datas else None,
+                   "end": datas[-1] if datas else None,
+                   "days": len(datas)},
+        "plataformas": list(FUNIL_PLATAFORMAS),
+        "passos": list(FUNIL_PASSOS),
+        "sm": sm,
+        "days": dias,
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sa-key", default=os.environ.get(
         "SA_123_KEY", os.path.join(os.path.dirname(__file__), "..", "sa_123.json")))
-    ap.add_argument("--only", choices=["all", "daily", "intraday", "pedidos", "max"], default="all",
+    ap.add_argument("--only", choices=["all", "daily", "intraday", "pedidos", "max", "funil"], default="all",
                     help="'intraday' e a rodada barata, pra rodar de poucos em poucos minutos")
     args = ap.parse_args()
 
@@ -860,6 +944,17 @@ def main():
         print(f"max.json atualizado: {mx['summary']['checkouts']} checkouts em "
               f"{mx['period']['days']} dias ({mx['period']['start']} a {mx['period']['end']}), "
               f"{mx['summary']['sem_canal_pct']}% sem canal")
+
+    if args.only in ("all", "funil"):
+        fn = gen_funil(creds)
+        with open(caminho("funil.json"), "w") as f:
+            # compactado: sao 30 dias x 2 plataformas x ~240 pares de origem/midia
+            json.dump(fn, f, ensure_ascii=False, separators=(",", ":"))
+        tot = sum(l[2] for d in fn["days"].values() for l in d)
+        ped = sum(l[6] for d in fn["days"].values() for l in d)
+        print(f"funil.json atualizado: {fn['period']['days']} dias "
+              f"({fn['period']['start']} a {fn['period']['end']}), "
+              f"{tot} sessoes e {ped} pedidos")
 
     if args.only in ("all", "intraday"):
         anterior = None
