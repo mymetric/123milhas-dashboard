@@ -89,7 +89,18 @@ roda): ver `query.sql`.
 ## Aba "Funil"
 
 Sessão → viu resultados → viu oferta → checkout → pedido, com filtro de
-período, plataforma, categoria e origem/mídia. A leitura de 30 dias (05/09):
+período, plataforma, categoria e origem/mídia.
+
+**Plataforma aqui tem três valores**, não dois: `app`, `web mobile` e
+`web desktop` — vem de `plataforma_device`, que o Dataform resolve a partir do
+`device.category` do GA4. Tablet cai em "web mobile" e smart TV em
+"web desktop" (juntos, 0,5% das sessões web). O critério do tablet copia o do
+próprio ERP: no cruzamento de 7 dias ele mandou 60 dos 93 pedidos de tablet
+para "Mobile". Fora o tablet, ERP e GA4 concordam em 99,6% dos pedidos web.
+
+O split muda a leitura: **web desktop converte 4,21%, web mobile 1,94%** — mais
+que o dobro, com o desktop respondendo por 27% dos pedidos web em 15% das
+sessões web. A quebra app × web sozinha escondia isso. A leitura de 30 dias (05/09):
 4,76 mi de sessões, 16,6% chegam ao checkout, 2,33% viram pedido.
 
 **A taxa de cada passagem aparece em três lugares**, porque é ela — e não o
@@ -131,9 +142,29 @@ ponta fica ligeiramente abaixo do total do ERP — é medido, não é perda do d
 **Funil monotônico:** cada passo inclui os passos abaixo dele. Sem isso, uma
 sessão que comprou mas não disparou o evento do meio faria o funil subir.
 
-**Não dá para ter, com os eventos de hoje:** passo entre checkout e pedido (não
-existe evento de pagamento em nenhuma das duas plataformas) e funil por
-produto/rota (o `view_item` do app é esparso demais). Os dois pedem tag nova.
+**Não dá para quebrar o checkout com os eventos de hoje** (medido em 07/09):
+
+- *web*: o checkout é uma URL só, `123milhas.com/voos/checkout/`, com um
+  `page_view` e nada mais. O único evento extra na página é `form_start`, em
+  2.369 das 22.586 sessões (10%) e sem parâmetro que diga qual formulário.
+  `form_submit` não chega a disparar lá.
+- *app*: parece ter telas, mas nenhuma serve de passo. `/flights/confirmation_details`
+  dispara em 99,8% das sessões que deram `begin_checkout` — é a própria tela do
+  evento. `/flights/checkout-ab` fica em 41% no Android e 44% no iOS, o que é
+  cara de variante de teste A/B, não de etapa. `/flights/passengers` e
+  `/flights/new-purchase` são de ANTES da busca (58s e 78s de sessão, contra
+  132s do `begin_checkout`, e só 27% e 23% deles têm `begin_checkout`).
+- o único sub-passo real é `/flights/new-purchase-pix-requested` (pix gerado),
+  762 sessões/dia, ~12% dos checkouts do app — e cobre só o caminho pix.
+
+Também não dá funil por produto/rota (o `view_item` do app é esparso demais).
+
+**O caminho, se quiserem quebrar o checkout:** o sGTM já recebe o
+`checkout_search` disparado de dentro da página de checkout, ou seja, o
+front-end do checkout já tem o gancho pronto. Disparar de lá um evento por
+etapa (dados do passageiro, pagamento, tentativa de pagamento, erro) cai em
+`grupo123-metrics.sgtm.events` do mesmo jeito, é server-side (imune a
+bloqueador) e casa com o pedido pelo `search_id` que já existe.
 
 O arquivo sai compactado igual ao `intraday.json`: os ~240 pares origem/mídia
 viram índice numa tabela única (`sm`). São 3,3 mil linhas em 30 dias, ~86 KB.

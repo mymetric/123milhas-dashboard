@@ -842,7 +842,10 @@ def gen_maxmilhas(creds):
 # --------------------------------------------------------------------------
 FUNIL_TABLE = "grupo123-metrics.df_granular_us.funil_diario"
 FUNIL_DIAS = 30
-FUNIL_PLATAFORMAS = ("app", "web")
+# app x web mobile x web desktop. Vem de `plataforma_device`, resolvido no
+# Dataform a partir do device.category do GA4 (tablet cai em "web mobile", que e
+# como o proprio ERP resolve o tablet na maioria dos pedidos).
+FUNIL_PLATAFORMAS = ("app", "web mobile", "web desktop")
 # ordem dos passos no arquivo; o nome de tela fica no index.html
 FUNIL_PASSOS = ("sessoes", "resultados", "oferta", "checkout", "pedidos")
 
@@ -852,7 +855,7 @@ def gen_funil(creds):
 
     rows = bq_query(creds, f"""
     SELECT CAST(session_date AS STRING) AS date,
-           plataforma,
+           plataforma_device AS plataforma,
            source, medium,
            SUM(sessoes) AS sessoes,
            SUM(resultados) AS resultados,
@@ -862,7 +865,7 @@ def gen_funil(creds):
            SUM(receita) AS receita
     FROM `{FUNIL_TABLE}`
     WHERE session_date >= DATE_SUB(CURRENT_DATE('America/Sao_Paulo'), INTERVAL {FUNIL_DIAS} DAY)
-    GROUP BY date, plataforma, source, medium
+    GROUP BY date, plataforma_device, source, medium
     """)
 
     sm_idx, sm = {}, []

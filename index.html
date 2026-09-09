@@ -67,21 +67,28 @@
     font-size: 13px;
     color: var(--text-secondary);
   }
+  /* mesma moldura, raio e tipografia dos <select> da barra: os dois controles
+     ficam lado a lado e antes desenhavam duas caixas diferentes */
   .date-filter-toggle {
     font: inherit;
+    font-size: 13px;
     font-weight: 600;
     color: var(--text-primary);
     background: var(--surface-1);
     border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 7px 12px;
+    border-radius: 8px;
+    padding: 6px 11px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
+    transition: border-color .12s, box-shadow .12s;
   }
-  .date-filter-toggle:hover {
-    background: var(--gridline);
+  .date-filter-toggle:hover { border-color: var(--baseline); }
+  .date-filter-toggle:focus-visible {
+    outline: none;
+    border-color: var(--series-app);
+    box-shadow: 0 0 0 3px rgba(42,120,214,0.18);
   }
   .date-filter-toggle .caret {
     font-size: 10px;
@@ -439,6 +446,39 @@
     background: var(--surface-1);
     box-shadow: 0 1px 2px rgba(11,11,11,0.08);
   }
+  /* Dropdown. O <select> nativo dentro do pill do .seg desenhava duas molduras:
+     a do pill e o controle do sistema. Agora o proprio select E o controle --
+     mesma altura, mesmo raio e mesma tipografia dos botoes do .seg ao lado. */
+  .seg.seg-select { padding: 0; border: 0; background: none; border-radius: 0; }
+  .filtros select {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    background-color: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 32px 6px 11px;
+    margin: 0;
+    max-width: 280px;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    /* a seta do sistema some junto com o appearance: esta e a que fica */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23898781' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 11px center;
+    background-size: 10px 6px;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .filtros select:hover { border-color: var(--baseline); }
+  .filtros select:focus-visible {
+    outline: none;
+    border-color: var(--series-app);
+    box-shadow: 0 0 0 3px rgba(42,120,214,0.18);
+  }
+
   .rank { margin: 0 0 4px; }
   .rank-row {
     display: grid;
@@ -542,16 +582,6 @@
     flex: none;
   }
   .erp-tile { border-style: dashed; }
-  #pedCanalWrap, #pedSMWrap { padding: 0; }
-  #pedCanal, #pedSM {
-    font: inherit;
-    font-size: 13px;
-    color: var(--text-primary);
-    background: transparent;
-    border: none;
-    padding: 6px 10px;
-    max-width: 200px;
-  }
   /* ---- clique pra filtrar ----
      O rank de canal e a tabela origem/midia sao os proprios controles: a linha
      clicada vira filtro. As listas continuam inteiras (so apagadas) pra dar
@@ -894,15 +924,15 @@
     <div class="filtros">
       <div class="filtro">
         <span class="filtro-label">Dia</span>
-        <div class="seg"><select id="intraDia"></select></div>
+        <div class="seg seg-select"><select id="intraDia"></select></div>
       </div>
       <div class="filtro">
         <span class="filtro-label">Categoria</span>
-        <div class="seg"><select id="intraCanal"></select></div>
+        <div class="seg seg-select"><select id="intraCanal"></select></div>
       </div>
       <div class="filtro">
         <span class="filtro-label">Origem / mídia</span>
-        <div class="seg"><select id="intraSM"></select></div>
+        <div class="seg seg-select"><select id="intraSM"></select></div>
       </div>
     </div>
 
@@ -960,11 +990,11 @@
       </div>
       <div class="filtro">
         <span class="filtro-label">Categoria (último clique)</span>
-        <div class="seg" id="pedCanalWrap"><select id="pedCanal"></select></div>
+        <div class="seg seg-select" id="pedCanalWrap"><select id="pedCanal"></select></div>
       </div>
       <div class="filtro">
         <span class="filtro-label">Origem / mídia (último clique)</span>
-        <div class="seg" id="pedSMWrap"><select id="pedSM"></select></div>
+        <div class="seg seg-select" id="pedSMWrap"><select id="pedSM"></select></div>
       </div>
     </div>
 
@@ -994,7 +1024,7 @@
     <div class="filtros">
       <div class="filtro">
         <span class="filtro-label">Período</span>
-        <div class="seg"><select id="funPeriodo">
+        <div class="seg seg-select"><select id="funPeriodo">
           <option value="7">Últimos 7 dias</option>
           <option value="14">Últimos 14 dias</option>
           <option value="30" selected>Últimos 30 dias</option>
@@ -1005,16 +1035,17 @@
         <div class="seg" id="funSeg">
           <button type="button" data-plat="total" class="active">Total</button>
           <button type="button" data-plat="app">App</button>
-          <button type="button" data-plat="web">Web</button>
+          <button type="button" data-plat="web mobile">Web mobile</button>
+          <button type="button" data-plat="web desktop">Web desktop</button>
         </div>
       </div>
       <div class="filtro">
         <span class="filtro-label">Categoria</span>
-        <div class="seg"><select id="funCanal"></select></div>
+        <div class="seg seg-select"><select id="funCanal"></select></div>
       </div>
       <div class="filtro">
         <span class="filtro-label">Origem / mídia</span>
-        <div class="seg"><select id="funSM"></select></div>
+        <div class="seg seg-select"><select id="funSM"></select></div>
       </div>
     </div>
 
@@ -3536,8 +3567,11 @@ function renderFunil() {
   });
   document.getElementById('funilPassos').innerHTML = blocos.join('');
 
-  document.getElementById('funilSub').textContent =
-    (plat === 'total' ? 'App e web somados' : plat === 'app' ? 'Só app (iOS/Android)' : 'Só web')
+  const NOME_PLAT = {
+    total: 'App e web somados', app: 'Só app (iOS/Android)',
+    'web mobile': 'Só web no celular', 'web desktop': 'Só web no computador',
+  };
+  document.getElementById('funilSub').textContent = (NOME_PLAT[plat] || plat)
     + ' · uma sessão conta no passo se chegou nele OU em qualquer passo abaixo';
 
   document.getElementById('funilNota').textContent =
