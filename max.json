@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-08T23:07:31.042092-03:00",
+  "generated_at": "2026-09-09T00:07:30.948197-03:00",
   "source": "grupo123-metrics.df_granular.checkouts (site='maxmilhas')",
   "metric": "checkouts",
   "freshness": {
@@ -8,22 +8,22 @@
   },
   "period": {
     "start": "2026-07-09",
-    "end": "2026-09-07",
-    "days": 61
+    "end": "2026-09-08",
+    "days": 62
   },
   "summary": {
-    "checkouts": 666984,
-    "media_dia": 10934,
-    "com_tracker": 347929,
-    "tracker_pct": 52.16,
-    "sem_canal": 99393,
-    "sem_canal_pct": 14.9
+    "checkouts": 657741,
+    "media_dia": 10609,
+    "com_tracker": 344011,
+    "tracker_pct": 52.3,
+    "sem_canal": 97866,
+    "sem_canal_pct": 14.88
   },
   "series": [
     {
       "date": "2026-07-09",
-      "checkouts": 11535,
-      "com_tracker": 5021
+      "checkouts": 1318,
+      "com_tracker": 610
     },
     {
       "date": "2026-07-10",
@@ -324,25 +324,30 @@
       "date": "2026-09-07",
       "checkouts": 9792,
       "com_tracker": 5317
+    },
+    {
+      "date": "2026-09-08",
+      "checkouts": 974,
+      "com_tracker": 493
     }
   ],
   "origin": {
     "canais": [
       {
         "canal": "Metasearch",
-        "checkouts": 545144
+        "checkouts": 537641
       },
       {
         "canal": "Sem canal",
-        "checkouts": 99393
+        "checkouts": 97866
       },
       {
         "canal": "CRM",
-        "checkouts": 21920
+        "checkouts": 21758
       },
       {
         "canal": "Outros",
-        "checkouts": 523
+        "checkouts": 472
       },
       {
         "canal": "Social",
@@ -358,73 +363,73 @@
         "source": "skyscanner",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 298331
+        "checkouts": 293414
       },
       {
         "source": "google-flights",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 217950
+        "checkouts": 215683
       },
       {
         "source": "(vazio)",
         "medium": "(vazio)",
         "canal": "Sem canal",
-        "checkouts": 99393
+        "checkouts": 97866
       },
       {
         "source": "kayak",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 26246
+        "checkouts": 25966
       },
       {
         "source": "radar_pricealert",
         "medium": "whatsapp",
         "canal": "CRM",
-        "checkouts": 12368
+        "checkouts": 12271
       },
       {
         "source": "radar",
         "medium": "whatsapp",
         "canal": "CRM",
-        "checkouts": 7241
+        "checkouts": 7203
       },
       {
         "source": "momondo",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 1785
+        "checkouts": 1762
       },
       {
         "source": "radar",
         "medium": "email",
         "canal": "CRM",
-        "checkouts": 1183
+        "checkouts": 1167
       },
       {
         "source": "radar_pricealert",
         "medium": "email",
         "canal": "CRM",
-        "checkouts": 1128
+        "checkouts": 1117
       },
       {
         "source": "mundi",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 659
+        "checkouts": 647
       },
       {
         "source": "voelivre",
         "medium": "afiliados_blog",
         "canal": "Outros",
-        "checkouts": 523
+        "checkouts": 472
       },
       {
         "source": "(vazio)",
         "medium": "(vazio)",
         "canal": "Metasearch",
-        "checkouts": 142
+        "checkouts": 138
       },
       {
         "source": "voopter",
@@ -445,9 +450,9 @@
         "checkouts": 4
       },
       {
-        "source": "(vazio)",
-        "medium": "(vazio)",
-        "canal": "Social",
+        "source": "turismocity",
+        "medium": "metasearch_api",
+        "canal": "Metasearch",
         "checkouts": 1
       },
       {
@@ -457,9 +462,15 @@
         "checkouts": 1
       },
       {
-        "source": "fxlfdbaafe",
-        "medium": "zfgbffbedu_bcv",
+        "source": "skyscanner",
+        "medium": "(vazio)",
         "canal": "Metasearch",
+        "checkouts": 1
+      },
+      {
+        "source": "(vazio)",
+        "medium": "(vazio)",
+        "canal": "Social",
         "checkouts": 1
       },
       {
@@ -469,21 +480,15 @@
         "checkouts": 1
       },
       {
+        "source": "fxlfdbaafe",
+        "medium": "zfgbffbedu_bcv",
+        "canal": "Metasearch",
+        "checkouts": 1
+      },
+      {
         "source": "email",
         "medium": "social",
         "canal": "Social",
-        "checkouts": 1
-      },
-      {
-        "source": "skyscanner",
-        "medium": "(vazio)",
-        "canal": "Metasearch",
-        "checkouts": 1
-      },
-      {
-        "source": "turismocity",
-        "medium": "metasearch_api",
-        "canal": "Metasearch",
         "checkouts": 1
       },
       {
@@ -497,22 +502,22 @@
       {
         "date": "2026-07-09",
         "canal": "Metasearch",
-        "checkouts": 9403
+        "checkouts": 1075
       },
       {
         "date": "2026-07-09",
         "canal": "Sem canal",
-        "checkouts": 1838
+        "checkouts": 202
       },
       {
         "date": "2026-07-09",
         "canal": "CRM",
-        "checkouts": 234
+        "checkouts": 32
       },
       {
         "date": "2026-07-09",
         "canal": "Outros",
-        "checkouts": 60
+        "checkouts": 9
       },
       {
         "date": "2026-07-10",
@@ -1563,6 +1568,21 @@
         "date": "2026-09-07",
         "canal": "Midia paga",
         "checkouts": 1
+      },
+      {
+        "date": "2026-09-08",
+        "canal": "Metasearch",
+        "checkouts": 825
+      },
+      {
+        "date": "2026-09-08",
+        "canal": "Sem canal",
+        "checkouts": 109
+      },
+      {
+        "date": "2026-09-08",
+        "canal": "CRM",
+        "checkouts": 40
       }
     ]
   }
