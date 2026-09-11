@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-10T23:07:31.893008-03:00",
+  "generated_at": "2026-09-11T00:07:34.638149-03:00",
   "source": "grupo123-metrics.df_granular.checkouts (site='maxmilhas')",
   "metric": "checkouts",
   "freshness": {
@@ -7,28 +7,23 @@
     "ultima_carga": "2026-09-10T08:00:00"
   },
   "period": {
-    "start": "2026-07-10",
-    "end": "2026-09-09",
+    "start": "2026-07-11",
+    "end": "2026-09-10",
     "days": 62
   },
   "summary": {
-    "checkouts": 673142,
-    "media_dia": 10857,
-    "com_tracker": 353284,
-    "tracker_pct": 52.48,
-    "sem_canal": 100321,
-    "sem_canal_pct": 14.9
+    "checkouts": 665817,
+    "media_dia": 10739,
+    "com_tracker": 350000,
+    "tracker_pct": 52.57,
+    "sem_canal": 99173,
+    "sem_canal_pct": 14.89
   },
   "series": [
     {
-      "date": "2026-07-10",
-      "checkouts": 1134,
-      "com_tracker": 517
-    },
-    {
       "date": "2026-07-11",
-      "checkouts": 8771,
-      "com_tracker": 4032
+      "checkouts": 1310,
+      "com_tracker": 563
     },
     {
       "date": "2026-07-12",
@@ -329,29 +324,34 @@
       "date": "2026-09-09",
       "checkouts": 12923,
       "com_tracker": 7171
+    },
+    {
+      "date": "2026-09-10",
+      "checkouts": 1270,
+      "com_tracker": 702
     }
   ],
   "origin": {
     "canais": [
       {
         "canal": "Metasearch",
-        "checkouts": 550117
+        "checkouts": 544114
       },
       {
         "canal": "Sem canal",
-        "checkouts": 100321
+        "checkouts": 99173
       },
       {
         "canal": "CRM",
-        "checkouts": 22263
+        "checkouts": 22125
       },
       {
         "canal": "Outros",
-        "checkouts": 437
+        "checkouts": 402
       },
       {
         "canal": "Social",
-        "checkouts": 3
+        "checkouts": 2
       },
       {
         "canal": "Midia paga",
@@ -363,73 +363,73 @@
         "source": "skyscanner",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 298220
+        "checkouts": 294263
       },
       {
         "source": "google-flights",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 222714
+        "checkouts": 221022
       },
       {
         "source": "(vazio)",
         "medium": "(vazio)",
         "canal": "Sem canal",
-        "checkouts": 100321
+        "checkouts": 99173
       },
       {
         "source": "kayak",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 26530
+        "checkouts": 26204
       },
       {
         "source": "radar_pricealert",
         "medium": "whatsapp",
         "canal": "CRM",
-        "checkouts": 12589
+        "checkouts": 12499
       },
       {
         "source": "radar",
         "medium": "whatsapp",
         "canal": "CRM",
-        "checkouts": 7310
+        "checkouts": 7270
       },
       {
         "source": "momondo",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 1811
+        "checkouts": 1790
       },
       {
         "source": "radar",
         "medium": "email",
         "canal": "CRM",
-        "checkouts": 1204
+        "checkouts": 1201
       },
       {
         "source": "radar_pricealert",
         "medium": "email",
         "canal": "CRM",
-        "checkouts": 1160
+        "checkouts": 1155
       },
       {
         "source": "mundi",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 667
+        "checkouts": 662
       },
       {
         "source": "voelivre",
         "medium": "afiliados_blog",
         "canal": "Outros",
-        "checkouts": 436
+        "checkouts": 401
       },
       {
         "source": "(vazio)",
         "medium": "(vazio)",
         "canal": "Metasearch",
-        "checkouts": 142
+        "checkouts": 140
       },
       {
         "source": "voopter",
@@ -456,33 +456,15 @@
         "checkouts": 2
       },
       {
-        "source": "skyscanner",
-        "medium": "(vazio)",
-        "canal": "Metasearch",
-        "checkouts": 1
-      },
-      {
-        "source": "(vazio)",
-        "medium": "(vazio)",
-        "canal": "Midia paga",
-        "checkouts": 1
-      },
-      {
-        "source": "(vazio)",
-        "medium": "(vazio)",
-        "canal": "Social",
-        "checkouts": 1
-      },
-      {
         "source": "(vazio)",
         "medium": "metasear",
         "canal": "Outros",
         "checkouts": 1
       },
       {
-        "source": "whatsapp",
-        "medium": "social",
-        "canal": "Social",
+        "source": "turismocity",
+        "medium": "metasearch_api",
+        "canal": "Metasearch",
         "checkouts": 1
       },
       {
@@ -492,9 +474,21 @@
         "checkouts": 1
       },
       {
-        "source": "turismocity",
-        "medium": "metasearch_api",
+        "source": "skyscanner",
+        "medium": "(vazio)",
         "canal": "Metasearch",
+        "checkouts": 1
+      },
+      {
+        "source": "(vazio)",
+        "medium": "(vazio)",
+        "canal": "Social",
+        "checkouts": 1
+      },
+      {
+        "source": "(vazio)",
+        "medium": "(vazio)",
+        "canal": "Midia paga",
         "checkouts": 1
       },
       {
@@ -506,49 +500,24 @@
     ],
     "por_dia": [
       {
-        "date": "2026-07-10",
-        "canal": "Metasearch",
-        "checkouts": 938
-      },
-      {
-        "date": "2026-07-10",
-        "canal": "Sem canal",
-        "checkouts": 163
-      },
-      {
-        "date": "2026-07-10",
-        "canal": "CRM",
-        "checkouts": 31
-      },
-      {
-        "date": "2026-07-10",
-        "canal": "Outros",
-        "checkouts": 2
-      },
-      {
         "date": "2026-07-11",
         "canal": "Metasearch",
-        "checkouts": 7193
+        "checkouts": 1091
       },
       {
         "date": "2026-07-11",
         "canal": "Sem canal",
-        "checkouts": 1338
+        "checkouts": 177
       },
       {
         "date": "2026-07-11",
         "canal": "CRM",
-        "checkouts": 192
+        "checkouts": 28
       },
       {
         "date": "2026-07-11",
         "canal": "Outros",
-        "checkouts": 47
-      },
-      {
-        "date": "2026-07-11",
-        "canal": "Social",
-        "checkouts": 1
+        "checkouts": 14
       },
       {
         "date": "2026-07-12",
@@ -1567,12 +1536,12 @@
       },
       {
         "date": "2026-09-08",
-        "canal": "Midia paga",
+        "canal": "Outros",
         "checkouts": 1
       },
       {
         "date": "2026-09-08",
-        "canal": "Outros",
+        "canal": "Midia paga",
         "checkouts": 1
       },
       {
@@ -1589,6 +1558,21 @@
         "date": "2026-09-09",
         "canal": "CRM",
         "checkouts": 468
+      },
+      {
+        "date": "2026-09-10",
+        "canal": "Metasearch",
+        "checkouts": 1037
+      },
+      {
+        "date": "2026-09-10",
+        "canal": "Sem canal",
+        "checkouts": 176
+      },
+      {
+        "date": "2026-09-10",
+        "canal": "CRM",
+        "checkouts": 57
       }
     ]
   }
