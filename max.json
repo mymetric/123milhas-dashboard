@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-09-13T07:07:30.819156-03:00",
+  "generated_at": "2026-09-13T08:07:30.559628-03:00",
   "source": "grupo123-metrics.df_granular.checkouts (site='maxmilhas')",
   "metric": "checkouts",
   "freshness": {
-    "ultimo_evento": "2026-09-12T07:59:45",
-    "ultima_carga": "2026-09-12T07:59:44"
+    "ultimo_evento": "2026-09-13T07:59:58",
+    "ultima_carga": "2026-09-13T07:59:58"
   },
   "period": {
     "start": "2026-07-13",
@@ -12,12 +12,12 @@
     "days": 62
   },
   "summary": {
-    "checkouts": 659930,
-    "media_dia": 10644,
-    "com_tracker": 349091,
-    "tracker_pct": 52.9,
-    "sem_canal": 99097,
-    "sem_canal_pct": 15.02
+    "checkouts": 665362,
+    "media_dia": 10732,
+    "com_tracker": 352079,
+    "tracker_pct": 52.92,
+    "sem_canal": 100072,
+    "sem_canal_pct": 15.04
   },
   "series": [
     {
@@ -182,8 +182,8 @@
     },
     {
       "date": "2026-08-14",
-      "checkouts": 11767,
-      "com_tracker": 6539
+      "checkouts": 11766,
+      "com_tracker": 6538
     },
     {
       "date": "2026-08-15",
@@ -192,7 +192,7 @@
     },
     {
       "date": "2026-08-16",
-      "checkouts": 8990,
+      "checkouts": 8989,
       "com_tracker": 4810
     },
     {
@@ -207,8 +207,8 @@
     },
     {
       "date": "2026-08-19",
-      "checkouts": 10708,
-      "com_tracker": 5907
+      "checkouts": 10706,
+      "com_tracker": 5906
     },
     {
       "date": "2026-08-20",
@@ -222,13 +222,13 @@
     },
     {
       "date": "2026-08-22",
-      "checkouts": 6150,
+      "checkouts": 6149,
       "com_tracker": 3352
     },
     {
       "date": "2026-08-23",
-      "checkouts": 6872,
-      "com_tracker": 3637
+      "checkouts": 6871,
+      "com_tracker": 3636
     },
     {
       "date": "2026-08-24",
@@ -252,18 +252,18 @@
     },
     {
       "date": "2026-08-28",
-      "checkouts": 12834,
-      "com_tracker": 7275
+      "checkouts": 12833,
+      "com_tracker": 7274
     },
     {
       "date": "2026-08-29",
-      "checkouts": 9450,
-      "com_tracker": 5287
+      "checkouts": 9448,
+      "com_tracker": 5286
     },
     {
       "date": "2026-08-30",
-      "checkouts": 8575,
-      "com_tracker": 4588
+      "checkouts": 8574,
+      "com_tracker": 4587
     },
     {
       "date": "2026-08-31",
@@ -272,78 +272,78 @@
     },
     {
       "date": "2026-09-01",
-      "checkouts": 11253,
+      "checkouts": 11251,
       "com_tracker": 6211
     },
     {
       "date": "2026-09-02",
-      "checkouts": 10390,
-      "com_tracker": 5825
+      "checkouts": 10387,
+      "com_tracker": 5824
     },
     {
       "date": "2026-09-03",
-      "checkouts": 10588,
+      "checkouts": 10586,
       "com_tracker": 5741
     },
     {
       "date": "2026-09-04",
-      "checkouts": 9015,
-      "com_tracker": 4910
+      "checkouts": 9012,
+      "com_tracker": 4908
     },
     {
       "date": "2026-09-05",
-      "checkouts": 6762,
-      "com_tracker": 3731
+      "checkouts": 6763,
+      "com_tracker": 3732
     },
     {
       "date": "2026-09-06",
-      "checkouts": 8976,
-      "com_tracker": 4855
+      "checkouts": 8973,
+      "com_tracker": 4852
     },
     {
       "date": "2026-09-07",
-      "checkouts": 9567,
-      "com_tracker": 5229
+      "checkouts": 9561,
+      "com_tracker": 5225
     },
     {
       "date": "2026-09-08",
-      "checkouts": 13311,
+      "checkouts": 13305,
       "com_tracker": 7084
     },
     {
       "date": "2026-09-09",
-      "checkouts": 12735,
-      "com_tracker": 7086
+      "checkouts": 12713,
+      "com_tracker": 7077
     },
     {
       "date": "2026-09-10",
-      "checkouts": 10449,
-      "com_tracker": 5805
+      "checkouts": 10418,
+      "com_tracker": 5788
     },
     {
       "date": "2026-09-11",
-      "checkouts": 6409,
-      "com_tracker": 3721
+      "checkouts": 6288,
+      "com_tracker": 3670
     },
     {
       "date": "2026-09-12",
-      "checkouts": 430,
-      "com_tracker": 262
+      "checkouts": 6070,
+      "com_tracker": 3342
     }
   ],
   "origin": {
     "canais": [
       {
         "canal": "Metasearch",
-        "checkouts": 538316
+        "checkouts": 542592
       },
       {
         "canal": "Sem canal",
-        "checkouts": 99097
+        "checkouts": 100072
       },
       {
         "canal": "CRM",
-        "checkouts": 22213
+        "checkouts": 22394
       },
       {
         "canal": "Outros",
@@ -363,61 +363,61 @@
         "source": "skyscanner",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 288964
+        "checkouts": 291570
       },
       {
         "source": "google-flights",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 220915
+        "checkouts": 222319
       },
       {
         "source": "(vazio)",
         "medium": "(vazio)",
         "canal": "Sem canal",
-        "checkouts": 99097
+        "checkouts": 100072
       },
       {
         "source": "kayak",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 25824
+        "checkouts": 26074
       },
       {
         "source": "radar_pricealert",
         "medium": "whatsapp",
         "canal": "CRM",
-        "checkouts": 12569
+        "checkouts": 12675
       },
       {
         "source": "radar",
         "medium": "whatsapp",
         "canal": "CRM",
-        "checkouts": 7290
+        "checkouts": 7353
       },
       {
         "source": "momondo",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 1782
+        "checkouts": 1793
       },
       {
         "source": "radar",
         "medium": "email",
         "canal": "CRM",
-        "checkouts": 1193
+        "checkouts": 1201
       },
       {
         "source": "radar_pricealert",
         "medium": "email",
         "canal": "CRM",
-        "checkouts": 1161
+        "checkouts": 1165
       },
       {
         "source": "mundi",
         "medium": "metasearch_api",
         "canal": "Metasearch",
-        "checkouts": 661
+        "checkouts": 665
       },
       {
         "source": "voelivre",
@@ -429,7 +429,7 @@
         "source": "(vazio)",
         "medium": "(vazio)",
         "canal": "Metasearch",
-        "checkouts": 138
+        "checkouts": 139
       },
       {
         "source": "voopter",
@@ -456,24 +456,6 @@
         "checkouts": 2
       },
       {
-        "source": "skyscanner",
-        "medium": "(vazio)",
-        "canal": "Metasearch",
-        "checkouts": 1
-      },
-      {
-        "source": "turismocity",
-        "medium": "metasearch_api",
-        "canal": "Metasearch",
-        "checkouts": 1
-      },
-      {
-        "source": "(vazio)",
-        "medium": "(vazio)",
-        "canal": "Midia paga",
-        "checkouts": 1
-      },
-      {
         "source": "(vazio)",
         "medium": "(vazio)",
         "canal": "Social",
@@ -492,9 +474,27 @@
         "checkouts": 1
       },
       {
+        "source": "(vazio)",
+        "medium": "(vazio)",
+        "canal": "Midia paga",
+        "checkouts": 1
+      },
+      {
         "source": "email",
         "medium": "social",
         "canal": "Social",
+        "checkouts": 1
+      },
+      {
+        "source": "skyscanner",
+        "medium": "(vazio)",
+        "canal": "Metasearch",
+        "checkouts": 1
+      },
+      {
+        "source": "turismocity",
+        "medium": "metasearch_api",
+        "canal": "Metasearch",
         "checkouts": 1
       }
     ],
@@ -1082,7 +1082,7 @@
       {
         "date": "2026-08-14",
         "canal": "Metasearch",
-        "checkouts": 9502
+        "checkouts": 9501
       },
       {
         "date": "2026-08-14",
@@ -1117,7 +1117,7 @@
       {
         "date": "2026-08-16",
         "canal": "Metasearch",
-        "checkouts": 7364
+        "checkouts": 7363
       },
       {
         "date": "2026-08-16",
@@ -1162,7 +1162,7 @@
       {
         "date": "2026-08-19",
         "canal": "Metasearch",
-        "checkouts": 8603
+        "checkouts": 8601
       },
       {
         "date": "2026-08-19",
@@ -1207,7 +1207,7 @@
       {
         "date": "2026-08-22",
         "canal": "Metasearch",
-        "checkouts": 4937
+        "checkouts": 4936
       },
       {
         "date": "2026-08-22",
@@ -1237,7 +1237,7 @@
       {
         "date": "2026-08-23",
         "canal": "CRM",
-        "checkouts": 205
+        "checkouts": 204
       },
       {
         "date": "2026-08-24",
@@ -1302,7 +1302,7 @@
       {
         "date": "2026-08-28",
         "canal": "Metasearch",
-        "checkouts": 10376
+        "checkouts": 10375
       },
       {
         "date": "2026-08-28",
@@ -1317,7 +1317,7 @@
       {
         "date": "2026-08-29",
         "canal": "Metasearch",
-        "checkouts": 7726
+        "checkouts": 7725
       },
       {
         "date": "2026-08-29",
@@ -1327,7 +1327,7 @@
       {
         "date": "2026-08-29",
         "canal": "CRM",
-        "checkouts": 339
+        "checkouts": 338
       },
       {
         "date": "2026-08-30",
@@ -1337,7 +1337,7 @@
       {
         "date": "2026-08-30",
         "canal": "Sem canal",
-        "checkouts": 1303
+        "checkouts": 1302
       },
       {
         "date": "2026-08-30",
@@ -1367,7 +1367,7 @@
       {
         "date": "2026-09-01",
         "canal": "Metasearch",
-        "checkouts": 9111
+        "checkouts": 9109
       },
       {
         "date": "2026-09-01",
@@ -1382,7 +1382,7 @@
       {
         "date": "2026-09-02",
         "canal": "Metasearch",
-        "checkouts": 8035
+        "checkouts": 8033
       },
       {
         "date": "2026-09-02",
@@ -1392,7 +1392,7 @@
       {
         "date": "2026-09-02",
         "canal": "CRM",
-        "checkouts": 504
+        "checkouts": 503
       },
       {
         "date": "2026-09-02",
@@ -1402,7 +1402,7 @@
       {
         "date": "2026-09-03",
         "canal": "Metasearch",
-        "checkouts": 8434
+        "checkouts": 8432
       },
       {
         "date": "2026-09-03",
@@ -1417,7 +1417,7 @@
       {
         "date": "2026-09-04",
         "canal": "Metasearch",
-        "checkouts": 7305
+        "checkouts": 7303
       },
       {
         "date": "2026-09-04",
@@ -1427,7 +1427,7 @@
       {
         "date": "2026-09-04",
         "canal": "CRM",
-        "checkouts": 306
+        "checkouts": 305
       },
       {
         "date": "2026-09-05",
@@ -1437,7 +1437,7 @@
       {
         "date": "2026-09-05",
         "canal": "Sem canal",
-        "checkouts": 1069
+        "checkouts": 1070
       },
       {
         "date": "2026-09-05",
@@ -1452,12 +1452,12 @@
       {
         "date": "2026-09-06",
         "canal": "Metasearch",
-        "checkouts": 7249
+        "checkouts": 7247
       },
       {
         "date": "2026-09-06",
         "canal": "Sem canal",
-        "checkouts": 1478
+        "checkouts": 1477
       },
       {
         "date": "2026-09-06",
@@ -1467,7 +1467,7 @@
       {
         "date": "2026-09-07",
         "canal": "Metasearch",
-        "checkouts": 7796
+        "checkouts": 7790
       },
       {
         "date": "2026-09-07",
@@ -1482,12 +1482,12 @@
       {
         "date": "2026-09-08",
         "canal": "Metasearch",
-        "checkouts": 10943
+        "checkouts": 10936
       },
       {
         "date": "2026-09-08",
         "canal": "Sem canal",
-        "checkouts": 1966
+        "checkouts": 1967
       },
       {
         "date": "2026-09-08",
@@ -1496,33 +1496,33 @@
       },
       {
         "date": "2026-09-08",
-        "canal": "Midia paga",
-        "checkouts": 1
-      },
-      {
-        "date": "2026-09-08",
         "canal": "Outros",
         "checkouts": 1
       },
       {
+        "date": "2026-09-08",
+        "canal": "Midia paga",
+        "checkouts": 1
+      },
+      {
         "date": "2026-09-09",
         "canal": "Metasearch",
-        "checkouts": 10201
+        "checkouts": 10186
       },
       {
         "date": "2026-09-09",
         "canal": "Sem canal",
-        "checkouts": 2086
+        "checkouts": 2085
       },
       {
         "date": "2026-09-09",
         "canal": "CRM",
-        "checkouts": 448
+        "checkouts": 442
       },
       {
         "date": "2026-09-10",
         "canal": "Metasearch",
-        "checkouts": 8314
+        "checkouts": 8287
       },
       {
         "date": "2026-09-10",
@@ -1532,37 +1532,37 @@
       {
         "date": "2026-09-10",
         "canal": "CRM",
-        "checkouts": 379
+        "checkouts": 375
       },
       {
         "date": "2026-09-11",
         "canal": "Metasearch",
-        "checkouts": 4807
+        "checkouts": 4704
       },
       {
         "date": "2026-09-11",
         "canal": "Sem canal",
-        "checkouts": 1261
+        "checkouts": 1256
       },
       {
         "date": "2026-09-11",
         "canal": "CRM",
-        "checkouts": 341
+        "checkouts": 328
       },
       {
         "date": "2026-09-12",
         "canal": "Metasearch",
-        "checkouts": 314
+        "checkouts": 4765
       },
       {
         "date": "2026-09-12",
         "canal": "Sem canal",
-        "checkouts": 91
+        "checkouts": 1072
       },
       {
         "date": "2026-09-12",
         "canal": "CRM",
-        "checkouts": 25
+        "checkouts": 233
       }
     ]
   }
